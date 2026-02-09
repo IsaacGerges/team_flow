@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "165965728236",
+    "project_id": "masterfirebase-943a9",
+    "storage_bucket": "masterfirebase-943a9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165965728236:android:64ba5caff13713e5c958c9",
+        "android_client_info": {
+          "package_name": "com.example.team_flow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo35-ZojJ3vywuo8UwufNg437ITdRcvmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
