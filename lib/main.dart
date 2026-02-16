@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // الملف اللي اتعمل أوتوماتيك
-import 'injection_container.dart' as di; // DI
+import 'firebase_options.dart';
+import 'injection_container.dart' as di;
+import 'core/routes/app_router.dart';
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // 1. Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // 2. Initialize Dependency Injection
   await di.init();
 
   runApp(const MyApp());
@@ -20,12 +18,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: 'TeamFlow',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: const Scaffold(
-        body: Center(child: Text("TeamFlow Initialized 🚀")),
-      ),
+      theme: AppTheme.lightTheme,
+      routerConfig: router,
     );
   }
 }
