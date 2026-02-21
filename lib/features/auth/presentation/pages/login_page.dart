@@ -7,6 +7,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../widgets/auth_form_field.dart';
+import '../widgets/social_login_button.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -36,6 +38,13 @@ class _LoginFormState extends State<_LoginForm> {
   bool _isPasswordVisible = false;
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
@@ -61,8 +70,6 @@ class _LoginFormState extends State<_LoginForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 40),
-
-                // 1. اللوجو والأنيميشن
                 Center(
                   child: Lottie.asset(
                     'assets/animations/login.json',
@@ -71,8 +78,6 @@ class _LoginFormState extends State<_LoginForm> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // 2. عنوان ترحيبي
                 Text(
                   AppStrings.welcomeBack,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -88,41 +93,31 @@ class _LoginFormState extends State<_LoginForm> {
                   ),
                 ),
                 const SizedBox(height: 32),
-
-                // 3. الحقول (Inputs)
-                TextFormField(
+                AuthFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(
-                    hintText: AppStrings.emailAddress,
-                    prefixIcon: Icon(Icons.email_outlined),
-                  ),
+                  hintText: AppStrings.emailAddress,
+                  prefixIcon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
                   validator: (val) => val!.isEmpty ? AppStrings.required : null,
                 ),
                 const SizedBox(height: 16),
-
-                TextFormField(
+                AuthFormField(
                   controller: _passwordController,
+                  hintText: AppStrings.password,
+                  prefixIcon: Icons.lock_outline,
                   obscureText: !_isPasswordVisible,
-                  decoration: InputDecoration(
-                    hintText: AppStrings.password,
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () => setState(
+                      () => _isPasswordVisible = !_isPasswordVisible,
                     ),
                   ),
                   validator: (val) => val!.isEmpty ? AppStrings.required : null,
                 ),
-
-                // 4. "Forgot Password?" (هسيبلك دي تحدي تعمله بعدين)
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -131,8 +126,6 @@ class _LoginFormState extends State<_LoginForm> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // 5. زرار الـ Login
                 BlocBuilder<AuthCubit, AuthState>(
                   builder: (context, state) {
                     if (state is AuthLoading) {
@@ -155,8 +148,6 @@ class _LoginFormState extends State<_LoginForm> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // 6. Social Login & Register Link
                 Row(
                   children: [
                     const Expanded(child: Divider()),
@@ -171,29 +162,11 @@ class _LoginFormState extends State<_LoginForm> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    icon: Image.asset(
-                      'assets/icons/google.png',
-                      height: 24,
-                    ), // هات صورة لوجو جوجل وحطها
-                    label: const Text(AppStrings.signInWithGoogle),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: AppColors.textSecondary),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      // Call Cubit
-                      context.read<AuthCubit>().signInWithGoogle();
-                    },
-                  ),
+                SocialLoginButton(
+                  label: AppStrings.signInWithGoogle,
+                  iconPath: 'assets/icons/google.png',
+                  onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
                 ),
-                // Center(child: SocialLoginButtons()),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

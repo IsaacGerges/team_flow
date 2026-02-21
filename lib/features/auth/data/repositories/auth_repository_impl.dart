@@ -20,14 +20,14 @@ class AuthRepositoryImpl implements AuthRepository {
     String email,
     String password,
   ) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
+    // Firebase Auth handles network errors internally with better accuracy
     try {
       final user = await remoteDataSource.login(email, password);
       return Right(user); // Success
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message)); // Failure
+    } catch (e) {
+      return Left(ServerFailure('Network error: ${e.toString()}'));
     }
   }
 
@@ -37,27 +37,29 @@ class AuthRepositoryImpl implements AuthRepository {
     String password,
     String name,
   ) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
+    // Firebase Auth handles network errors internally
     try {
       final user = await remoteDataSource.register(email, password, name);
       return Right(user);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Network error: ${e.toString()}'));
     }
   }
 
   @override
   Future<Either<Failure, UserEntity>> signInWithGoogle() async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
+    // Firebase and Google Sign-In handle network errors internally
+    // No need for explicit network check that can give false negatives
     try {
       final user = await remoteDataSource.signInWithGoogle();
       return Right(user);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } catch (e) {
+      // Catch any network-related errors
+      return Left(ServerFailure('Network error: ${e.toString()}'));
     }
   }
 }
