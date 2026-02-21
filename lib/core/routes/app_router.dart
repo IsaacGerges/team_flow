@@ -6,26 +6,6 @@ import '../constants/app_strings.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 
-// Home Page (مؤقتاً هنعمل كلاس بسيط)
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text(AppStrings.home),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () {
-            context.go('/login');
-          },
-        ),
-      ],
-    ),
-    body: const Center(child: Text(AppStrings.welcomeToTeamFlow)),
-  );
-}
-
 final GoRouter router = GoRouter(
   initialLocation: '/login', // هنخليها مؤقتاً login لحد ما نعمل check auth
   routes: [
