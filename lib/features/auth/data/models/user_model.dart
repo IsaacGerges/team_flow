@@ -8,7 +8,6 @@ class UserModel extends UserEntity {
     required super.name,
   });
 
-  // بنحول الـ Firebase User لـ UserModel بتاعنا\
   factory UserModel.fromFirebaseUser(User user) {
     return UserModel(
       uid: user.uid,

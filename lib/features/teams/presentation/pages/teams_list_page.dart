@@ -52,7 +52,16 @@ class _TeamsListPageState extends State<TeamsListPage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text(AppStrings.myTeams), elevation: 0),
+        appBar: AppBar(
+          title: const Text(AppStrings.myTeams),
+          elevation: 0,
+          actions: [
+            TextButton(
+              onPressed: () => context.go('/profile'),
+              child: const Text(AppStrings.profile),
+            ),
+          ],
+        ),
         body: BlocBuilder<TeamsCubit, TeamsState>(
           builder: (context, state) {
             if (state is TeamsLoading) {

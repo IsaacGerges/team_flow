@@ -81,4 +81,38 @@ class AppStrings {
   static const String checkInternetConnection =
       'Please check your internet connection';
   static const String unexpectedError = 'Unexpected error, please try again';
+
+  // Profile Feature
+  static const String profile = 'Profile';
+  static const String editProfile = 'Edit Profile';
+  static const String changePhoto = 'Change Photo';
+  static const String remove = 'Remove';
+  static const String basicInfo = 'BASIC INFO';
+  static const String phoneNumber = 'Phone Number';
+  static const String professionalInfo = 'PROFESSIONAL INFO';
+  static const String jobTitle = 'Job Title';
+  static const String department = 'Department';
+  static const String officeLocation = 'Office Location';
+  static const String about = 'ABOUT';
+  static const String bio = 'Bio';
+  static const String skills = 'SKILLS';
+  static const String addSkill = '+ Add Skill';
+  static const String addSkillNew = '+ Add new';
+  static const String privacySettings = 'PRIVACY SETTINGS';
+  static const String visibleToTeam = 'Visible to Team';
+  static const String visibleToTeamDesc =
+      'Allow team members to see your profile';
+  static const String shareContactInfo = 'Share Contact Info';
+  static const String shareContactInfoDesc = 'Make phone number public';
+  static const String profileUpdated = 'Profile updated successfully ✅';
+  static const String logOut = 'Log Out';
+  static const String teamsStats = 'TEAMS';
+  static const String completedStats = 'COMPLETED';
+  static const String activeStats = 'ACTIVE';
+  static const String biography = 'BIOGRAPHY';
+  static const String preferences = 'PREFERENCES';
+  static const String darkMode = 'Dark Mode';
+  static const String notifications = 'Notifications';
+  static const String privacyAndSecurity = 'Privacy & Security';
+  static const String activity = 'Activity';
 }

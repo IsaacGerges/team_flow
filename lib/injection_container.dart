@@ -19,11 +19,25 @@ import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/google_sign_in_usecase.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
 import 'features/auth/domain/usecases/register_usecase.dart';
+import 'features/auth/domain/usecases/logout_usecase.dart';
+import 'features/profile/data/datasources/profile_remote_data_source.dart';
+import 'features/profile/data/repositories/profile_repository_impl.dart';
+import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/domain/usecases/get_profile_usecase.dart';
+import 'features/profile/domain/usecases/update_profile_usecase.dart';
+import 'features/profile/presentation/cubit/profile_cubit.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:team_flow/core/helpers/cache_helper.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
   // === Core ===
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
+  sl.registerLazySingleton(() => CacheHelper(sharedPreferences: sl()));
+
   sl.registerLazySingleton(() => InternetConnectionChecker.createInstance());
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
@@ -32,6 +46,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => GoogleSignInUseCase(sl()));
+  sl.registerLazySingleton(() => LogoutUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -40,7 +55,11 @@ Future<void> init() async {
 
   // Data Source
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(firebaseAuth: sl(), googleSignIn: sl()),
+    () => AuthRemoteDataSourceImpl(
+      firebaseAuth: sl(),
+      googleSignIn: sl(),
+      firestore: sl(),
+    ),
   );
 
   // Cubit
@@ -49,6 +68,8 @@ Future<void> init() async {
       loginUseCase: sl(),
       registerUseCase: sl(),
       googleSignInUseCase: sl(),
+      logoutUseCase: sl(),
+      cacheHelper: sl(),
     ),
   );
 
@@ -77,6 +98,26 @@ Future<void> init() async {
       updateTeamUseCase: sl(),
       deleteTeamUseCase: sl(),
     ),
+  );
+
+  // === Profile Feature ===
+  // Use Cases
+  sl.registerLazySingleton(() => GetProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+
+  // Data Source
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(firestore: sl()),
+  );
+
+  // Cubit
+  sl.registerFactory(
+    () => ProfileCubit(getProfileUseCase: sl(), updateProfileUseCase: sl()),
   );
 
   // === External ===

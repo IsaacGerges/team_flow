@@ -62,4 +62,16 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure('Network error: ${e.toString()}'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> logout() async {
+    try {
+      await remoteDataSource.logout();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Network error: ${e.toString()}'));
+    }
+  }
 }

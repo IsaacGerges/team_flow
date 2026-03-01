@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:team_flow/core/error/exceptions.dart';
@@ -5,19 +6,35 @@ import 'package:team_flow/features/auth/data/models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
-
   Future<UserModel> register(String email, String password, String name);
   Future<UserModel> signInWithGoogle();
+  Future<void> logout();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth firebaseAuth;
   final GoogleSignIn googleSignIn;
+  final FirebaseFirestore firestore;
 
   AuthRemoteDataSourceImpl({
     required this.firebaseAuth,
     required this.googleSignIn,
+    required this.firestore,
   });
+
+  Future<void> _createUserInFirestore(User user) async {
+    final userRef = firestore.collection('users').doc(user.uid);
+    final docSnapshot = await userRef.get();
+
+    if (!docSnapshot.exists) {
+      await userRef.set({
+        'uid': user.uid,
+        'email': user.email ?? '',
+        'name': user.displayName ?? 'No Name',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
 
   @override
   Future<UserModel> login(String email, String password) async {
@@ -48,7 +65,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // 3. Get updated user
       final updatedUser = firebaseAuth.currentUser!;
 
-      // 4. Return UserModel
+      // 4. Create User in Firestore collection
+      await _createUserInFirestore(updatedUser);
+
+      // 5. Return UserModel
       return UserModel.fromFirebaseUser(updatedUser);
     } on FirebaseAuthException catch (e) {
       // هنا بنهندل الأخطاء المشهورة زي: email-already-in-use
@@ -89,12 +109,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final UserCredential userCredential = await firebaseAuth
           .signInWithCredential(credential);
 
-      // 5. Return UserModel
+      // 5. Sync user in Firestore
+      await _createUserInFirestore(userCredential.user!);
+
+      // 6. Return UserModel
       return UserModel.fromFirebaseUser(userCredential.user!);
     } on FirebaseAuthException catch (e) {
       throw ServerException(message: e.message ?? "Google Sign In Failed");
     } catch (e) {
       throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await firebaseAuth.signOut();
+      await googleSignIn.signOut();
+    } catch (e) {
+      throw ServerException(message: "Logout failed");
     }
   }
 }
