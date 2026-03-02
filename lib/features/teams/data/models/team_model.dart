@@ -13,6 +13,7 @@ class TeamModel extends TeamEntity {
     super.category,
     super.isPrivate,
     super.progressPercent,
+    super.activeTaskCount,
     super.updatedAt,
   });
 
@@ -26,6 +27,7 @@ class TeamModel extends TeamEntity {
       'category': category,
       'isPrivate': isPrivate,
       'progressPercent': progressPercent,
+      'activeTaskCount': activeTaskCount,
       'updatedAt': FieldValue.serverTimestamp(),
       'createdAt': FieldValue.serverTimestamp(),
     };
@@ -40,6 +42,7 @@ class TeamModel extends TeamEntity {
       'category': category,
       'isPrivate': isPrivate,
       'progressPercent': progressPercent,
+      'activeTaskCount': activeTaskCount,
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }
@@ -56,6 +59,7 @@ class TeamModel extends TeamEntity {
       category: data['category'] as String? ?? 'Other',
       isPrivate: data['isPrivate'] as bool? ?? false,
       progressPercent: (data['progressPercent'] as num?)?.toDouble() ?? 0.0,
+      activeTaskCount: data['activeTaskCount'] as int? ?? 0,
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
     );
   }

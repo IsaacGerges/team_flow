@@ -10,6 +10,12 @@ import 'package:team_flow/features/teams/presentation/pages/update_team_page.dar
 import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:team_flow/features/profile/presentation/pages/profile_page.dart';
 import 'package:team_flow/features/profile/presentation/pages/edit_profile_page.dart';
+import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/pages/create_task_page.dart';
+import 'package:team_flow/features/tasks/presentation/pages/my_tasks_page.dart';
+import 'package:team_flow/features/tasks/presentation/pages/task_assignment_page.dart';
+import 'package:team_flow/features/tasks/presentation/pages/task_details_page.dart';
 import 'package:team_flow/injection_container.dart';
 
 // Auth Pages
@@ -105,6 +111,50 @@ final GoRouter router = GoRouter(
           path: '/profile/edit',
           name: 'editProfile',
           builder: (context, state) => const EditProfilePage(),
+        ),
+      ],
+    ),
+
+    // --- Tasks Shell: shares TasksCubit and TeamsCubit ---
+    ShellRoute(
+      builder: (context, state, child) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => sl<TasksCubit>()),
+            BlocProvider(create: (_) => sl<TeamsCubit>()),
+          ],
+          child: child,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: '/tasks',
+          name: 'tasks',
+          builder: (context, state) => const MyTasksPage(),
+        ),
+        GoRoute(
+          path: '/tasks/create',
+          name: 'createTask',
+          builder: (context, state) => const CreateTaskPage(),
+        ),
+        GoRoute(
+          path: '/tasks/details',
+          name: 'taskDetails',
+          builder: (context, state) {
+            final task = state.extra as TaskEntity;
+            return TaskDetailsPage(task: task);
+          },
+        ),
+        GoRoute(
+          path: '/tasks/assign',
+          name: 'taskAssignment',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return TaskAssignmentPage(
+              teamId: extra['teamId'] as String,
+              currentAssigneeIds: extra['currentAssigneeIds'] as List<String>,
+            );
+          },
         ),
       ],
     ),

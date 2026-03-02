@@ -46,3 +46,12 @@ class ProfilePhotoPicked extends ProfileState {
   @override
   List<Object?> get props => [base64Photo];
 }
+
+class ProfileLoadedAll extends ProfileState {
+  final List<ProfileEntity> users;
+
+  const ProfileLoadedAll(this.users);
+
+  @override
+  List<Object?> get props => [users];
+}

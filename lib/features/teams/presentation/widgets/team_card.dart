@@ -176,8 +176,8 @@ class _TeamCardStats extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         Text(
-          AppStrings.activeTasks,
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          '${team.activeTaskCount} ${AppStrings.activeTasks}',
+          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
         ),
       ],
     );

@@ -7,15 +7,18 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
+import '../../domain/usecases/get_all_users_usecase.dart';
 import 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final GetProfileUseCase getProfileUseCase;
   final UpdateProfileUseCase updateProfileUseCase;
+  final GetAllUsersUseCase getAllUsersUseCase;
 
   ProfileCubit({
     required this.getProfileUseCase,
     required this.updateProfileUseCase,
+    required this.getAllUsersUseCase,
   }) : super(const ProfileInitial());
 
   Future<void> getProfile(String uid) async {
@@ -37,6 +40,15 @@ class ProfileCubit extends Cubit<ProfileState> {
         emit(const ProfileUpdatedSuccess());
         emit(ProfileLoaded(profile));
       },
+    );
+  }
+
+  Future<void> getAllUsers() async {
+    emit(const ProfileLoading());
+    final result = await getAllUsersUseCase();
+    result.fold(
+      (failure) => emit(ProfileError(_mapFailureToMessage(failure))),
+      (users) => emit(ProfileLoadedAll(users)),
     );
   }
 

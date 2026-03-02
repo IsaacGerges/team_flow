@@ -10,6 +10,11 @@ import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
 import 'package:team_flow/features/teams/presentation/widgets/team_stats_row.dart';
+import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/task_card.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/injection_container.dart';
 
 /// Full-featured team details screen with hero header and 3 tabs.
 ///
@@ -67,96 +72,99 @@ class _TeamDetailsPageState extends State<TeamDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<TeamsCubit, TeamsState>(
-      listenWhen: (prev, curr) =>
-          curr is TeamDeletedSuccess ||
-          curr is TeamsError ||
-          curr is TeamMemberRemovedSuccess ||
-          curr is TeamMemberAddedSuccess,
-      listener: (context, state) {
-        if (state is TeamDeletedSuccess) {
-          context.go('/home');
-        } else if (state is TeamMemberAddedSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(AppStrings.memberAdded),
-              backgroundColor: AppColors.success,
-            ),
-          );
-        } else if (state is TeamMemberRemovedSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(AppStrings.memberRemoved),
-              backgroundColor: AppColors.success,
-            ),
-          );
-        } else if (state is TeamsError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
-      },
-      buildWhen: (prev, curr) => curr is TeamsLoaded || curr is TeamsLoading,
-      builder: (context, state) {
-        final team = _resolveTeam(state);
-        final isAdmin = _isAdmin(team);
-
-        return Scaffold(
-          backgroundColor: AppColors.backgroundScreen,
-          body: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              _TeamHeroSliver(
-                team: team,
-                isAdmin: isAdmin,
-                tabController: _tabController,
+    return BlocProvider(
+      create: (context) => sl<TasksCubit>(),
+      child: BlocConsumer<TeamsCubit, TeamsState>(
+        listenWhen: (prev, curr) =>
+            curr is TeamDeletedSuccess ||
+            curr is TeamsError ||
+            curr is TeamMemberRemovedSuccess ||
+            curr is TeamMemberAddedSuccess,
+        listener: (context, state) {
+          if (state is TeamDeletedSuccess) {
+            context.go('/home');
+          } else if (state is TeamMemberAddedSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(AppStrings.memberAdded),
+                backgroundColor: AppColors.success,
               ),
-            ],
-            body: Column(
-              children: [
-                TabBar(
-                  controller: _tabController,
-                  labelColor: AppColors.primaryBlue,
-                  unselectedLabelColor: AppColors.textSecondary,
-                  indicatorColor: AppColors.primaryBlue,
-                  indicatorWeight: 2,
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                  tabs: const [
-                    Tab(text: AppStrings.membersTab),
-                    Tab(text: AppStrings.tasksTab),
-                    Tab(text: AppStrings.chatTab),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _MembersTab(
-                        team: team,
-                        isAdmin: isAdmin,
-                        allUsers: _allUsers,
-                      ),
-                      const _TasksTab(),
-                      const _ChatTab(),
-                    ],
-                  ),
+            );
+          } else if (state is TeamMemberRemovedSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(AppStrings.memberRemoved),
+                backgroundColor: AppColors.success,
+              ),
+            );
+          } else if (state is TeamsError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        },
+        buildWhen: (prev, curr) => curr is TeamsLoaded || curr is TeamsLoading,
+        builder: (context, state) {
+          final team = _resolveTeam(state);
+          final isAdmin = _isAdmin(team);
+
+          return Scaffold(
+            backgroundColor: AppColors.backgroundScreen,
+            body: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                _TeamHeroSliver(
+                  team: team,
+                  isAdmin: isAdmin,
+                  tabController: _tabController,
                 ),
               ],
+              body: Column(
+                children: [
+                  TabBar(
+                    controller: _tabController,
+                    labelColor: AppColors.primaryBlue,
+                    unselectedLabelColor: AppColors.textSecondary,
+                    indicatorColor: AppColors.primaryBlue,
+                    indicatorWeight: 2,
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    tabs: const [
+                      Tab(text: AppStrings.membersTab),
+                      Tab(text: AppStrings.tasksTab),
+                      Tab(text: AppStrings.chatTab),
+                    ],
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _MembersTab(
+                          team: team,
+                          isAdmin: isAdmin,
+                          allUsers: _allUsers,
+                        ),
+                        _TasksTab(team: team),
+                        const _ChatTab(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          floatingActionButton: isAdmin
-              ? FloatingActionButton(
-                  onPressed: () =>
-                      context.push('/teams/add-member', extra: team),
-                  backgroundColor: AppColors.primaryBlue,
-                  shape: const CircleBorder(),
-                  child: const Icon(Icons.add, color: AppColors.white),
-                )
-              : null,
-        );
-      },
+            floatingActionButton: isAdmin
+                ? FloatingActionButton(
+                    onPressed: () =>
+                        context.push('/teams/add-member', extra: team),
+                    backgroundColor: AppColors.primaryBlue,
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.add, color: AppColors.white),
+                  )
+                : null,
+          );
+        },
+      ),
     );
   }
 }
@@ -655,18 +663,81 @@ class _LatestTaskUpdateBanner extends StatelessWidget {
 
 // --- Tasks Tab ---
 
-class _TasksTab extends StatelessWidget {
-  const _TasksTab();
+class _TasksTab extends StatefulWidget {
+  final TeamEntity team;
+  const _TasksTab({required this.team});
+
+  @override
+  State<_TasksTab> createState() => _TasksTabState();
+}
+
+class _TasksTabState extends State<_TasksTab> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<TasksCubit>().loadTeamTasks(widget.team.id);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return BlocBuilder<TasksCubit, TasksState>(
+      builder: (context, state) {
+        if (state is TasksLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is TasksLoaded) {
+          final teamTasks = state.tasks;
+          if (teamTasks.isEmpty) {
+            return _buildEmptyState(context);
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: teamTasks.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: TaskCard(
+                  task: teamTasks[index],
+                  onTap: () =>
+                      context.push('/tasks/details', extra: teamTasks[index]),
+                  onCheckboxChanged: (val) {
+                    if (val != null) {
+                      context.read<TasksCubit>().updateTaskStatus(
+                        teamTasks[index].id,
+                        val ? TaskStatus.done : TaskStatus.todo,
+                        teamTasks[index],
+                      );
+                    }
+                  },
+                ),
+              );
+            },
+          );
+        }
+
+        if (state is TasksError) {
+          return Center(child: Text(state.message));
+        }
+
+        return _buildEmptyState(context);
+      },
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.task_outlined, size: 56, color: AppColors.textSecondary),
-          SizedBox(height: 16),
-          Text(
+          const Icon(
+            Icons.task_outlined,
+            size: 56,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(height: 16),
+          const Text(
             'No tasks yet',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -674,10 +745,23 @@ class _TasksTab extends StatelessWidget {
               fontSize: 18,
             ),
           ),
-          SizedBox(height: 8),
-          Text(
+          const SizedBox(height: 8),
+          const Text(
             'Assigned tasks will appear here.',
             style: TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => context.push('/tasks/create', extra: widget.team),
+            icon: const Icon(Icons.add),
+            label: const Text('Create First Task'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryBlue,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
         ],
       ),
