@@ -8,24 +8,30 @@ abstract class AuthState extends Equatable {
   List<Object> get props => [];
 }
 
-// 1. الحالة المبدئية (أول ما التطبيق يفتح)
-class AuthInitial extends AuthState {}
+/// Initial state before any auth action.
+class AuthInitial extends AuthState {
+  const AuthInitial();
+}
 
-// 2. حالة التحميل (لما يدوس Login والسبينر يلف)
-class AuthLoading extends AuthState {}
+/// Emitted while an auth operation is in progress.
+class AuthLoading extends AuthState {
+  const AuthLoading();
+}
 
-// 3. حالة النجاح (لما الـ Login يخلص ويرجع يوزر)
+/// Emitted when auth succeeds, carrying the authenticated user.
 class AuthSuccess extends AuthState {
-  final UserEntity user; // شايلين اليوزر معانا عشان لو احتاجناه
+  final UserEntity user;
+
   const AuthSuccess(this.user);
 
   @override
   List<Object> get props => [user];
 }
 
-// 4. حالة الفشل (لو الباسورد غلط أو مفيش نت)
+/// Emitted when auth fails, carrying a user-facing message.
 class AuthFailure extends AuthState {
-  final String message; // رسالة الخطأ اللي هتظهر لليوزر
+  final String message;
+
   const AuthFailure(this.message);
 
   @override

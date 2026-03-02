@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../injection_container.dart'; // عشان نجيب sl
+import '../../../../injection_container.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../cubit/auth_cubit.dart';
@@ -15,7 +15,7 @@ class SignUpPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.createAccount)),
       body: BlocProvider(
-        create: (_) => sl<AuthCubit>(), // نفس الـ Cubit بس هنا هنستخدم register
+        create: (_) => sl<AuthCubit>(),
         child: const _SignUpForm(),
       ),
     );
@@ -30,7 +30,6 @@ class _SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<_SignUpForm> {
-  // 1. زودنا Controller للاسم
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -51,7 +50,6 @@ class _SignUpFormState extends State<_SignUpForm> {
       child: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
-            // لو نجح، وديه ع الصفحة الرئيسية
             context.go('/home');
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -60,7 +58,6 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
             );
           } else if (state is AuthFailure) {
-            // لو فشل، طلع رسالة خطأ
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -70,7 +67,6 @@ class _SignUpFormState extends State<_SignUpForm> {
           }
         },
         builder: (context, state) {
-          // لو بيحمل، طلع Loading Indicator
           if (state is AuthLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -82,8 +78,6 @@ class _SignUpFormState extends State<_SignUpForm> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 50),
-
-                  // 2. خانة الاسم (Name Field)
                   TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(
@@ -94,8 +88,6 @@ class _SignUpFormState extends State<_SignUpForm> {
                         val!.isEmpty ? AppStrings.enterYourName : null,
                   ),
                   const SizedBox(height: 15),
-
-                  // خانة الإيميل
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(
@@ -107,8 +99,6 @@ class _SignUpFormState extends State<_SignUpForm> {
                         !val!.contains('@') ? AppStrings.enterValidEmail : null,
                   ),
                   const SizedBox(height: 15),
-
-                  // خانة الباسورد
                   TextFormField(
                     controller: _passwordController,
                     decoration: const InputDecoration(
@@ -120,19 +110,16 @@ class _SignUpFormState extends State<_SignUpForm> {
                         val!.length < 6 ? AppStrings.passwordMinLength : null,
                   ),
                   const SizedBox(height: 30),
-
-                  // 3. زرار التسجيل (Register Button)
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          // هنا بننادي على دالة Register في الـ Cubit
                           context.read<AuthCubit>().register(
                             _emailController.text.trim(),
                             _passwordController.text.trim(),
-                            _nameController.text.trim(), // بعتنا الاسم كمان
+                            _nameController.text.trim(),
                           );
                         }
                       },
@@ -142,12 +129,8 @@ class _SignUpFormState extends State<_SignUpForm> {
                       ),
                     ),
                   ),
-
-                  // زرار يوديك لصفحة الـ Login لو عندك حساب
                   TextButton(
-                    onPressed: () {
-                      context.pop(); // ارجع للصفحة اللي قبلها (Login)
-                    },
+                    onPressed: () => context.pop(),
                     child: const Text(AppStrings.alreadyHaveAccount),
                   ),
                 ],

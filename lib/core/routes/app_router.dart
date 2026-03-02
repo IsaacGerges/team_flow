@@ -1,33 +1,40 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
-import '../constants/app_strings.dart';
+import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
+import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
+import 'package:team_flow/features/teams/presentation/pages/add_member_page.dart';
+import 'package:team_flow/features/teams/presentation/pages/create_team_page.dart';
+import 'package:team_flow/features/teams/presentation/pages/team_details_page.dart';
+import 'package:team_flow/features/teams/presentation/pages/teams_list_page.dart';
+import 'package:team_flow/features/teams/presentation/pages/update_team_page.dart';
+import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:team_flow/features/profile/presentation/pages/profile_page.dart';
+import 'package:team_flow/features/profile/presentation/pages/edit_profile_page.dart';
+import 'package:team_flow/injection_container.dart';
 
-// Pages
+// Auth Pages
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
-
-// Home Page (مؤقتاً هنعمل كلاس بسيط)
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text(AppStrings.home),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () {
-            context.go('/login');
-          },
-        ),
-      ],
-    ),
-    body: const Center(child: Text(AppStrings.welcomeToTeamFlow)),
-  );
-}
+import '../helpers/cache_helper.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/login', // هنخليها مؤقتاً login لحد ما نعمل check auth
+  initialLocation: '/login',
+  redirect: (context, state) {
+    final cacheHelper = sl<CacheHelper>();
+    final userId = cacheHelper.getData(key: CacheKeys.userId);
+    final isLoggedIn = userId != null;
+
+    final isGoingToLogin = state.matchedLocation == '/login';
+    final isGoingToSignup = state.matchedLocation == '/signup';
+
+    if (!isLoggedIn && !isGoingToLogin && !isGoingToSignup) {
+      return '/login';
+    }
+    if (isLoggedIn && (isGoingToLogin || isGoingToSignup)) {
+      return '/home';
+    }
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/login',
@@ -39,10 +46,67 @@ final GoRouter router = GoRouter(
       name: 'signup',
       builder: (context, state) => const SignUpPage(),
     ),
-    GoRoute(
-      path: '/home',
-      name: 'home',
-      builder: (context, state) => const HomePage(),
+
+    // --- Teams Shell: shares the same TeamsCubit instance ---
+    ShellRoute(
+      builder: (context, state, child) {
+        return BlocProvider(create: (_) => sl<TeamsCubit>(), child: child);
+      },
+      routes: [
+        GoRoute(
+          path: '/home',
+          name: 'home',
+          builder: (context, state) => const TeamsListPage(),
+        ),
+        GoRoute(
+          path: '/teams/create',
+          name: 'createTeam',
+          builder: (context, state) => const CreateTeamPage(),
+        ),
+        GoRoute(
+          path: '/teams/update',
+          name: 'updateTeam',
+          builder: (context, state) {
+            final team = state.extra as TeamEntity;
+            return UpdateTeamPage(team: team);
+          },
+        ),
+        GoRoute(
+          path: '/teams/details',
+          name: 'teamDetails',
+          builder: (context, state) {
+            final team = state.extra as TeamEntity;
+            return TeamDetailsPage(team: team);
+          },
+        ),
+        GoRoute(
+          path: '/teams/add-member',
+          name: 'addMember',
+          builder: (context, state) {
+            final team = state.extra as TeamEntity;
+            return AddMemberPage(team: team);
+          },
+        ),
+      ],
+    ),
+
+    // --- Profile Shell: shares the same ProfileCubit instance ---
+    ShellRoute(
+      builder: (context, state, child) {
+        return BlocProvider(create: (_) => sl<ProfileCubit>(), child: child);
+      },
+      routes: [
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          builder: (context, state) => const ProfilePage(),
+        ),
+        GoRoute(
+          path: '/profile/edit',
+          name: 'editProfile',
+          builder: (context, state) => const EditProfilePage(),
+        ),
+      ],
     ),
   ],
 );

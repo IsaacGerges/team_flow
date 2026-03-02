@@ -1,6 +1,5 @@
-/// AppStrings - جميع نصوص التطبيق في مكان واحد
+/// AppStrings — all app text in one place for easy maintenance.
 class AppStrings {
-  // منع إنشاء instance من الكلاس (static only)
   AppStrings._();
 
   // App General
@@ -11,7 +10,7 @@ class AppStrings {
   static const String welcomeBack = 'Welcome Back! 👋';
   static const String loginSubtitle = 'Login to manage your team flow.';
   static const String createAccount = 'Create Account';
-  static const String alreadyHaveAccount = "Already have an account? Login";
+  static const String alreadyHaveAccount = 'Already have an account? Login';
   static const String dontHaveAccount = "Don't have an account?";
 
   // Form Fields
@@ -26,6 +25,10 @@ class AppStrings {
   static const String signInWithGoogle = 'Sign in with Google';
   static const String forgotPassword = 'Forgot Password?';
   static const String logout = 'Logout';
+  static const String cancel = 'Cancel';
+  static const String delete = 'Delete';
+  static const String edit = 'Edit';
+  static const String saveChanges = 'Save Changes';
 
   // Validation Messages
   static const String required = 'Required';
@@ -41,9 +44,127 @@ class AppStrings {
   static const String home = 'Home';
   static const String welcomeToTeamFlow = 'Welcome to TeamFlow! 🚀';
 
+  // Teams — General
+  static const String myTeams = 'My Teams';
+  static const String newTeam = 'New Team';
+  static const String teamName = 'Team Name *';
+  static const String teamNameHint = 'e.g. Engineering Squad';
+  static const String teamNameLabel = 'Team Name';
+  static const String teamDescriptionLabel = 'Description';
+  static const String teamDescriptionHint = "What is this team's purpose?";
+  static const String teamCategoryLabel = 'Category';
+  static const String selectCategory = 'Select Category...';
+  static const String privateTeam = 'Private Team';
+  static const String privateTeamDesc =
+      "Only invited members can view this team's projects and discussions.";
+  static const String uploadLogo = 'Upload Logo';
+  static const String members = 'Members';
+  static const String activeTasks = 'Active Tasks';
+  static const String activeTasksShort = 'Active';
+  static const String completedShort = 'Complete';
+  static const String progress = 'Progress';
+
+  // Teams — Pages
+  static const String createNewTeam = 'Create New Team';
+  static const String createTeam = 'Create Team';
+  static const String editTeam = 'Edit Team';
+  static const String teamDetailsTitle = 'Team Details';
+  static const String addMembersTitle = 'Add Members';
+  static const String addMembersButton = 'Add Members to Team';
+
+  // Teams — Tabs
+  static const String membersTab = 'Members';
+  static const String tasksTab = 'Tasks';
+  static const String chatTab = 'Chat';
+
+  // Teams — Members
+  static const String inviteNewMember = '+ Invite New Member';
+  static const String searchMembers = 'Search team members...';
+  static const String searchByEmailOrName = 'Search by name or email...';
+  static const String inviteByEmail = 'Invite by Email';
+  static const String suggestedPeople = 'Suggested People';
+  static const String viewAll = 'View All';
+  static const String selected = 'Selected';
+  static const String clearAll = 'Clear All';
+  static const String memberAdded = 'Member added successfully ✅';
+  static const String memberRemoved = 'Member removed successfully';
+  static const String noMembersYet = 'No members yet.';
+  static const String teamLeads = 'Team Leads';
+  static const String latestTaskUpdate = 'Latest Task Update';
+  static const String adminRole = 'Admin';
+  static const String memberRole = 'Member';
+
+  // Teams — Chat
+  static const String chatComingSoon = 'Team chat coming soon... 💬';
+
+  // Teams — Delete Dialog
+  static const String deleteTeam = 'Delete Team';
+  static const String deleteTeamConfirmation =
+      'Are you sure you want to delete';
+
+  // Teams — Snackbars
+  static const String teamCreated = 'Team created successfully 🎉';
+  static const String teamUpdated = 'Team updated successfully ✅';
+  static const String teamDeleted = 'Team deleted successfully ✅';
+
+  // Teams — Category options
+  static const List<String> teamCategories = [
+    'Development',
+    'Design',
+    'Marketing',
+    'Sales',
+    'HR',
+    'Other',
+  ];
+
+  // Teams — Empty State
+  static const String noTeamsYet = 'No teams yet.';
+  static const String noTeamsHint = 'Create your first team to get started';
+  static const String createFirstTeam = 'Create Team';
+
   // General
   static const String or = 'OR';
   static const String loading = 'Loading...';
   static const String error = 'Error';
   static const String success = 'Success';
+  static const String errorPrefix = 'Error: ';
+
+  // Error Messages
+  static const String checkInternetConnection =
+      'Please check your internet connection';
+  static const String unexpectedError = 'Unexpected error, please try again';
+
+  // Profile Feature
+  static const String profile = 'Profile';
+  static const String editProfile = 'Edit Profile';
+  static const String changePhoto = 'Change Photo';
+  static const String remove = 'Remove';
+  static const String basicInfo = 'BASIC INFO';
+  static const String phoneNumber = 'Phone Number';
+  static const String professionalInfo = 'PROFESSIONAL INFO';
+  static const String jobTitle = 'Job Title';
+  static const String department = 'Department';
+  static const String officeLocation = 'Office Location';
+  static const String about = 'ABOUT';
+  static const String bio = 'Bio';
+  static const String skills = 'SKILLS';
+  static const String addSkill = '+ Add Skill';
+  static const String addSkillNew = '+ Add new';
+  static const String privacySettings = 'PRIVACY SETTINGS';
+  static const String visibleToTeam = 'Visible to Team';
+  static const String visibleToTeamDesc =
+      'Allow team members to see your profile';
+  static const String shareContactInfo = 'Share Contact Info';
+  static const String shareContactInfoDesc = 'Make phone number public';
+  static const String profileUpdated = 'Profile updated successfully ✅';
+  static const String logOut = 'Log Out';
+  static const String teamsStats = 'TEAMS';
+  static const String completedStats = 'COMPLETED';
+  static const String activeStats = 'ACTIVE';
+  static const String biography = 'BIOGRAPHY';
+  static const String preferences = 'PREFERENCES';
+  static const String darkMode = 'Dark Mode';
+  static const String notifications = 'Notifications';
+  static const String privacyAndSecurity = 'Privacy & Security';
+  static const String activity = 'Activity';
 }

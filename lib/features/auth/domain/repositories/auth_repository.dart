@@ -12,4 +12,5 @@ abstract class AuthRepository {
   );
 
   Future<Either<Failure, UserEntity>> signInWithGoogle();
+  Future<Either<Failure, void>> logout();
 }
