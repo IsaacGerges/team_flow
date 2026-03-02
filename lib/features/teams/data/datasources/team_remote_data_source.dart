@@ -2,11 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/team_model.dart';
 
+/// Handles all Firestore operations for the teams feature.
 abstract class TeamsRemoteDataSource {
   Future<void> createTeam(TeamModel teamModel);
-  Future<void> updateTeam(String teamId, String newName);
+  Future<void> updateTeam(String teamId, TeamModel teamModel);
   Future<void> deleteTeam(String teamId);
   Stream<List<TeamModel>> getTeams(String userId);
+  Future<void> addMember(String teamId, String userId);
+  Future<void> removeMember(String teamId, String userId);
 }
 
 class TeamsRemoteDataSourceImpl implements TeamsRemoteDataSource {
@@ -17,19 +20,21 @@ class TeamsRemoteDataSourceImpl implements TeamsRemoteDataSource {
   @override
   Future<void> createTeam(TeamModel teamModel) async {
     try {
-      final teamCollection = firestore.collection('teams');
-      await teamCollection.add(teamModel.toJson());
+      await firestore.collection('teams').add(teamModel.toJson());
     } catch (e) {
-      throw ServerException(message: "Failed to create team");
+      throw ServerException(message: 'Failed to create team');
     }
   }
 
   @override
-  Future<void> updateTeam(String teamId, String newName) async {
+  Future<void> updateTeam(String teamId, TeamModel teamModel) async {
     try {
-      await firestore.collection('teams').doc(teamId).update({'name': newName});
+      await firestore
+          .collection('teams')
+          .doc(teamId)
+          .update(teamModel.toUpdateJson());
     } catch (e) {
-      throw ServerException(message: "Failed to update team");
+      throw ServerException(message: 'Failed to update team');
     }
   }
 
@@ -38,7 +43,7 @@ class TeamsRemoteDataSourceImpl implements TeamsRemoteDataSource {
     try {
       await firestore.collection('teams').doc(teamId).delete();
     } catch (e) {
-      throw ServerException(message: "Failed to delete team");
+      throw ServerException(message: 'Failed to delete team');
     }
   }
 
@@ -47,11 +52,35 @@ class TeamsRemoteDataSourceImpl implements TeamsRemoteDataSource {
     return firestore
         .collection('teams')
         .where('membersIds', arrayContains: userId)
+        .orderBy('updatedAt', descending: true)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => TeamModel.fromSnapshot(doc))
-              .toList();
-        });
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => TeamModel.fromSnapshot(doc)).toList(),
+        );
+  }
+
+  @override
+  Future<void> addMember(String teamId, String userId) async {
+    try {
+      await firestore.collection('teams').doc(teamId).update({
+        'membersIds': FieldValue.arrayUnion([userId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw ServerException(message: 'Failed to add member');
+    }
+  }
+
+  @override
+  Future<void> removeMember(String teamId, String userId) async {
+    try {
+      await firestore.collection('teams').doc(teamId).update({
+        'membersIds': FieldValue.arrayRemove([userId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw ServerException(message: 'Failed to remove member');
+    }
   }
 }

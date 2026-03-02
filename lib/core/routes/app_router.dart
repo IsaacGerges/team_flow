@@ -2,7 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
+import 'package:team_flow/features/teams/presentation/pages/add_member_page.dart';
 import 'package:team_flow/features/teams/presentation/pages/create_team_page.dart';
+import 'package:team_flow/features/teams/presentation/pages/team_details_page.dart';
 import 'package:team_flow/features/teams/presentation/pages/teams_list_page.dart';
 import 'package:team_flow/features/teams/presentation/pages/update_team_page.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
@@ -10,7 +12,7 @@ import 'package:team_flow/features/profile/presentation/pages/profile_page.dart'
 import 'package:team_flow/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:team_flow/injection_container.dart';
 
-// Pages
+// Auth Pages
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../helpers/cache_helper.dart';
@@ -28,11 +30,9 @@ final GoRouter router = GoRouter(
     if (!isLoggedIn && !isGoingToLogin && !isGoingToSignup) {
       return '/login';
     }
-
     if (isLoggedIn && (isGoingToLogin || isGoingToSignup)) {
       return '/home';
     }
-
     return null;
   },
   routes: [
@@ -46,6 +46,7 @@ final GoRouter router = GoRouter(
       name: 'signup',
       builder: (context, state) => const SignUpPage(),
     ),
+
     // --- Teams Shell: shares the same TeamsCubit instance ---
     ShellRoute(
       builder: (context, state, child) {
@@ -70,8 +71,25 @@ final GoRouter router = GoRouter(
             return UpdateTeamPage(team: team);
           },
         ),
+        GoRoute(
+          path: '/teams/details',
+          name: 'teamDetails',
+          builder: (context, state) {
+            final team = state.extra as TeamEntity;
+            return TeamDetailsPage(team: team);
+          },
+        ),
+        GoRoute(
+          path: '/teams/add-member',
+          name: 'addMember',
+          builder: (context, state) {
+            final team = state.extra as TeamEntity;
+            return AddMemberPage(team: team);
+          },
+        ),
       ],
     ),
+
     // --- Profile Shell: shares the same ProfileCubit instance ---
     ShellRoute(
       builder: (context, state, child) {

@@ -59,4 +59,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Left(ServerFailure('Network error: ${e.toString()}'));
     }
   }
+
+  @override
+  Future<Either<Failure, List<ProfileEntity>>> getAllUsers() async {
+    try {
+      final profiles = await remoteDataSource.getAllUsers();
+      return Right(profiles);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Network error: ${e.toString()}'));
+    }
+  }
 }

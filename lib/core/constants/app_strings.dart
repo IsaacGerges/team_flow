@@ -45,16 +45,57 @@ class AppStrings {
   static const String welcomeToTeamFlow = 'Welcome to TeamFlow! 🚀';
 
   // Teams — General
-  static const String myTeams = 'My Teams 🚀';
+  static const String myTeams = 'My Teams';
   static const String newTeam = 'New Team';
-  static const String teamName = 'Team Name';
-  static const String teamNameHint = 'e.g. Flutter Squad';
+  static const String teamName = 'Team Name *';
+  static const String teamNameHint = 'e.g. Engineering Squad';
+  static const String teamNameLabel = 'Team Name';
+  static const String teamDescriptionLabel = 'Description';
+  static const String teamDescriptionHint = "What is this team's purpose?";
+  static const String teamCategoryLabel = 'Category';
+  static const String selectCategory = 'Select Category...';
+  static const String privateTeam = 'Private Team';
+  static const String privateTeamDesc =
+      "Only invited members can view this team's projects and discussions.";
+  static const String uploadLogo = 'Upload Logo';
   static const String members = 'Members';
+  static const String activeTasks = 'Active Tasks';
+  static const String activeTasksShort = 'Active';
+  static const String completedShort = 'Complete';
+  static const String progress = 'Progress';
 
   // Teams — Pages
   static const String createNewTeam = 'Create New Team';
   static const String createTeam = 'Create Team';
   static const String editTeam = 'Edit Team';
+  static const String teamDetailsTitle = 'Team Details';
+  static const String addMembersTitle = 'Add Members';
+  static const String addMembersButton = 'Add Members to Team';
+
+  // Teams — Tabs
+  static const String membersTab = 'Members';
+  static const String tasksTab = 'Tasks';
+  static const String chatTab = 'Chat';
+
+  // Teams — Members
+  static const String inviteNewMember = '+ Invite New Member';
+  static const String searchMembers = 'Search team members...';
+  static const String searchByEmailOrName = 'Search by name or email...';
+  static const String inviteByEmail = 'Invite by Email';
+  static const String suggestedPeople = 'Suggested People';
+  static const String viewAll = 'View All';
+  static const String selected = 'Selected';
+  static const String clearAll = 'Clear All';
+  static const String memberAdded = 'Member added successfully ✅';
+  static const String memberRemoved = 'Member removed successfully';
+  static const String noMembersYet = 'No members yet.';
+  static const String teamLeads = 'Team Leads';
+  static const String latestTaskUpdate = 'Latest Task Update';
+  static const String adminRole = 'Admin';
+  static const String memberRole = 'Member';
+
+  // Teams — Chat
+  static const String chatComingSoon = 'Team chat coming soon... 💬';
 
   // Teams — Delete Dialog
   static const String deleteTeam = 'Delete Team';
@@ -66,9 +107,20 @@ class AppStrings {
   static const String teamUpdated = 'Team updated successfully ✅';
   static const String teamDeleted = 'Team deleted successfully ✅';
 
+  // Teams — Category options
+  static const List<String> teamCategories = [
+    'Development',
+    'Design',
+    'Marketing',
+    'Sales',
+    'HR',
+    'Other',
+  ];
+
   // Teams — Empty State
   static const String noTeamsYet = 'No teams yet.';
-  static const String noTeamsHint = 'Tap + to create one!';
+  static const String noTeamsHint = 'Create your first team to get started';
+  static const String createFirstTeam = 'Create Team';
 
   // General
   static const String or = 'OR';

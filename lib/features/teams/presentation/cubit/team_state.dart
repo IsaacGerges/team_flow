@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 
+/// Base state class for the Teams feature.
 abstract class TeamsState extends Equatable {
   const TeamsState();
 
@@ -18,6 +19,16 @@ class TeamsLoading extends TeamsState {
   const TeamsLoading();
 }
 
+/// Emitted when the teams list is loaded successfully.
+class TeamsLoaded extends TeamsState {
+  final List<TeamEntity> teams;
+
+  const TeamsLoaded(this.teams);
+
+  @override
+  List<Object> get props => [teams];
+}
+
 /// Emitted when a team is successfully created.
 class TeamCreatedSuccess extends TeamsState {
   const TeamCreatedSuccess();
@@ -33,7 +44,27 @@ class TeamDeletedSuccess extends TeamsState {
   const TeamDeletedSuccess();
 }
 
-/// Emitted when a teams operation fails, carrying a user-facing message.
+/// Emitted when a member is successfully added to a team.
+class TeamMemberAddedSuccess extends TeamsState {
+  const TeamMemberAddedSuccess();
+}
+
+/// Emitted when a member is successfully removed from a team.
+class TeamMemberRemovedSuccess extends TeamsState {
+  const TeamMemberRemovedSuccess();
+}
+
+/// Emitted when a team logo is picked from gallery but not yet saved.
+class TeamLogoPicked extends TeamsState {
+  final String base64Image;
+
+  const TeamLogoPicked(this.base64Image);
+
+  @override
+  List<Object> get props => [base64Image];
+}
+
+/// Emitted when a teams operation fails.
 class TeamsError extends TeamsState {
   final String message;
 
@@ -41,14 +72,4 @@ class TeamsError extends TeamsState {
 
   @override
   List<Object> get props => [message];
-}
-
-/// Emitted when the teams list is loaded successfully.
-class TeamsLoaded extends TeamsState {
-  final List<TeamEntity> teams;
-
-  const TeamsLoaded(this.teams);
-
-  @override
-  List<Object> get props => [teams];
 }

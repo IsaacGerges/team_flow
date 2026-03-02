@@ -8,6 +8,7 @@ import 'package:team_flow/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:team_flow/features/teams/data/datasources/team_remote_data_source.dart';
 import 'package:team_flow/features/teams/data/repositories/team_repository_impl.dart';
 import 'package:team_flow/features/teams/domain/repositories/team_repository.dart';
+import 'package:team_flow/features/teams/domain/usecases/add_member_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/create_team_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/delete_team_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/get_teams_usecase.dart';
@@ -23,6 +24,7 @@ import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/profile/data/datasources/profile_remote_data_source.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/domain/usecases/get_all_users_usecase.dart';
 import 'features/profile/domain/usecases/get_profile_usecase.dart';
 import 'features/profile/domain/usecases/update_profile_usecase.dart';
 import 'features/profile/presentation/cubit/profile_cubit.dart';
@@ -79,6 +81,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetTeamsUseCase(sl()));
   sl.registerLazySingleton(() => UpdateTeamUseCase(sl()));
   sl.registerLazySingleton(() => DeleteTeamUseCase(sl()));
+  sl.registerLazySingleton(() => AddMemberUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<TeamsRepository>(
@@ -97,6 +100,8 @@ Future<void> init() async {
       getTeamsUseCase: sl(),
       updateTeamUseCase: sl(),
       deleteTeamUseCase: sl(),
+      addMemberUseCase: sl(),
+      getAllUsersUseCase: sl(),
     ),
   );
 
@@ -104,6 +109,7 @@ Future<void> init() async {
   // Use Cases
   sl.registerLazySingleton(() => GetProfileUseCase(sl()));
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllUsersUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<ProfileRepository>(

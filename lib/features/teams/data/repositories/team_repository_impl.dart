@@ -7,6 +7,7 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../models/team_model.dart';
 
+/// Concrete implementation of [TeamsRepository].
 class TeamsRepositoryImpl implements TeamsRepository {
   final TeamsRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
@@ -17,18 +18,23 @@ class TeamsRepositoryImpl implements TeamsRepository {
   });
 
   @override
-  Future<Either<Failure, Unit>> createTeam(
-    String teamName,
-    String adminId,
-  ) async {
+  Future<Either<Failure, Unit>> createTeam(TeamEntity team) async {
+    if (!await networkInfo.isConnected) {
+      return Left(OfflineFailure());
+    }
     try {
-      final team = TeamModel(
+      final model = TeamModel(
         id: '',
-        name: teamName,
-        adminId: adminId,
-        membersIds: [adminId],
+        name: team.name,
+        description: team.description,
+        adminId: team.adminId,
+        membersIds: [team.adminId],
+        photoUrl: team.photoUrl,
+        category: team.category,
+        isPrivate: team.isPrivate,
+        progressPercent: team.progressPercent,
       );
-      await remoteDataSource.createTeam(team);
+      await remoteDataSource.createTeam(model);
       return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -38,10 +44,24 @@ class TeamsRepositoryImpl implements TeamsRepository {
   @override
   Future<Either<Failure, Unit>> updateTeam(
     String teamId,
-    String newName,
+    TeamEntity team,
   ) async {
+    if (!await networkInfo.isConnected) {
+      return Left(OfflineFailure());
+    }
     try {
-      await remoteDataSource.updateTeam(teamId, newName);
+      final model = TeamModel(
+        id: teamId,
+        name: team.name,
+        description: team.description,
+        adminId: team.adminId,
+        membersIds: team.membersIds,
+        photoUrl: team.photoUrl,
+        category: team.category,
+        isPrivate: team.isPrivate,
+        progressPercent: team.progressPercent,
+      );
+      await remoteDataSource.updateTeam(teamId, model);
       return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -50,6 +70,9 @@ class TeamsRepositoryImpl implements TeamsRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteTeam(String teamId) async {
+    if (!await networkInfo.isConnected) {
+      return Left(OfflineFailure());
+    }
     try {
       await remoteDataSource.deleteTeam(teamId);
       return const Right(unit);
@@ -59,9 +82,36 @@ class TeamsRepositoryImpl implements TeamsRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> addMember(String teamId, String userId) async {
+    if (!await networkInfo.isConnected) {
+      return Left(OfflineFailure());
+    }
+    try {
+      await remoteDataSource.addMember(teamId, userId);
+      return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> removeMember(
+    String teamId,
+    String userId,
+  ) async {
+    if (!await networkInfo.isConnected) {
+      return Left(OfflineFailure());
+    }
+    try {
+      await remoteDataSource.removeMember(teamId, userId);
+      return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
   Stream<List<TeamEntity>> getMyTeams(String userId) {
-    return remoteDataSource.getTeams(userId).map((teamModels) {
-      return teamModels;
-    });
+    return remoteDataSource.getTeams(userId);
   }
 }

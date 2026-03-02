@@ -5,6 +5,7 @@ import '../models/profile_model.dart';
 abstract class ProfileRemoteDataSource {
   Future<ProfileModel> getProfile(String uid);
   Future<void> updateProfile(ProfileModel profile);
+  Future<List<ProfileModel>> getAllUsers();
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -39,6 +40,18 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       throw ServerException(
         message: 'Failed to update profile: ${e.toString()}',
       );
+    }
+  }
+
+  @override
+  Future<List<ProfileModel>> getAllUsers() async {
+    try {
+      final snapshot = await firestore.collection('users').get();
+      return snapshot.docs
+          .map((doc) => ProfileModel.fromSnapshot(doc))
+          .toList();
+    } catch (e) {
+      throw ServerException(message: 'Failed to fetch users: ${e.toString()}');
     }
   }
 }
