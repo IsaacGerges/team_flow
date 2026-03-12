@@ -4,6 +4,7 @@ import '../entities/profile_entity.dart';
 
 abstract class ProfileRepository {
   Future<Either<Failure, ProfileEntity>> getProfile(String uid);
+  Stream<Either<Failure, ProfileEntity>> getProfileStream(String uid);
   Future<Either<Failure, void>> updateProfile(ProfileEntity profile);
   Future<Either<Failure, List<ProfileEntity>>> getAllUsers();
 }

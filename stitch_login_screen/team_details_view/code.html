@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Team Details View</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#2b6cee",
+                "primary-dark": "#1a4fb8",
+                "primary-light": "#6b9af5",
+                "background-light": "#f6f6f8",
+                "background-dark": "#101622",
+                "surface-light": "#ffffff",
+                "surface-dark": "#1c2433",
+              },
+              fontFamily: {
+                "display": ["Inter", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+              boxShadow: {
+                  'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                  'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)',
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Custom gradient for hero */
+        .hero-gradient {
+            background: linear-gradient(135deg, #2b6cee 0%, #1a4fb8 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-100 antialiased selection:bg-primary/30">
+<div class="mx-auto max-w-md min-h-screen relative bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden pb-20">
+<!-- Status Bar Area (simulated) -->
+<div class="absolute top-0 w-full h-12 z-20 flex justify-between items-center px-6 text-white">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex gap-1.5">
+<div class="w-4 h-4 rounded-full bg-white/20 border border-white"></div> <!-- Signal -->
+<div class="w-4 h-4 rounded-full bg-white/20 border border-white"></div> <!-- Wifi -->
+<div class="w-6 h-3 rounded-sm border border-white"></div> <!-- Battery -->
+</div>
+</div>
+<!-- Navigation Actions -->
+<div class="absolute top-12 w-full z-20 px-4 flex justify-between items-center text-white">
+<button class="p-2 rounded-full bg-black/10 hover:bg-black/20 backdrop-blur-sm transition">
+<span class="material-icons-round text-2xl">arrow_back</span>
+</button>
+<button class="p-2 rounded-full bg-black/10 hover:bg-black/20 backdrop-blur-sm transition">
+<span class="material-icons-round text-2xl">more_vert</span>
+</button>
+</div>
+<!-- Hero Section -->
+<div class="relative h-[280px] hero-gradient rounded-b-[2.5rem] flex flex-col items-center justify-end pb-8 shadow-lg overflow-hidden">
+<!-- Decorative abstract circles -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
+<div class="absolute bottom-0 left-0 w-48 h-48 bg-primary-light/20 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
+<div class="relative z-10 flex flex-col items-center text-center px-6">
+<div class="relative">
+<img alt="Product Design Team Avatar" class="w-[100px] h-[100px] rounded-full object-cover border-4 border-white/20 shadow-xl mb-4" data-alt="Group of people working together in office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPndRmZau8bCU4xT_USRbuVSoxiqD-zLonC8ikLQMnaJhC0brjDVQ6-6lSjGq8g6jLAWIcdkpqaHd-1-r2WAFYuRbHV6yFzpcU0Rvc2Bf-DiwTHpHaywOhwKiMXKbL_o3GMEBC9osfLmJPSfb43PVMZ6AAg-T77wLg3akGSGFZLfCmjDViGP_8nxBcMQhmEPDfAQpFJXKqjypTGzI1aiLhX_Ceg8NwI2_1Pi7O0Zqrjsr_DNbfhdYeuaAuAm30q_meLn3nwBECck8"/>
+<div class="absolute bottom-4 right-0 bg-green-400 w-5 h-5 rounded-full border-4 border-[#255bc9]"></div>
+</div>
+<h1 class="text-2xl font-bold text-white mb-1 tracking-tight">Product Design</h1>
+<p class="text-blue-100 text-sm font-medium max-w-[280px] leading-relaxed">
+                    Crafting delightful user experiences for our core mobile products.
+                </p>
+</div>
+</div>
+<!-- Stats Row -->
+<div class="px-5 -mt-8 relative z-10 mb-6">
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-soft p-1 flex items-center justify-between divide-x divide-slate-100 dark:divide-slate-700">
+<div class="flex-1 py-3 px-2 text-center">
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide mb-1">Members</p>
+<p class="text-xl font-bold text-slate-800 dark:text-white">12</p>
+</div>
+<div class="flex-1 py-3 px-2 text-center">
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide mb-1">Active</p>
+<p class="text-xl font-bold text-primary dark:text-primary-light">8</p>
+</div>
+<div class="flex-1 py-3 px-2 text-center">
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide mb-1">Complete</p>
+<div class="flex items-center justify-center gap-1">
+<p class="text-xl font-bold text-emerald-500">94%</p>
+<span class="material-icons-round text-emerald-500 text-sm">trending_up</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Tabs Navigation -->
+<div class="px-5 mb-6 sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm py-2">
+<div class="flex p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-lg">
+<button class="flex-1 py-2 px-4 rounded-md bg-white dark:bg-surface-dark shadow-sm text-sm font-semibold text-primary dark:text-primary-light transition-all">
+                    Members
+                </button>
+<button class="flex-1 py-2 px-4 rounded-md text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all">
+                    Tasks
+                </button>
+<button class="flex-1 py-2 px-4 rounded-md text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all">
+                    Chat
+                </button>
+</div>
+</div>
+<!-- Main Content Area: Members List -->
+<div class="px-5 space-y-4 pb-24 animate-fade-in-up">
+<!-- Add Member Button -->
+<button class="w-full py-3 border-2 border-dashed border-primary/30 rounded-xl flex items-center justify-center gap-2 text-primary dark:text-primary-light hover:bg-primary/5 transition group">
+<div class="bg-primary/10 rounded-full p-1 group-hover:bg-primary group-hover:text-white transition">
+<span class="material-icons-round text-lg">add</span>
+</div>
+<span class="font-semibold text-sm">Invite New Member</span>
+</button>
+<!-- Team Lead Section -->
+<div>
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Team Leads</h3>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-card overflow-hidden">
+<div class="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer">
+<div class="relative">
+<img alt="Sarah Connor Avatar" class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a smiling woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQDUO9Ki5j19BGj-xnPNxf_PgK54nXKe_YB1g7SXQDltuZ0rFLSBcZGdHWzA3TQF05t9VXICQb455tIc8nGEPvmIeWtRaTJj5HpLCs40nvxqQBx4l0HojjVt5K3iEiIgYFASg0oS-g8FXSzXTlLDmlExomBb_bQofEkYF1DhHHLsS_YNBuG0mMXpwd8ZpLaRO9Uao3sTrzT-CwAGJYgnCu-ATeYv2wWWGtFYPVV0GcvUO9i48WLd7mZOBd3ebYCk_FYqllgucf1yo"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-surface-dark rounded-full"></span>
+</div>
+<div class="flex-1">
+<h4 class="font-semibold text-slate-800 dark:text-white">Sarah Connor</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">Head of Design</p>
+</div>
+<span class="px-2 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-[10px] font-bold uppercase rounded-md">Admin</span>
+</div>
+<div class="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer">
+<div class="relative">
+<img alt="David Miller Avatar" class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a man with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLHMMv-oBWTCq7hqqv-OCfKnBJcHXI3GPmoBqTGJhF6hQu062NII67jxneNg66uQuIX-Ri0LfcncqF60xorq6d5H4ur8e8fo3MqJESHv-MDbBRUha6J1CSpJ7EAgyflMd2gyo-m3f2kt5q6D08kOox0lkVN2W5EAzA64e_fAc-SJ5iP0e42UO_fJW-Xe99JjSusnm0fX4juXJgQBCZYgFGIbWl3B1Og5hn_kyRiinXCD_gKWL4pvwsAGj2kfaPT4WthqPKYhSQRgE"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-surface-dark rounded-full"></span>
+</div>
+<div class="flex-1">
+<h4 class="font-semibold text-slate-800 dark:text-white">David Miller</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">Product Manager</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Members Section -->
+<div>
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Designers</h3>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-card overflow-hidden">
+<div class="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer">
+<div class="relative">
+<img alt="Emily Chen Avatar" class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a woman looking sideways" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVIY0YFcp6Uxk1kYaFlQXTveM09qI7QiY1n2bWDymvcpNkI4RsgROgwytj5zJYGxlCuZGpD3qAOqfosSj48ogOCqS3UI73Qq6iXIivMaDj8Zx_paLhLXce8DAbyn7u2mQcW9buXlI31pLeC4VZQow_qv6NmRHDmkaw9AeMkMjELvSVh85vbeJ_VRBeAXBofThy9S4NfRnRVqxQRD6Rqjhmu_9s6lWbfFFIom0Br6m_gVr6cKWTrIGBqg-_CLbqe0uuuKEXouxg22k"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-slate-300 border-2 border-white dark:border-surface-dark rounded-full"></span>
+</div>
+<div class="flex-1">
+<h4 class="font-semibold text-slate-800 dark:text-white">Emily Chen</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">UI Designer</p>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+<span class="material-icons-round text-xl">chat_bubble_outline</span>
+</button>
+</div>
+<div class="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer">
+<div class="relative">
+<img alt="Michael Ross Avatar" class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a smiling man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHBt4GK1WGqkMEl175tYhPgarg8_D41YPkDET51NfN_q60x7gwd6OlOyzgsCaW_OqfK1dmHiMeh3kvzHCA96us4VLJbEUEwSNo3YjNf9krSPku_jJQQ94fkfe2Imkl7eRluvBql3DRHGe3kTooT8qDLlJ1MwuM8hJ8hdbpCsOe478fCSk4Alb_S1oDfJz8rnLdYz27zkcuGuz9XFz6zjFBCAQkZdTlzcuTMati56KC57Pit1Djp4Zmmh9M4QAIBkBLrxchvcMdzIs"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-surface-dark rounded-full"></span>
+</div>
+<div class="flex-1">
+<h4 class="font-semibold text-slate-800 dark:text-white">Michael Ross</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">UX Researcher</p>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+<span class="material-icons-round text-xl">chat_bubble_outline</span>
+</button>
+</div>
+<div class="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer">
+<div class="relative">
+<img alt="Alex Turner Avatar" class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a young man with serious expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8c_cJQOaDH_z_mh-FST2V9QwEi4HlanhInjS5VUc_EEXUDjHMSMU1QoPwjIbklFFTRB3ztcAM-fbCFzhD2iqIGznBik0SjR7VjSbUCLz0h5vZq7dlAMB26ScXaw74dK-d7E7C4KLu79SHfPqYadpkMZP6utc7amxmkLRuiPV7NDTCOlZ_ganY5aF8HoTspCV9-lFTJUa1m2rEREgPSV1nTDgisb4_r81TKk0igrtKUr7PWjCcT7Ht9ImkXVKPWPg0NDZixzy9jxw"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-surface-dark rounded-full"></span>
+</div>
+<div class="flex-1">
+<h4 class="font-semibold text-slate-800 dark:text-white">Alex Turner</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">Motion Designer</p>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+<span class="material-icons-round text-xl">chat_bubble_outline</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Quick Action for Tasks Preview (Just to show capability) -->
+<div class="mt-6 p-4 bg-primary/5 border border-primary/10 rounded-xl flex items-start gap-3">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-icons-round text-xl">assignment</span>
+</div>
+<div>
+<h4 class="text-sm font-semibold text-slate-800 dark:text-white">Latest Task Update</h4>
+<p class="text-xs text-slate-500 mt-1">Michael completed "User Flow Audit" 25m ago.</p>
+</div>
+</div>
+</div>
+<!-- Floating Action Button (Optional for primary action) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary-dark transition-transform hover:scale-105 active:scale-95 z-30">
+<span class="material-icons-round text-2xl">add</span>
+</button>
+<!-- Bottom Navigation -->
+<div class="fixed bottom-0 w-full max-w-md bg-surface-light dark:bg-surface-dark border-t border-slate-200 dark:border-slate-800 z-40 pb-5 pt-3 px-6 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
+<div class="flex justify-between items-center">
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition group">
+<span class="material-icons-round text-2xl group-hover:scale-110 transition-transform">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary transition group">
+<span class="material-icons-round text-2xl group-hover:scale-110 transition-transform">groups</span>
+<span class="text-[10px] font-medium">Teams</span>
+</button>
+<div class="w-12"></div> <!-- Spacer for FAB if centered, or just spacing -->
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition group">
+<span class="material-icons-round text-2xl group-hover:scale-110 transition-transform">calendar_today</span>
+<span class="text-[10px] font-medium">Calendar</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition group">
+<div class="relative">
+<span class="material-icons-round text-2xl group-hover:scale-110 transition-transform">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-surface-light dark:border-surface-dark"></span>
+</div>
+<span class="text-[10px] font-medium">Alerts</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

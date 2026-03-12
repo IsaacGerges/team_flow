@@ -18,9 +18,6 @@ class TasksRepositoryImpl implements TasksRepository {
 
   @override
   Future<Either<Failure, String>> createTask(TaskEntity task) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       final model = TaskModel(
         id: '',
@@ -51,9 +48,6 @@ class TasksRepositoryImpl implements TasksRepository {
     String taskId,
     TaskEntity task,
   ) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       final model = TaskModel(
         id: taskId,
@@ -81,9 +75,6 @@ class TasksRepositoryImpl implements TasksRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteTask(String taskId) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       await remoteDataSource.deleteTask(taskId);
       return const Right(unit);
@@ -103,13 +94,15 @@ class TasksRepositoryImpl implements TasksRepository {
   }
 
   @override
+  Stream<List<TaskEntity>> getTasksForTeams(List<String> teamIds) {
+    return remoteDataSource.getTasksForTeams(teamIds);
+  }
+
+  @override
   Future<Either<Failure, Unit>> addComment(
     String taskId,
     TaskCommentEntity comment,
   ) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       final model = TaskCommentModel(
         id: '',

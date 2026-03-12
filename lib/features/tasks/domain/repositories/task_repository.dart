@@ -8,6 +8,7 @@ abstract class TasksRepository {
   Future<Either<Failure, Unit>> deleteTask(String taskId);
   Stream<List<TaskEntity>> getTasksForUser(String userId);
   Stream<List<TaskEntity>> getTasksForTeam(String teamId);
+  Stream<List<TaskEntity>> getTasksForTeams(List<String> teamIds);
   Future<Either<Failure, Unit>> addComment(
     String taskId,
     TaskCommentEntity comment,

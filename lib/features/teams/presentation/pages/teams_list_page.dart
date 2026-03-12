@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
-import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
 import 'package:team_flow/features/teams/presentation/widgets/team_card.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
 
-/// Displays the list of all teams for the current user.
 class TeamsListPage extends StatefulWidget {
   const TeamsListPage({super.key});
 
@@ -27,136 +28,250 @@ class _TeamsListPageState extends State<TeamsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryBlue = const Color(0xFF2B6CEE);
+
     return BlocListener<TeamsCubit, TeamsState>(
       listener: (context, state) {
         if (state is TeamDeletedSuccess) {
-          _showSnackBar(context, AppStrings.teamDeleted, AppColors.success);
-        } else if (state is TeamUpdatedSuccess) {
-          _showSnackBar(context, AppStrings.teamUpdated, AppColors.success);
+          _showSnackBar(
+            context,
+            'Team removed successfully',
+            AppColors.success,
+          );
         } else if (state is TeamsError) {
           _showSnackBar(context, state.message, AppColors.error);
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.backgroundScreen,
-        appBar: AppBar(
-          backgroundColor: AppColors.backgroundScreen,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          title: const Text(
-            AppStrings.myTeams,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 26,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search, color: AppColors.textPrimary),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: const Icon(Icons.tune, color: AppColors.textPrimary),
-              onPressed: () {},
-            ),
-          ],
-        ),
-        body: BlocBuilder<TeamsCubit, TeamsState>(
-          buildWhen: (prev, curr) =>
-              curr is TeamsLoading || curr is TeamsLoaded || curr is TeamsError,
-          builder: (context, state) {
-            if (state is TeamsLoading) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.primaryBlue),
-              );
-            }
-            if (state is TeamsLoaded) {
-              if (state.teams.isEmpty) {
-                return const _EmptyTeamsView();
-              }
-              return _TeamsList(teams: state.teams);
-            }
-            if (state is TeamsError) {
-              return Center(
-                child: Text(
-                  '${AppStrings.errorPrefix}${state.message}',
-                  style: const TextStyle(color: AppColors.error),
+        backgroundColor: const Color(0xFFF6F6F8),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: BlocBuilder<TeamsCubit, TeamsState>(
+                  builder: (context, state) {
+                    if (state is TeamsLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: primaryBlue,
+                        ),
+                      );
+                    }
+                    if (state is TeamsLoaded) {
+                      if (state.teams.isEmpty) {
+                        return _buildEmptyState();
+                      }
+                      return _buildTeamsList(state.teams);
+                    }
+                    return _buildEmptyState();
+                  },
                 ),
-              );
-            }
-            return const _EmptyTeamsView();
-          },
+              ),
+            ],
+          ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => context.push('/teams/create'),
-          backgroundColor: AppColors.primaryBlue,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: AppColors.white),
+        floatingActionButton: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: primaryBlue.withValues(alpha: 0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            onPressed: () => context.push('/teams/create'),
+            backgroundColor: primaryBlue,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: const Icon(Icons.add, color: Colors.white, size: 28),
+          ),
         ),
       ),
     );
   }
 
-  void _showSnackBar(BuildContext context, String message, Color color) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6F6F8).withValues(alpha: 0.9),
+        border: const Border(
+          bottom: BorderSide(color: Color(0x1A2B6CEE)),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'My Teams',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.5,
+            ),
+          ),
+          Row(
+            children: [
+              _buildHeaderAction(Icons.search),
+              _buildHeaderAction(Icons.filter_list),
+            ],
+          ),
+        ],
+      ),
+    );
   }
-}
 
-class _EmptyTeamsView extends StatelessWidget {
-  const _EmptyTeamsView();
+  Widget _buildHeaderAction(IconData icon) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(
+            icon,
+            color: const Color(0xFF475569),
+            size: 24,
+          ),
+        ),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTeamsList(List<TeamEntity> teams) {
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    return BlocBuilder<TasksCubit, TasksState>(
+      builder: (context, tasksState) {
+        List<TaskEntity> allTasks = [];
+        if (tasksState is TasksLoaded) {
+          allTasks = tasksState.tasks;
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 8, bottom: 100),
+          itemCount: teams.length,
+          itemBuilder: (context, index) {
+            final team = teams[index];
+            final teamTasks = allTasks
+                .where((t) => t.teamId == team.id)
+                .toList();
+            final activeCount = teamTasks
+                .where((t) => t.status != TaskStatus.done)
+                .length;
+            final doneCount = teamTasks
+                .where((t) => t.status == TaskStatus.done)
+                .length;
+            final progress = teamTasks.isEmpty
+                ? 0.0
+                : doneCount / teamTasks.length;
+
+            return TeamCard(
+              team: team,
+              isAdmin: team.adminId == currentUserId,
+              activeTaskCount: activeCount,
+              progressPercent: progress,
+              onTap: () => context.push('/teams/details', extra: team),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    final primaryBlue = const Color(0xFF2B6CEE);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.primaryBlueLight,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.group_outlined,
-                size: 48,
-                color: AppColors.primaryBlue,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              AppStrings.noTeamsYet,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppStrings.noTeamsHint,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 1,
+                      style: BorderStyle.none,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.groups,
+                      size: 64,
+                      color: Color(0xFFCBD5E1),
+                    ),
+                  ),
+                ),
+                // Dashed circle decoration (simplified as Border)
+                Container(
+                  width: 160,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
-            ElevatedButton.icon(
+            const Text(
+              'No teams yet',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "You aren't part of any team yet. Create one to get started collaborating.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
               onPressed: () => context.push('/teams/create'),
-              icon: const Icon(Icons.add),
-              label: const Text(AppStrings.createFirstTeam),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryBlue,
-                foregroundColor: AppColors.white,
+                backgroundColor: primaryBlue,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
-                  vertical: 14,
+                  vertical: 16,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Create Team',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -165,28 +280,14 @@ class _EmptyTeamsView extends StatelessWidget {
       ),
     );
   }
-}
 
-class _TeamsList extends StatelessWidget {
-  final List<TeamEntity> teams;
-
-  const _TeamsList({required this.teams});
-
-  @override
-  Widget build(BuildContext context) {
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 8, bottom: 90),
-      itemCount: teams.length,
-      itemBuilder: (context, index) {
-        final team = teams[index];
-        final isAdmin = team.adminId == currentUserId;
-        return TeamCard(
-          team: team,
-          isAdmin: isAdmin,
-          onTap: () => context.push('/teams/details', extra: team),
-        );
-      },
+  void _showSnackBar(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 }

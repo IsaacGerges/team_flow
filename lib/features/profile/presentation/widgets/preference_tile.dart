@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:team_flow/core/constants/app_colors.dart';
 
 class PreferenceTile extends StatelessWidget {
   final String title;
@@ -21,15 +20,15 @@ class PreferenceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: iconBgColor,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
@@ -42,17 +41,18 @@ class PreferenceTile extends StatelessWidget {
                   title,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1E293B),
                   ),
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     subtitle!,
                     style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],

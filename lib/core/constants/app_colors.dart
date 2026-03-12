@@ -10,10 +10,10 @@ class AppColors {
   static const Color accent = Color(0xFF00C853);
 
   // ── Design-system Blue (Teams / Tasks / referènce) ───────────────────────
-  static const Color primaryBlue = Color(0xFF4A90E2);
+  static const Color primaryBlue = Color.fromARGB(255, 65, 146, 238);
   static const Color primaryBlueDark = Color(0xFF2C5F8D);
   static const Color primaryBlueLight = Color(0xFFE3F2FD);
-
+  // 0xFF4A90E2 primaryBlue
   // ── Secondary (Purple) ──────────────────────────────────────────────────
   static const Color secondaryPurple = Color(0xFF9C27B0);
   static const Color secondaryPurpleDark = Color(0xFF6A1B9A);

@@ -12,6 +12,8 @@ class AppStrings {
   static const String createAccount = 'Create Account';
   static const String alreadyHaveAccount = 'Already have an account? Login';
   static const String dontHaveAccount = "Don't have an account?";
+  static const String confirmPassword = 'Confirm Password';
+  static const String acceptTerms = 'I accept the Terms & Conditions';
 
   // Form Fields
   static const String email = 'Email';
@@ -40,9 +42,25 @@ class AppStrings {
   static const String accountCreated = 'Account Created Successfully! 🎉';
   static const String loginSuccess = 'Login Successful! 🎉';
 
-  // Home
-  static const String home = 'Home';
-  static const String welcomeToTeamFlow = 'Welcome to TeamFlow! 🚀';
+  // Home Dashboard
+  static const String goodMorning = 'Good Morning';
+  static const String goodAfternoon = 'Good Afternoon';
+  static const String goodEvening = 'Good Evening';
+  static const String letsCheckUpdates = "Let's check your updates";
+  static const String recentTasks = 'Recent Tasks';
+  static const String seeAll = 'See All';
+  static const String noRecentTasks = 'No recent tasks';
+  static const String createTask = 'Create a Task';
+  static const String totalTasks = 'Total Tasks';
+  static const String pending = 'Pending';
+  static const String completed = 'Completed';
+  static const String seeAllSmall = 'See all';
+
+  // Bottom Nav
+  static const String homeNav = 'Home';
+  static const String tasksNav = 'Tasks';
+  static const String teamsNav = 'Teams';
+  static const String profileNav = 'Profile';
 
   // Teams — General
   static const String myTeams = 'My Teams';

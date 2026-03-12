@@ -5,16 +5,23 @@ import '../../domain/usecases/add_comment_usecase.dart';
 import '../../domain/usecases/create_task_usecase.dart';
 import '../../domain/usecases/delete_task_usecase.dart';
 import '../../domain/usecases/get_tasks_for_team_usecase.dart';
+import '../../domain/usecases/get_tasks_for_teams_usecase.dart';
 import '../../domain/usecases/get_tasks_for_user_usecase.dart';
 import '../../domain/usecases/update_task_usecase.dart';
 import 'task_state.dart';
 
+/// Manages the state for tasks across the application.
+///
+/// Uses Firestore streams as the single source of truth. After every
+/// mutation (create / update / delete / comment) the cubit re-subscribes
+/// to the stream so the UI always shows fresh data.
 class TasksCubit extends Cubit<TasksState> {
   final CreateTaskUseCase createTaskUseCase;
   final UpdateTaskUseCase updateTaskUseCase;
   final DeleteTaskUseCase deleteTaskUseCase;
   final GetTasksForUserUseCase getTasksForUserUseCase;
   final GetTasksForTeamUseCase getTasksForTeamUseCase;
+  final GetTasksForTeamsUseCase getTasksForTeamsUseCase;
   final AddCommentUseCase addCommentUseCase;
 
   StreamSubscription? _tasksSubscription;
@@ -25,8 +32,13 @@ class TasksCubit extends Cubit<TasksState> {
     required this.deleteTaskUseCase,
     required this.getTasksForUserUseCase,
     required this.getTasksForTeamUseCase,
+    required this.getTasksForTeamsUseCase,
     required this.addCommentUseCase,
   }) : super(TasksInitial());
+
+  // ----------------------------------------------------------
+  // Stream subscriptions
+  // ----------------------------------------------------------
 
   void loadMyTasks(String userId) {
     emit(TasksLoading());
@@ -46,29 +58,41 @@ class TasksCubit extends Cubit<TasksState> {
     );
   }
 
-  Future<void> createTask(TaskEntity task) async {
-    emit(TasksLoading());
-    final result = await createTaskUseCase(task);
-    result.fold((failure) => emit(TasksError(_mapFailureToMessage(failure))), (
-      taskId,
-    ) {
-      if (task.isDraft) {
-        emit(TaskDraftSaved());
-      } else {
-        emit(TaskCreatedSuccess(taskId));
-      }
-    });
-  }
+  void loadTasksForTeams(List<String> teamIds) {
+    if (teamIds.isEmpty) {
+      emit(const TasksLoaded([]));
+      return;
+    }
 
-  Future<void> updateTask(String taskId, TaskEntity task) async {
-    final result = await updateTaskUseCase(taskId, task);
-    result.fold(
-      (failure) => emit(TasksError(_mapFailureToMessage(failure))),
-      (_) => emit(TaskUpdatedSuccess()),
+    emit(TasksLoading());
+    _tasksSubscription?.cancel();
+    _tasksSubscription = getTasksForTeamsUseCase(teamIds).listen(
+      (tasks) => emit(TasksLoaded(tasks)),
+      onError: (error) => emit(TasksError(error.toString())),
     );
   }
 
-  Future<void> updateTaskStatus(
+  // ----------------------------------------------------------
+  // Mutations
+  // ----------------------------------------------------------
+
+  Future<String?> createTask(TaskEntity task) async {
+    final result = await createTaskUseCase(task);
+    return result.fold((failure) {
+      emit(TasksError(_mapFailureToMessage(failure)));
+      return null;
+    }, (taskId) => taskId);
+  }
+
+  Future<bool> updateTask(String taskId, TaskEntity task) async {
+    final result = await updateTaskUseCase(taskId, task);
+    return result.fold((failure) {
+      emit(TasksError(_mapFailureToMessage(failure)));
+      return false;
+    }, (_) => true);
+  }
+
+  Future<bool> updateTaskStatus(
     String taskId,
     TaskStatus status,
     TaskEntity currentTask,
@@ -90,27 +114,30 @@ class TasksCubit extends Cubit<TasksState> {
       createdAt: currentTask.createdAt,
       updatedAt: DateTime.now(),
     );
-    await updateTask(taskId, updatedTask);
+    return await updateTask(taskId, updatedTask);
   }
 
-  Future<void> deleteTask(String taskId) async {
+  Future<bool> deleteTask(String taskId) async {
     final result = await deleteTaskUseCase(taskId);
-    result.fold(
-      (failure) => emit(TasksError(_mapFailureToMessage(failure))),
-      (_) => emit(TaskDeletedSuccess()),
-    );
+    return result.fold((failure) {
+      emit(TasksError(_mapFailureToMessage(failure)));
+      return false;
+    }, (_) => true);
   }
 
-  Future<void> addComment(String taskId, TaskCommentEntity comment) async {
+  Future<bool> addComment(String taskId, TaskCommentEntity comment) async {
     final result = await addCommentUseCase(taskId, comment);
-    result.fold(
-      (failure) => emit(TasksError(_mapFailureToMessage(failure))),
-      (_) => emit(TaskCommentAdded()),
-    );
+    return result.fold((failure) {
+      emit(TasksError(_mapFailureToMessage(failure)));
+      return false;
+    }, (_) => true);
   }
+
+  // ----------------------------------------------------------
+  // Helpers
+  // ----------------------------------------------------------
 
   String _mapFailureToMessage(dynamic failure) {
-    // In a real app, match against failure types
     return failure.toString();
   }
 

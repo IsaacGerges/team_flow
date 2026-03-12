@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../domain/entities/task_entity.dart';
 
 class TaskStatusBadge extends StatelessWidget {
@@ -14,47 +13,51 @@ class TaskStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color color;
-    String label;
-
-    if (isOverdue && status != TaskStatus.done) {
-      color = AppColors.error;
-      label = 'OVERDUE';
-    } else {
-      switch (status) {
-        case TaskStatus.todo:
-          color = AppColors.taskTodo;
-          label = 'TO DO';
-          break;
-        case TaskStatus.inProgress:
-          color = AppColors.taskInProgress;
-          label = 'IN PROGRESS';
-          break;
-        case TaskStatus.review:
-          color = AppColors.warning;
-          label = 'REVIEW';
-          break;
-        case TaskStatus.done:
-          color = AppColors.taskDone;
-          label = 'DONE';
-          break;
-      }
-    }
+    final (label, bgColor, textColor) = _getData();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4),
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: color,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
+          color: textColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
+  }
+
+  (String, Color, Color) _getData() {
+    if (isOverdue && status != TaskStatus.done) {
+      return ('Overdue', const Color(0xFFFEF2F2), const Color(0xFFEF4444));
+    }
+
+    return switch (status) {
+      TaskStatus.todo => (
+        'To Do',
+        const Color(0xFFF1F5F9),
+        const Color(0xFF64748B),
+      ),
+      TaskStatus.review => (
+        'Review',
+        const Color(0xFFFFF7ED),
+        const Color(0xFFEA580C),
+      ),
+      TaskStatus.inProgress => (
+        'In Progress',
+        const Color(0xFFEFF6FF),
+        const Color(0xFF3B82F6),
+      ),
+      TaskStatus.done => (
+        'Done',
+        const Color(0xFFF0FDF4),
+        const Color(0xFF22C55E),
+      ),
+    };
   }
 }

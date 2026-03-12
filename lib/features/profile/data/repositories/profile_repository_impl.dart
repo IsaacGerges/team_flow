@@ -29,6 +29,17 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Stream<Either<Failure, ProfileEntity>> getProfileStream(String uid) async* {
+    try {
+      await for (final profile in remoteDataSource.getProfileStream(uid)) {
+        yield Right(profile);
+      }
+    } catch (e) {
+      yield Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> updateProfile(ProfileEntity profile) async {
     try {
       final profileModel = ProfileModel(

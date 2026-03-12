@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/helpers/image_helper.dart';
 import '../../../profile/presentation/cubit/profile_cubit.dart';
 import '../../../profile/presentation/cubit/profile_state.dart';
@@ -28,118 +27,113 @@ class TaskAssignmentPage extends StatefulWidget {
 
 class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
   String _searchQuery = '';
-  String? _selectedUserId;
+  final Set<String> _selectedUserIds = {};
+  late final TasksCubit _localTasksCubit;
 
   @override
   void initState() {
     super.initState();
-    _selectedUserId = widget.currentAssigneeIds.isNotEmpty
-        ? widget.currentAssigneeIds.first
-        : null;
-    context.read<TasksCubit>().loadTeamTasks(widget.teamId);
+    _selectedUserIds.addAll(widget.currentAssigneeIds);
+    _localTasksCubit = sl<TasksCubit>()..loadTeamTasks(widget.teamId);
+  }
+
+  @override
+  void dispose() {
+    _localTasksCubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundScreen,
-      appBar: AppBar(
-        backgroundColor: AppColors.backgroundScreen,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Assign Task',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
+    return BlocProvider<TasksCubit>.value(
+      value: _localTasksCubit,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.close_rounded, color: Color(0xFF1E293B)),
+            onPressed: () => context.pop(),
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.tune, color: AppColors.textPrimary),
-            onPressed: () {},
+          title: const Text(
+            'Assign Task',
+            style: TextStyle(
+              color: Color(0xFF1E293B),
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
+            ),
           ),
-        ],
+          centerTitle: true,
+        ),
+        body: BlocBuilder<TasksCubit, TasksState>(
+          bloc: _localTasksCubit,
+          builder: (context, taskState) {
+            return BlocBuilder<TeamsCubit, TeamsState>(
+              builder: (context, teamState) {
+                if (teamState is TeamsLoading || taskState is TasksLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+                  );
+                }
+                return _buildBody(taskState);
+              },
+            );
+          },
+        ),
+        bottomNavigationBar: _selectedUserIds.isNotEmpty
+            ? _buildBottomPanel()
+            : null,
       ),
-      body: BlocBuilder<TasksCubit, TasksState>(
-        builder: (context, taskState) {
-          return BlocBuilder<TeamsCubit, TeamsState>(
-            builder: (context, teamState) {
-              if (teamState is TeamsLoading || taskState is TasksLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryBlue,
-                  ),
-                );
-              }
-
-              // In a real app, we'd find the specific team.
-              // For now we use the members loaded in TeamsCubit if available.
-              // Better: TeamsCubit should have a getter for team by ID.
-              // But we can just use the ProfileCubit (which we should provide)
-              // to get all users and filter by team members.
-
-              // For this demo, I'll assume it's already provided.
-              // I'll use a placeholder list of profiles for now.
-              return _buildBody(taskState);
-            },
-          );
-        },
-      ),
-      bottomNavigationBar: _selectedUserId != null ? _buildBottomPanel() : null,
     );
   }
 
   Widget _buildBody(TasksState taskState) {
-    // We need the team members from ProfileCubit
     return BlocProvider(
       create: (context) => sl<ProfileCubit>()..getAllUsers(),
       child: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, profileState) {
           if (profileState is ProfileLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+            );
           }
           if (profileState is ProfileLoadedAll) {
             final tasks = taskState is TasksLoaded
                 ? taskState.tasks
                 : <TaskEntity>[];
-            final users = profileState.users.where((u) {
-              final matchesQuery = u.fullName.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              );
-              return matchesQuery;
-            }).toList();
+            final teamsState = context.read<TeamsCubit>().state;
+            final adminId = teamsState is TeamsLoaded
+                ? teamsState.teams
+                      .where((t) => t.id == widget.teamId)
+                      .firstOrNull
+                      ?.adminId
+                : null;
+
+            final users = profileState.users
+                .where(
+                  (u) => u.fullName.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ),
+                )
+                .where((u) => u.uid != adminId)
+                .toList();
 
             return Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextField(
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                    decoration: InputDecoration(
-                      hintText: 'Search team members...',
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: AppColors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ),
+                _buildSearchBar(),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     children: [
-                      _buildSectionHeader('SUGGESTED MEMBERS', isAI: true),
+                      _buildSectionHeader('SUGGESTED', isAI: true),
                       ..._buildUserList(users, tasks, isSuggested: true),
-                      const SizedBox(height: 24),
-                      _buildSectionHeader('ALL MEMBERS (${users.length})'),
+                      const SizedBox(height: 32),
+                      _buildSectionHeader('TEAM MEMBERS (${users.length})'),
                       ..._buildUserList(users, tasks, isSuggested: false),
+                      const SizedBox(height: 48),
                     ],
                   ),
                 ),
@@ -152,35 +146,77 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
     );
   }
 
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: TextField(
+          onChanged: (val) => setState(() => _searchQuery = val),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+          decoration: const InputDecoration(
+            hintText: 'Search members...',
+            hintStyle: TextStyle(
+              color: Color(0xFF94A3B8),
+              fontWeight: FontWeight.w500,
+            ),
+            prefixIcon: Icon(
+              Icons.search_rounded,
+              color: Color(0xFF94A3B8),
+              size: 20,
+            ),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(vertical: 14),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionHeader(String title, {bool isAI = false}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0, top: 8.0),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textSecondary,
-              letterSpacing: 1.1,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF64748B),
+              letterSpacing: 0.5,
             ),
           ),
           if (isAI) ...[
             const SizedBox(width: 8),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(4),
+                color: const Color(0xFFEFF6FF),
+                borderRadius: BorderRadius.circular(6),
               ),
-              child: const Text(
-                'AI RECOMMENDED',
-                style: TextStyle(
-                  color: AppColors.primaryBlue,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: const Row(
+                children: [
+                  Icon(Icons.auto_awesome, color: Color(0xFF2563EB), size: 10),
+                  SizedBox(width: 4),
+                  Text(
+                    'AI POWERED',
+                    style: TextStyle(
+                      color: Color(0xFF2563EB),
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -194,7 +230,6 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
     List<TaskEntity> tasks, {
     required bool isSuggested,
   }) {
-    // Calculate load per user
     final Map<String, int> loadMap = {};
     for (var task in tasks) {
       if (task.status != TaskStatus.done) {
@@ -204,94 +239,157 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
       }
     }
 
+    final maxLoad = loadMap.values.isEmpty
+        ? 1
+        : loadMap.values.reduce((a, b) => a > b ? a : b);
+    final maxLoadClamped = maxLoad < 1 ? 1 : maxLoad;
+
     final filteredUsers = isSuggested
         ? users.where((u) => (loadMap[u.uid] ?? 0) <= 2).take(3).toList()
         : users;
 
     return filteredUsers.map((user) {
       final load = loadMap[user.uid] ?? 0;
+      final isSelected = _selectedUserIds.contains(user.uid);
+      final hasPhoto = user.photoUrl != null && user.photoUrl!.isNotEmpty;
 
-      return Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: ListTile(
-          onTap: () => setState(() => _selectedUserId = user.uid),
-          contentPadding: const EdgeInsets.all(12),
-          leading: CircleAvatar(
-            radius: 24,
-            backgroundImage: ImageHelper.getProvider(user.photoUrl ?? ''),
+      return GestureDetector(
+        onTap: () => setState(() {
+          if (_selectedUserIds.contains(user.uid)) {
+            _selectedUserIds.remove(user.uid);
+          } else {
+            _selectedUserIds.add(user.uid);
+          }
+        }),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFF2563EB)
+                  : const Color(0xFFE2E8F0),
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : [],
           ),
-          title: Text(
-            user.fullName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Text('Capacity: ', style: TextStyle(fontSize: 12)),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(2),
-                        child: LinearProgressIndicator(
-                          value: (load / 10).clamp(0, 1),
-                          backgroundColor: AppColors.divider.withValues(
-                            alpha: 0.5,
-                          ),
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            _getLoadColor(load),
-                          ),
-                          minHeight: 4,
+              CircleAvatar(
+                radius: 26,
+                backgroundColor: const Color(0xFFF1F5F9),
+                backgroundImage: hasPhoto
+                    ? ImageHelper.getProvider(user.photoUrl)
+                    : null,
+                child: !hasPhoto
+                    ? Text(
+                        user.fullName[0].toUpperCase(),
+                        style: const TextStyle(
+                          color: Color(0xFF2563EB),
+                          fontWeight: FontWeight.w900,
                         ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.fullName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        color: Color(0xFF1E293B),
                       ),
                     ),
-                  ),
-                  Text(
-                    '$load Active Tasks',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppColors.textSecondary,
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(
+                          '$load active task${load == 1 ? '' : 's'}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: LinearProgressIndicator(
+                              value: load == 0
+                                  ? 0.0
+                                  : (load / maxLoadClamped).clamp(0.05, 1.0),
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                _getLoadColor(load),
+                              ),
+                              minHeight: 5,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 12),
+              _buildCustomCheckbox(isSelected),
             ],
-          ),
-          trailing: Radio<String>(
-            value: user.uid,
-            groupValue: _selectedUserId,
-            onChanged: (val) => setState(() => _selectedUserId = val),
-            activeColor: AppColors.primaryBlue,
           ),
         ),
       );
     }).toList();
   }
 
+  Widget _buildCustomCheckbox(bool isSelected) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+          width: 2,
+        ),
+        color: isSelected ? const Color(0xFF2563EB) : Colors.white,
+      ),
+      child: isSelected
+          ? const Icon(Icons.check, size: 16, color: Colors.white)
+          : null,
+    );
+  }
+
   Color _getLoadColor(int load) {
-    if (load <= 2) return AppColors.success;
-    if (load <= 5) return AppColors.warning;
-    return AppColors.error;
+    if (load <= 2) return const Color(0xFF10B981);
+    if (load <= 5) return const Color(0xFFF59E0B);
+    return const Color(0xFFEF4444);
   }
 
   Widget _buildBottomPanel() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 40,
+            offset: const Offset(0, -10),
           ),
         ],
       ),
@@ -300,31 +398,20 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                backgroundColor: AppColors.primaryBlue,
-                radius: 20,
-                child: Icon(Icons.person, color: Colors.white),
+              const Icon(
+                Icons.info_outline_rounded,
+                color: Color(0xFF2563EB),
+                size: 20,
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Assigning to member',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      'Member will receive a notification',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Confirming will notify ${_selectedUserIds.length} member${_selectedUserIds.length == 1 ? '' : 's'} immediately.',
+                  style: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -333,18 +420,20 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => context.pop([_selectedUserId!]),
+              onPressed: () => context.pop(_selectedUserIds.toList()),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryBlue,
+                backgroundColor: const Color(0xFF2563EB),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
+                elevation: 8,
+                shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.3),
               ),
               child: const Text(
                 'Confirm Assignment',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
               ),
             ),
           ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/failures.dart';
@@ -14,6 +15,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final GetProfileUseCase getProfileUseCase;
   final UpdateProfileUseCase updateProfileUseCase;
   final GetAllUsersUseCase getAllUsersUseCase;
+  StreamSubscription? _profileSubscription;
 
   ProfileCubit({
     required this.getProfileUseCase,
@@ -23,11 +25,26 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> getProfile(String uid) async {
     emit(const ProfileLoading());
-    final result = await getProfileUseCase(uid);
-    result.fold(
-      (failure) => emit(ProfileError(_mapFailureToMessage(failure))),
-      (profile) => emit(ProfileLoaded(profile)),
-    );
+    await _profileSubscription?.cancel();
+    _profileSubscription = getProfileUseCase.repository
+        .getProfileStream(uid)
+        .listen(
+          (result) {
+            result.fold(
+              (failure) => emit(ProfileError(_mapFailureToMessage(failure))),
+              (profile) => emit(ProfileLoaded(profile)),
+            );
+          },
+          onError: (error) {
+            emit(ProfileError(error.toString()));
+          },
+        );
+  }
+
+  @override
+  Future<void> close() {
+    _profileSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> updateProfile(ProfileEntity profile) async {

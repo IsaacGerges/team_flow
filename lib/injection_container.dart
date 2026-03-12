@@ -35,6 +35,7 @@ import 'features/tasks/domain/usecases/add_comment_usecase.dart';
 import 'features/tasks/domain/usecases/create_task_usecase.dart';
 import 'features/tasks/domain/usecases/delete_task_usecase.dart';
 import 'features/tasks/domain/usecases/get_tasks_for_team_usecase.dart';
+import 'features/tasks/domain/usecases/get_tasks_for_teams_usecase.dart';
 import 'features/tasks/domain/usecases/get_tasks_for_user_usecase.dart';
 import 'features/tasks/domain/usecases/update_task_usecase.dart';
 import 'features/tasks/presentation/cubit/task_cubit.dart';
@@ -146,6 +147,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeleteTaskUseCase(sl()));
   sl.registerLazySingleton(() => GetTasksForUserUseCase(sl()));
   sl.registerLazySingleton(() => GetTasksForTeamUseCase(sl()));
+  sl.registerLazySingleton(() => GetTasksForTeamsUseCase(sl()));
   sl.registerLazySingleton(() => AddCommentUseCase(sl()));
 
   // Repository
@@ -166,6 +168,7 @@ Future<void> init() async {
       deleteTaskUseCase: sl(),
       getTasksForUserUseCase: sl(),
       getTasksForTeamUseCase: sl(),
+      getTasksForTeamsUseCase: sl(),
       addCommentUseCase: sl(),
     ),
   );

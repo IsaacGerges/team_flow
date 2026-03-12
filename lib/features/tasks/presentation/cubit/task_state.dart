@@ -27,19 +27,3 @@ final class TasksError extends TasksState {
   @override
   List<Object?> get props => [message];
 }
-
-final class TaskCreatedSuccess extends TasksState {
-  final String taskId;
-  const TaskCreatedSuccess(this.taskId);
-
-  @override
-  List<Object?> get props => [taskId];
-}
-
-final class TaskUpdatedSuccess extends TasksState {}
-
-final class TaskDeletedSuccess extends TasksState {}
-
-final class TaskCommentAdded extends TasksState {}
-
-final class TaskDraftSaved extends TasksState {}

@@ -9,7 +9,6 @@ import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
 
-/// Create a new team with full details.
 class CreateTeamPage extends StatefulWidget {
   const CreateTeamPage({super.key});
 
@@ -35,105 +34,86 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundScreen,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.backgroundScreen,
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Color(0xFF1E293B),
+            size: 18,
+          ),
           onPressed: () => context.pop(),
         ),
         title: const Text(
-          AppStrings.createNewTeam,
+          'Create New Team',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: Color(0xFF1E293B),
+            fontWeight: FontWeight.w900,
+            fontSize: 18,
           ),
         ),
-        actions: [
-          BlocBuilder<TeamsCubit, TeamsState>(
-            builder: (context, state) {
-              if (state is TeamsLoading) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                );
-              }
-              return TextButton(
-                onPressed: () => _submitForm(context),
-                child: const Text(
-                  'Save',
-                  style: TextStyle(
-                    color: AppColors.primaryBlue,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
+        centerTitle: true,
       ),
       body: BlocListener<TeamsCubit, TeamsState>(
         listener: (context, state) {
           if (state is TeamCreatedSuccess) {
-            _showSnackBar(context, AppStrings.teamCreated, AppColors.success);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Team created successfully'),
+                backgroundColor: AppColors.success,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
             context.pop();
           } else if (state is TeamLogoPicked) {
             setState(() => _logoBase64 = state.base64Image);
           } else if (state is TeamsError) {
-            _showSnackBar(context, state.message, AppColors.error);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
           }
         },
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _LogoUploadSection(logoBase64: _logoBase64),
-                const SizedBox(height: 24),
-                _buildLabel(AppStrings.teamName),
-                const SizedBox(height: 8),
+                _buildLogoUploadSection(),
+                const SizedBox(height: 32),
+                _buildLabel('TEAM NAME'),
+                const SizedBox(height: 10),
                 _buildTextField(
                   controller: _nameController,
-                  hint: AppStrings.teamNameHint,
-                  maxLength: 50,
-                  validator: (val) => val == null || val.trim().isEmpty
-                      ? AppStrings.required
-                      : null,
-                ),
-                const SizedBox(height: 20),
-                _buildLabel(AppStrings.teamDescriptionLabel),
-                const SizedBox(height: 8),
-                _buildTextField(
-                  controller: _descriptionController,
-                  hint: AppStrings.teamDescriptionHint,
-                  maxLines: 3,
-                  maxLength: 200,
-                ),
-                const SizedBox(height: 20),
-                _buildLabel(AppStrings.teamCategoryLabel),
-                const SizedBox(height: 8),
-                _CategoryDropdown(
-                  value: _selectedCategory,
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedCategory = val);
-                  },
+                  hint: 'e.g. Design Team',
+                  validator: (val) =>
+                      val == null || val.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 24),
-                _PrivacyToggle(
-                  isPrivate: _isPrivate,
-                  onChanged: (val) => setState(() => _isPrivate = val),
+                _buildLabel('DESCRIPTION'),
+                const SizedBox(height: 10),
+                _buildTextField(
+                  controller: _descriptionController,
+                  hint: 'What does this team do?',
+                  maxLines: 3,
                 ),
+                const SizedBox(height: 24),
+                _buildLabel('CATEGORY'),
+                const SizedBox(height: 10),
+                _buildCategoryDropdown(),
                 const SizedBox(height: 32),
-                _CreateTeamButton(onPressed: () => _submitForm(context)),
-                const SizedBox(height: 12),
-                _CancelButton(onPressed: () => context.pop()),
+                _buildPrivacyToggle(),
+                const SizedBox(height: 48),
+                _buildCreateButton(),
+                const SizedBox(height: 60),
               ],
             ),
           ),
@@ -142,13 +122,83 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
     );
   }
 
+  Widget _buildLogoUploadSection() {
+    return Center(
+      child: Column(
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 108,
+                height: 108,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFF1F5F9), width: 8),
+                ),
+              ),
+              GestureDetector(
+                onTap: () => context.read<TeamsCubit>().pickTeamLogo(),
+                child: CircleAvatar(
+                  radius: 46,
+                  backgroundColor: const Color(0xFFF8FAFC),
+                  child: _logoBase64 != null
+                      ? ClipOval(
+                          child: Image(
+                            image: ImageHelper.getProvider(_logoBase64)!,
+                            width: 92,
+                            height: 92,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.add_a_photo_rounded,
+                          color: Color(0xFF2563EB),
+                          size: 32,
+                        ),
+                ),
+              ),
+              Positioned(
+                bottom: 4,
+                right: 4,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2563EB),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: const Icon(
+                    Icons.add_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Team Logo',
+            style: TextStyle(
+              color: Color(0xFF64748B),
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLabel(String text) {
     return Text(
       text,
       style: const TextStyle(
-        fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary,
-        fontSize: 14,
+        fontSize: 11,
+        fontWeight: FontWeight.w900,
+        color: Color(0xFF64748B),
+        letterSpacing: 0.5,
       ),
     );
   }
@@ -157,34 +207,153 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
     required TextEditingController controller,
     required String hint,
     int maxLines = 1,
-    int? maxLength,
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      maxLength: maxLength,
-      validator: validator,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.textHint),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.divider),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        validator: validator,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+          color: Color(0xFF1E293B),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.divider),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(
+            color: Color(0xFF94A3B8),
+            fontWeight: FontWeight.w500,
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(
+            vertical: maxLines > 1 ? 12 : 14,
+          ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
+      ),
+    );
+  }
+
+  Widget _buildCategoryDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButtonFormField<String>(
+          value: _selectedCategory,
+          onChanged: (val) {
+            if (val != null) setState(() => _selectedCategory = val);
+          },
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Color(0xFF64748B),
+          ),
+          decoration: const InputDecoration(border: InputBorder.none),
+          items: AppStrings.teamCategories
+              .map(
+                (cat) => DropdownMenuItem(
+                  value: cat,
+                  child: Text(
+                    cat,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
         ),
-        filled: true,
-        fillColor: AppColors.cardBackground,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+      ),
+    );
+  }
+
+  Widget _buildPrivacyToggle() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.lock_person_rounded,
+              color: Color(0xFF2563EB),
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Private Team',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Only invited members can join',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: _isPrivate,
+            onChanged: (val) => setState(() => _isPrivate = val),
+            activeColor: const Color(0xFF2563EB),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCreateButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () => _submitForm(context),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2563EB),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 8,
+          shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.3),
+        ),
+        child: const Text(
+          'Create Team',
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
       ),
     );
@@ -208,233 +377,5 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
         );
       }
     }
-  }
-
-  void _showSnackBar(BuildContext context, String msg, Color color) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: color));
-  }
-}
-
-class _LogoUploadSection extends StatelessWidget {
-  final String? logoBase64;
-  const _LogoUploadSection({this.logoBase64});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          DottedCircleAvatar(
-            photoUrl: logoBase64,
-            onTap: () => context.read<TeamsCubit>().pickTeamLogo(),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            AppStrings.uploadLogo,
-            style: TextStyle(
-              color: AppColors.primaryBlue,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Dashed-border circle for team logo upload.
-class DottedCircleAvatar extends StatelessWidget {
-  final VoidCallback onTap;
-  final String? photoUrl;
-
-  const DottedCircleAvatar({super.key, required this.onTap, this.photoUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 88,
-        height: 88,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: AppColors.primaryBlue,
-            width: 2,
-            style: BorderStyle.solid,
-          ),
-          color: AppColors.primaryBlueLight,
-        ),
-        child: photoUrl != null
-            ? ClipOval(
-                child: Image(
-                  image: ImageHelper.getProvider(photoUrl)!,
-                  fit: BoxFit.cover,
-                ),
-              )
-            : const Icon(
-                Icons.camera_alt_outlined,
-                color: AppColors.primaryBlue,
-                size: 32,
-              ),
-      ),
-    );
-  }
-}
-
-class _CategoryDropdown extends StatelessWidget {
-  final String value;
-  final ValueChanged<String?> onChanged;
-
-  const _CategoryDropdown({required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      initialValue: value,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
-        ),
-        filled: true,
-        fillColor: AppColors.cardBackground,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-      ),
-      items: AppStrings.teamCategories
-          .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-          .toList(),
-    );
-  }
-}
-
-class _PrivacyToggle extends StatelessWidget {
-  final bool isPrivate;
-  final ValueChanged<bool> onChanged;
-
-  const _PrivacyToggle({required this.isPrivate, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primaryBlueLight,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.lock_outline,
-              color: AppColors.primaryBlue,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  AppStrings.privateTeam,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  AppStrings.privateTeamDesc,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: isPrivate,
-            onChanged: onChanged,
-            activeThumbColor: AppColors.primaryBlue,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CreateTeamButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _CreateTeamButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.check),
-        label: const Text(
-          AppStrings.createTeam,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryBlue,
-          foregroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CancelButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _CancelButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textSecondary,
-          side: const BorderSide(color: AppColors.divider),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        child: const Text(AppStrings.cancel, style: TextStyle(fontSize: 16)),
-      ),
-    );
   }
 }

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile Screen</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(43, 108, 238, 0.1)',
+                        'inner-light': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-100 antialiased min-h-screen">
+<!-- Screen Container (Phone form factor max-width wrapper) -->
+<div class="mx-auto max-w-md bg-background-light dark:bg-background-dark min-h-screen relative shadow-2xl overflow-hidden pb-8">
+<!-- Status Bar Placeholder (iOS Safe Area) -->
+<div class="absolute top-0 w-full h-12 z-20 flex justify-between items-center px-6 text-white text-xs font-medium">
+<span>9:41</span>
+<div class="flex gap-1.5">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm">battery_full</span>
+</div>
+</div>
+<!-- Top Navigation (Transparent) -->
+<div class="absolute top-12 left-0 w-full z-20 flex justify-between items-center px-4">
+<button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+<span class="material-icons-round">arrow_back</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+<span class="material-icons-round">more_horiz</span>
+</button>
+</div>
+<!-- Hero Section & Profile Header -->
+<div class="relative">
+<!-- Cover Image -->
+<div class="h-48 w-full bg-gradient-to-br from-primary via-blue-600 to-indigo-800 relative" data-alt="Abstract deep blue geometric gradient pattern">
+<!-- Abstract Pattern Overlay -->
+<div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+<div class="absolute bottom-0 w-full h-12 bg-gradient-to-t from-background-light dark:from-background-dark to-transparent"></div>
+</div>
+<!-- Profile Content Container -->
+<div class="px-5 -mt-16 relative z-10">
+<!-- Avatar with Edit Button -->
+<div class="relative w-28 h-28 mx-auto mb-4">
+<div class="w-28 h-28 rounded-full p-1 bg-background-light dark:bg-background-dark">
+<img alt="Portrait of a smiling man with glasses" class="w-full h-full object-cover rounded-full" data-alt="Portrait of user smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIg0KahK451idgwSx9a3Sb_eYKLPoQl5kBhxg4OBmHY-sJ3gZH_fcjTP3TPMxmnE8fPmuNUbH-qnl2gaTW8V0BmutM0C9nsJSPjDm33TcIDQJZpr6mw7E10n65JeXyeHCEl2nhjM6AZ0r4DAu9IzWPOgl3VoYInzH2De0n-VgRn6TIrulYSxKBf7KY6fQlG0b_WbZjt6bHXaeaXIhevuNiF4NL0IZs9sdcpLqlp6UrzDcSnCcSxeQM7MlQYfKX5tXJ9wxFDdS6RMs"/>
+</div>
+<!-- Edit FAB -->
+<button class="absolute bottom-1 right-1 bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg border-2 border-background-light dark:border-background-dark hover:bg-blue-600 transition-colors">
+<span class="material-icons-round text-xs">edit</span>
+</button>
+</div>
+<!-- User Details -->
+<div class="text-center mb-6">
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white">Alex Johnson</h1>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-1">alex.j@teamflow.app</p>
+<div class="inline-flex items-center gap-1 bg-primary/10 dark:bg-primary/20 px-3 py-1 rounded-full">
+<span class="material-icons-round text-primary text-xs">calendar_today</span>
+<span class="text-xs font-medium text-primary">Joined Jan 2023</span>
+</div>
+</div>
+<!-- Stats Row -->
+<div class="flex justify-between gap-3 mb-8">
+<div class="flex-1 bg-white dark:bg-slate-800 rounded-xl p-3 shadow-soft text-center border border-slate-100 dark:border-slate-700">
+<span class="block text-2xl font-bold text-slate-800 dark:text-white mb-0.5">4</span>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Teams</span>
+</div>
+<div class="flex-1 bg-primary text-white rounded-xl p-3 shadow-soft shadow-blue-500/20 text-center">
+<span class="block text-2xl font-bold mb-0.5">142</span>
+<span class="text-xs font-medium text-blue-100 uppercase tracking-wide">Completed</span>
+</div>
+<div class="flex-1 bg-white dark:bg-slate-800 rounded-xl p-3 shadow-soft text-center border border-slate-100 dark:border-slate-700">
+<span class="block text-2xl font-bold text-slate-800 dark:text-white mb-0.5">8</span>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Active</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Navigation -->
+<div class="px-5 mb-6 sticky top-12 z-10 bg-background-light dark:bg-background-dark py-2">
+<div class="flex p-1 bg-slate-200 dark:bg-slate-800 rounded-lg relative">
+<!-- Active Tab Indicator (Visual only, usually JS controlled, hardcoded for design) -->
+<div class="w-1/3 h-full absolute left-0 top-0 p-1">
+<div class="w-full h-full bg-white dark:bg-slate-700 shadow-sm rounded-md"></div>
+</div>
+<button class="flex-1 relative z-10 py-1.5 text-sm font-medium text-slate-900 dark:text-white text-center">About</button>
+<button class="flex-1 relative z-10 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-center">Activity</button>
+<button class="flex-1 relative z-10 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-center">Teams</button>
+</div>
+</div>
+<!-- Main Content Area (Tab View: About) -->
+<div class="px-5 pb-6 space-y-6">
+<!-- Bio Section -->
+<section>
+<h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">Biography</h3>
+<p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    Senior Product Manager focused on efficiency and cross-functional team leadership. Passionate about building tools that help teams work better together.
+                </p>
+</section>
+<!-- Skills Section -->
+<section>
+<h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">Skills</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 shadow-sm">Product Management</span>
+<span class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 shadow-sm">Agile Scrum</span>
+<span class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 shadow-sm">UI/UX Strategy</span>
+<span class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 shadow-sm">Data Analysis</span>
+<span class="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-xs font-medium text-primary shadow-sm">+ Add new</span>
+</div>
+</section>
+<!-- Divider -->
+<div class="h-px w-full bg-slate-200 dark:bg-slate-800"></div>
+<!-- Settings / Actions Section -->
+<section>
+<h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">Preferences</h3>
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
+<!-- Dark Mode Toggle -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+<span class="material-icons-round text-lg">dark_mode</span>
+</div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Dark Mode</span>
+</div>
+<!-- Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Notifications Toggle -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 flex items-center justify-center">
+<span class="material-icons-round text-lg">notifications</span>
+</div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Notifications</span>
+</div>
+<!-- Toggle Switch (Checked) -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Security -->
+<div class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+<span class="material-icons-round text-lg">lock</span>
+</div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Privacy &amp; Security</span>
+</div>
+<span class="material-icons-round text-slate-400 text-lg">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Logout Button -->
+<button class="w-full mt-2 group flex items-center justify-center gap-2 p-4 rounded-xl border border-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors">
+<span class="material-icons-round text-lg group-hover:scale-110 transition-transform">logout</span>
+<span class="text-sm font-semibold">Log Out</span>
+</button>
+</div>
+</div>
+</body></html>

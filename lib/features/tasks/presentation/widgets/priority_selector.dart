@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../domain/entities/task_entity.dart';
 
 class PrioritySelector extends StatelessWidget {
@@ -17,24 +16,26 @@ class PrioritySelector extends StatelessWidget {
     return Row(
       children: TaskPriority.values.map((priority) {
         final isSelected = selectedPriority == priority;
-        final color = _getPriorityColor(priority);
+        final (label, color) = _getPriorityData(priority);
 
         return Expanded(
           child: GestureDetector(
             onTap: () => onPriorityChanged(priority),
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              margin: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? color.withOpacity(0.1) : AppColors.white,
-                borderRadius: BorderRadius.circular(12),
+                color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected ? color : AppColors.divider,
+                  color: isSelected
+                      ? const Color(0xFF3B82F6)
+                      : const Color(0xFFE2E8F0),
                   width: isSelected ? 2 : 1,
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     width: 8,
@@ -44,14 +45,17 @@ class PrioritySelector extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    _getPriorityLabel(priority),
+                    label,
                     style: TextStyle(
-                      color: isSelected ? color : AppColors.textSecondary,
+                      color: isSelected
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFF64748B),
                       fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                          ? FontWeight.w700
+                          : FontWeight.w600,
+                      fontSize: 14,
                     ),
                   ),
                 ],
@@ -63,25 +67,11 @@ class PrioritySelector extends StatelessWidget {
     );
   }
 
-  Color _getPriorityColor(TaskPriority priority) {
-    switch (priority) {
-      case TaskPriority.high:
-        return AppColors.priorityHigh;
-      case TaskPriority.medium:
-        return AppColors.priorityMedium;
-      case TaskPriority.low:
-        return AppColors.priorityLow;
-    }
-  }
-
-  String _getPriorityLabel(TaskPriority priority) {
-    switch (priority) {
-      case TaskPriority.high:
-        return 'High';
-      case TaskPriority.medium:
-        return 'Medium';
-      case TaskPriority.low:
-        return 'Low';
-    }
+  (String, Color) _getPriorityData(TaskPriority priority) {
+    return switch (priority) {
+      TaskPriority.high => ('High', const Color(0xFFEF4444)),
+      TaskPriority.medium => ('Medium', const Color(0xFFF59E0B)),
+      TaskPriority.low => ('Low', const Color(0xFF22C55E)),
+    };
   }
 }

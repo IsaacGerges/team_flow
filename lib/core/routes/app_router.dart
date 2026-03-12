@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:team_flow/core/widgets/main_scaffold.dart';
+import 'package:team_flow/features/home/presentation/pages/home_dashboard_page.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/pages/add_member_page.dart';
@@ -23,7 +26,23 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../helpers/cache_helper.dart';
 
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'root',
+);
+final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'homeNav',
+);
+final GlobalKey<NavigatorState> _tasksNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'tasksNav',
+);
+final GlobalKey<NavigatorState> _teamsNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'teamsNav',
+);
+final GlobalKey<NavigatorState> _profileNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'profileNav');
+
 final GoRouter router = GoRouter(
+  navigatorKey: _rootNavigatorKey,
   initialLocation: '/login',
   redirect: (context, state) {
     final cacheHelper = sl<CacheHelper>();
@@ -53,108 +72,127 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const SignUpPage(),
     ),
 
-    // --- Teams Shell: shares the same TeamsCubit instance ---
-    ShellRoute(
-      builder: (context, state, child) {
-        return BlocProvider(create: (_) => sl<TeamsCubit>(), child: child);
-      },
-      routes: [
-        GoRoute(
-          path: '/home',
-          name: 'home',
-          builder: (context, state) => const TeamsListPage(),
-        ),
-        GoRoute(
-          path: '/teams/create',
-          name: 'createTeam',
-          builder: (context, state) => const CreateTeamPage(),
-        ),
-        GoRoute(
-          path: '/teams/update',
-          name: 'updateTeam',
-          builder: (context, state) {
-            final team = state.extra as TeamEntity;
-            return UpdateTeamPage(team: team);
-          },
-        ),
-        GoRoute(
-          path: '/teams/details',
-          name: 'teamDetails',
-          builder: (context, state) {
-            final team = state.extra as TeamEntity;
-            return TeamDetailsPage(team: team);
-          },
-        ),
-        GoRoute(
-          path: '/teams/add-member',
-          name: 'addMember',
-          builder: (context, state) {
-            final team = state.extra as TeamEntity;
-            return AddMemberPage(team: team);
-          },
-        ),
-      ],
-    ),
-
-    // --- Profile Shell: shares the same ProfileCubit instance ---
-    ShellRoute(
-      builder: (context, state, child) {
-        return BlocProvider(create: (_) => sl<ProfileCubit>(), child: child);
-      },
-      routes: [
-        GoRoute(
-          path: '/profile',
-          name: 'profile',
-          builder: (context, state) => const ProfilePage(),
-        ),
-        GoRoute(
-          path: '/profile/edit',
-          name: 'editProfile',
-          builder: (context, state) => const EditProfilePage(),
-        ),
-      ],
-    ),
-
-    // --- Tasks Shell: shares TasksCubit and TeamsCubit ---
-    ShellRoute(
-      builder: (context, state, child) {
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        // Wrap everything with the necessary Cubits so they are shared across branches
         return MultiBlocProvider(
           providers: [
-            BlocProvider(create: (_) => sl<TasksCubit>()),
+            BlocProvider(create: (_) => sl<ProfileCubit>()),
             BlocProvider(create: (_) => sl<TeamsCubit>()),
+            BlocProvider(create: (_) => sl<TasksCubit>()),
           ],
-          child: child,
+          child: MainScaffoldWithNavBar(navigationShell: navigationShell),
         );
       },
-      routes: [
-        GoRoute(
-          path: '/tasks',
-          name: 'tasks',
-          builder: (context, state) => const MyTasksPage(),
+      branches: [
+        // Branch 0: Home
+        StatefulShellBranch(
+          navigatorKey: _homeNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/home',
+              name: 'home',
+              builder: (context, state) => const HomeDashboardPage(),
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/tasks/create',
-          name: 'createTask',
-          builder: (context, state) => const CreateTaskPage(),
+        // Branch 1: Teams (REORDERED to match visual nav bar position)
+        StatefulShellBranch(
+          navigatorKey: _teamsNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/teams',
+              name: 'teams',
+              builder: (context, state) => const TeamsListPage(),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'createTeam',
+                  builder: (context, state) => const CreateTeamPage(),
+                ),
+                GoRoute(
+                  path: 'update',
+                  name: 'updateTeam',
+                  builder: (context, state) {
+                    final team = state.extra as TeamEntity;
+                    return UpdateTeamPage(team: team);
+                  },
+                ),
+                GoRoute(
+                  path: 'details',
+                  name: 'teamDetails',
+                  builder: (context, state) {
+                    final team = state.extra as TeamEntity;
+                    return TeamDetailsPage(team: team);
+                  },
+                ),
+                GoRoute(
+                  path: 'add-member',
+                  name: 'addMember',
+                  builder: (context, state) {
+                    final team = state.extra as TeamEntity;
+                    return AddMemberPage(team: team);
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/tasks/details',
-          name: 'taskDetails',
-          builder: (context, state) {
-            final task = state.extra as TaskEntity;
-            return TaskDetailsPage(task: task);
-          },
+        // Branch 2: Tasks
+        StatefulShellBranch(
+          navigatorKey: _tasksNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/tasks',
+              name: 'tasks',
+              builder: (context, state) => const MyTasksPage(),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'createTask',
+                  builder: (context, state) => const CreateTaskPage(),
+                ),
+                GoRoute(
+                  path: 'details',
+                  name: 'taskDetails',
+                  builder: (context, state) {
+                    final task = state.extra as TaskEntity;
+                    return TaskDetailsPage(task: task);
+                  },
+                ),
+                GoRoute(
+                  path: 'assign',
+                  name: 'taskAssignment',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>;
+                    return TaskAssignmentPage(
+                      teamId: extra['teamId'] as String,
+                      currentAssigneeIds:
+                          extra['currentAssigneeIds'] as List<String>,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/tasks/assign',
-          name: 'taskAssignment',
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>;
-            return TaskAssignmentPage(
-              teamId: extra['teamId'] as String,
-              currentAssigneeIds: extra['currentAssigneeIds'] as List<String>,
-            );
-          },
+        // Branch 3: Profile
+        StatefulShellBranch(
+          navigatorKey: _profileNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/profile',
+              name: 'profile',
+              builder: (context, state) => const ProfilePage(),
+              routes: [
+                GoRoute(
+                  path: 'edit',
+                  name: 'editProfile',
+                  builder: (context, state) => const EditProfilePage(),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),

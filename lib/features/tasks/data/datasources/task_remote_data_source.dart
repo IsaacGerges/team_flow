@@ -8,6 +8,7 @@ abstract class TasksRemoteDataSource {
   Future<void> deleteTask(String taskId);
   Stream<List<TaskModel>> getTasksForUser(String userId);
   Stream<List<TaskModel>> getTasksForTeam(String teamId);
+  Stream<List<TaskModel>> getTasksForTeams(List<String> teamIds);
   Future<void> addComment(String taskId, TaskCommentModel comment);
   Stream<List<TaskCommentModel>> getComments(String taskId);
 }
@@ -68,6 +69,23 @@ class TasksRemoteDataSourceImpl implements TasksRemoteDataSource {
     return firestore
         .collection('tasks')
         .where('teamId', isEqualTo: teamId)
+        .orderBy('updatedAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => TaskModel.fromSnapshot(doc)).toList(),
+        );
+  }
+
+  @override
+  Stream<List<TaskModel>> getTasksForTeams(List<String> teamIds) {
+    if (teamIds.isEmpty) return Stream.value([]);
+
+    // Note: Firestore 'whereIn' supports up to 30 items.
+    // For typical usage, a user won't easily exceed 30 teams.
+    return firestore
+        .collection('tasks')
+        .where('teamId', whereIn: teamIds)
         .orderBy('updatedAt', descending: true)
         .snapshots()
         .map(

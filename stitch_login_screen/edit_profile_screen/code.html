@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Edit Profile - Team Management App</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "primary-hover": "#2256be",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a212e",
+                        "input-bg-light": "#f3f4f6",
+                        "input-bg-dark": "#1f2937",
+                        "subtle-border": "#e5e7eb",
+                        "subtle-border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for clean mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* iOS-like toggle switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2b6cee;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2b6cee;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 min-h-screen flex justify-center">
+<!-- Mobile Container -->
+<div class="w-full max-w-md bg-surface-light dark:bg-surface-dark shadow-xl min-h-screen relative flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-20 bg-surface-light/90 dark:bg-surface-dark/90 backdrop-blur-md border-b border-subtle-border dark:border-subtle-border-dark px-4 h-14 flex items-center justify-between">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-primary transition-colors">
+<span class="material-icons text-2xl">chevron_left</span>
+</button>
+<h1 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Profile</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<!-- Main Content (Scrollable) -->
+<main class="flex-1 overflow-y-auto pb-24 no-scrollbar">
+<!-- Avatar Section -->
+<div class="flex flex-col items-center py-8">
+<div class="relative group cursor-pointer">
+<div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-md">
+<img alt="Profile Avatar" class="w-full h-full object-cover" data-alt="Close up portrait of a young man smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0HAY8L-39Ep6o6DgOZi3EDKB1KuMsNA2ok1G824auJa9viqy41L4yamDMsZbRmZdQqBPes0IXOBED5Wz3Sw9KXJu-tbm_GRTpbyo-tEZuE1LVwS8Ic_r-0-7I5ynEoM33aO-3PJ0r6tNpGHhskxTBxgmS2JzhJltM03xQBeQ_acqnYb3T_mzil7TvAQoIB8P6bWVFaq9gmRUJ5P7bXEUwoudlSiF29oEYzomoadR9SlGOXExDK8vJiIiely7XmN1gm5m4-GqD7ks"/>
+</div>
+<div class="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-icons text-white">camera_alt</span>
+</div>
+</div>
+<div class="flex items-center gap-6 mt-4">
+<button class="text-primary font-medium text-sm hover:underline">Change Photo</button>
+<div class="w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
+<button class="text-red-500 font-medium text-sm hover:underline">Remove</button>
+</div>
+</div>
+<!-- Form Sections -->
+<div class="px-5 space-y-8">
+<!-- Section: Basic Info -->
+<section>
+<h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Basic Info</h2>
+<div class="space-y-4">
+<!-- Name Input -->
+<div class="relative">
+<input class="peer block w-full px-4 py-3 rounded-lg bg-input-bg-light dark:bg-input-bg-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:ring-0 text-gray-900 dark:text-white placeholder-transparent transition-all" id="full_name" placeholder="Full Name" type="text" value="Alex Morgan"/>
+<label class="absolute left-4 top-3 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-primary peer-focus:text-xs bg-transparent dark:peer-focus:bg-background-dark px-1 rounded" for="full_name">
+                                Full Name
+                            </label>
+</div>
+<!-- Email Input -->
+<div class="relative">
+<input class="peer block w-full px-4 py-3 rounded-lg bg-input-bg-light dark:bg-input-bg-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:ring-0 text-gray-900 dark:text-white placeholder-transparent transition-all" id="email" placeholder="Email Address" type="email" value="alex.morgan@company.com"/>
+<label class="absolute left-4 top-3 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-primary peer-focus:text-xs bg-transparent dark:peer-focus:bg-background-dark px-1 rounded" for="email">
+                                Email Address
+                            </label>
+</div>
+<!-- Phone Input -->
+<div class="relative">
+<input class="peer block w-full px-4 py-3 rounded-lg bg-input-bg-light dark:bg-input-bg-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:ring-0 text-gray-900 dark:text-white placeholder-transparent transition-all" id="phone" placeholder="Phone Number" type="tel" value="+1 (555) 123-4567"/>
+<label class="absolute left-4 top-3 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-primary peer-focus:text-xs bg-transparent dark:peer-focus:bg-background-dark px-1 rounded" for="phone">
+                                Phone Number
+                            </label>
+</div>
+</div>
+</section>
+<!-- Section: Professional Info -->
+<section>
+<h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Professional Info</h2>
+<div class="space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<!-- Job Title -->
+<div class="relative col-span-2 sm:col-span-1">
+<input class="peer block w-full px-4 py-3 rounded-lg bg-input-bg-light dark:bg-input-bg-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:ring-0 text-gray-900 dark:text-white placeholder-transparent transition-all" id="job_title" placeholder="Job Title" type="text" value="Product Manager"/>
+<label class="absolute left-4 top-3 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-primary peer-focus:text-xs bg-transparent dark:peer-focus:bg-background-dark px-1 rounded" for="job_title">
+                                    Job Title
+                                </label>
+</div>
+<!-- Department -->
+<div class="relative col-span-2 sm:col-span-1">
+<input class="peer block w-full px-4 py-3 rounded-lg bg-input-bg-light dark:bg-input-bg-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:ring-0 text-gray-900 dark:text-white placeholder-transparent transition-all" id="dept" placeholder="Department" type="text" value="Engineering"/>
+<label class="absolute left-4 top-3 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-primary peer-focus:text-xs bg-transparent dark:peer-focus:bg-background-dark px-1 rounded" for="dept">
+                                    Department
+                                </label>
+</div>
+</div>
+<!-- Location -->
+<div class="relative">
+<span class="absolute right-4 top-3.5 material-icons text-gray-400 text-xl pointer-events-none">location_on</span>
+<input class="peer block w-full pl-4 pr-10 py-3 rounded-lg bg-input-bg-light dark:bg-input-bg-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:ring-0 text-gray-900 dark:text-white placeholder-transparent transition-all" id="location" placeholder="Office Location" type="text" value="San Francisco, CA"/>
+<label class="absolute left-4 top-3 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-primary peer-focus:text-xs bg-transparent dark:peer-focus:bg-background-dark px-1 rounded" for="location">
+                                Office Location
+                            </label>
+</div>
+</div>
+</section>
+<!-- Section: Bio & Skills -->
+<section>
+<h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">About</h2>
+<!-- Bio Textarea -->
+<div class="relative mb-6">
+<textarea class="peer block w-full px-4 py-3 rounded-lg bg-input-bg-light dark:bg-input-bg-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:ring-0 text-gray-900 dark:text-white placeholder-transparent transition-all resize-none" id="bio" placeholder="Bio" rows="4">Leading product initiatives for the core platform team. Focused on user experience and scalability.</textarea>
+<label class="absolute left-4 top-3 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-primary peer-focus:text-xs bg-transparent dark:peer-focus:bg-background-dark px-1 rounded" for="bio">
+                            Bio
+                        </label>
+<div class="absolute bottom-2 right-3 text-xs text-gray-400">
+                            120/500
+                        </div>
+</div>
+<!-- Skills Chips -->
+<div class="space-y-2">
+<label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Skills</label>
+<div class="flex flex-wrap gap-2">
+<!-- Skill Chip 1 -->
+<div class="flex items-center bg-primary/10 text-primary dark:text-blue-300 dark:bg-blue-900/30 px-3 py-1.5 rounded-full text-sm font-medium">
+<span>Product Strategy</span>
+<button class="ml-2 hover:bg-primary/20 rounded-full p-0.5 transition-colors">
+<span class="material-icons text-base">close</span>
+</button>
+</div>
+<!-- Skill Chip 2 -->
+<div class="flex items-center bg-primary/10 text-primary dark:text-blue-300 dark:bg-blue-900/30 px-3 py-1.5 rounded-full text-sm font-medium">
+<span>Agile</span>
+<button class="ml-2 hover:bg-primary/20 rounded-full p-0.5 transition-colors">
+<span class="material-icons text-base">close</span>
+</button>
+</div>
+<!-- Skill Chip 3 -->
+<div class="flex items-center bg-primary/10 text-primary dark:text-blue-300 dark:bg-blue-900/30 px-3 py-1.5 rounded-full text-sm font-medium">
+<span>UX Research</span>
+<button class="ml-2 hover:bg-primary/20 rounded-full p-0.5 transition-colors">
+<span class="material-icons text-base">close</span>
+</button>
+</div>
+<!-- Add Button -->
+<button class="flex items-center border border-dashed border-primary/40 text-primary dark:border-blue-400/40 dark:text-blue-400 px-3 py-1.5 rounded-full text-sm font-medium hover:bg-primary/5 transition-colors">
+<span class="material-icons text-base mr-1">add</span>
+                                Add Skill
+                            </button>
+</div>
+</div>
+</section>
+<!-- Section: Privacy -->
+<section class="pb-6">
+<h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Privacy Settings</h2>
+<div class="bg-input-bg-light dark:bg-input-bg-dark rounded-xl overflow-hidden divide-y divide-gray-200 dark:divide-gray-700">
+<!-- Toggle Item 1 -->
+<div class="flex items-center justify-between p-4">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-gray-900 dark:text-white">Visible to Team</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Allow team members to see your profile</span>
+</div>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:border-primary outline-none focus:ring-0 transition-all duration-300 ease-in-out" id="toggle1" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300 ease-in-out" for="toggle1"></label>
+</div>
+</div>
+<!-- Toggle Item 2 -->
+<div class="flex items-center justify-between p-4">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-gray-900 dark:text-white">Share Contact Info</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Make phone number public</span>
+</div>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:border-primary outline-none focus:ring-0 transition-all duration-300 ease-in-out" id="toggle2" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300 ease-in-out" for="toggle2"></label>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Sticky Footer -->
+<footer class="absolute bottom-0 w-full bg-surface-light dark:bg-surface-dark border-t border-subtle-border dark:border-subtle-border-dark p-4 pb-6 z-10 shadow-lg">
+<div class="flex gap-4">
+<button class="flex-1 py-3.5 px-4 rounded-lg text-gray-500 dark:text-gray-400 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    Cancel
+                </button>
+<button class="flex-[2] py-3.5 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white font-semibold shadow-lg shadow-primary/30 transition-all transform active:scale-95">
+                    Save Changes
+                </button>
+</div>
+</footer>
+</div>
+</body></html>
