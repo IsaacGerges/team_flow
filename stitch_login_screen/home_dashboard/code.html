@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Home Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1975d2",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#d3e4ff",
+                        "on-primary-container": "#001c38",
+                        "background-light": "#f6f7f8", // F8F9FA requested but matched to closest theme config
+                        "background-dark": "#111921",
+                        "surface": "#ffffff",
+                        "surface-dark": "#1e2832",
+                        "outline": "#747775",
+                        "outline-variant": "#c4c7c5",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                    boxShadow: {
+                        'elevation-1': '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3)',
+                        'elevation-2': '0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display antialiased selection:bg-primary selection:text-white pb-24">
+<!-- Top App Bar -->
+<header class="pt-12 pb-4 px-4 sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm border-b border-transparent dark:border-slate-800">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="Profile Picture" class="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" data-alt="Close up portrait of a smiling man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8KCXfQxJ5CPNB4H4ysr90JeQYlN_7Pds5zMvOpkRS4eNysWp1GZxSRCAkVQnY8_eFgq9RL9_kMQWf5ji_32NHRe_eIVVJ_ilqS8vaVQyMBtyWmy95GoAPzPrJ-8RhCTtXDF8DIIfPBfUas-cR7OqwkEKAAEGRKgkjsm8n7_OiYPUPj6hG3jdkhErFSBlftwJWZeG3Z0ixnf2sqxjrJha6BELIWVsxoqVF-GT_EScaZenC_BfS3Jmg0QYEcbMDFmV3OUDRAE2BW0U"/>
+</div>
+<div>
+<h1 class="text-lg font-bold text-slate-800 dark:text-white leading-tight">Good Morning, Ahmed!</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Let's check your updates</p>
+</div>
+</div>
+<button class="relative p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">
+<span class="material-icons-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-background-light dark:border-background-dark rounded-full"></span>
+</button>
+</div>
+</header>
+<main class="px-4 space-y-6">
+<!-- Stats Section -->
+<section class="grid grid-cols-3 gap-3">
+<!-- Total Tasks -->
+<div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm border border-blue-100 dark:border-blue-800/50">
+<span class="text-3xl font-bold text-primary dark:text-blue-400 mb-1">42</span>
+<span class="text-xs font-medium text-blue-800 dark:text-blue-200">Total Tasks</span>
+</div>
+<!-- Pending Tasks -->
+<div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm border border-orange-100 dark:border-orange-800/50">
+<span class="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-1">12</span>
+<span class="text-xs font-medium text-orange-800 dark:text-orange-200">Pending</span>
+</div>
+<!-- Completed -->
+<div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm border border-green-100 dark:border-green-800/50">
+<span class="text-3xl font-bold text-green-700 dark:text-green-400 mb-1">30</span>
+<span class="text-xs font-medium text-green-800 dark:text-green-200">Completed</span>
+</div>
+</section>
+<!-- My Teams Section -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-base font-bold text-slate-800 dark:text-white">My Teams</h2>
+<button class="text-sm font-medium text-primary hover:text-blue-700 transition-colors">See all</button>
+</div>
+<div class="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 no-scrollbar snap-x snap-mandatory">
+<!-- Team Card 1 -->
+<div class="snap-center shrink-0 w-64 bg-surface dark:bg-surface-dark p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-300">
+<span class="material-icons-round">design_services</span>
+</div>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Design</span>
+</div>
+<h3 class="font-bold text-slate-800 dark:text-white mb-1">Design Team</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-4">5 Active tasks</p>
+<div class="flex items-center justify-between mb-2">
+<div class="flex -space-x-2">
+<img alt="Member" class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark" data-alt="Portrait of woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMxIIJyIRMK55nSpqm2D6ksc54YwAvaRwdJhFeHnpMXR6MbHk2S3zxxNJj0H_a61TXW02B6ceub5xLQ1Kgg0MElOueVZKxqRsFHey_gWv-yEqZAV1OHjlq2mWXH1JVyO395lwUO_k-RWcppCnSyPHvPt_H_0UKpISJx1NH8XBK_gd_o7Ji1cDIv--0XN91mm98Y6Y_85n3rKrLH4znh-MB_7kiIcUIa0SYjI2LuJ4d9W-Mup0CtZ0eCXFLrSfERVdNANcYvqZiSXo"/>
+<img alt="Member" class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark" data-alt="Portrait of man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW4jyeYEOKFDGLkvIR-8nxMwwmjkTKbw4vqfq8osX-ZuKHK6gLIQfJpBZGiJa6s08nLBo7h1Ub16EJAoZjMwgBxuLNSeGNairs7PkjAiHwqVxHr9cidC3ZWdgdd1a4AUqz5PHwrw7f5RLh7CVu47KKWvksZCFzsf7S_Qy2aZAYl9JyAocMbcDYmuXl8ICkngwaZ5a23biBnKwYheMbsaoOPRdSZge2kMknWU0aQ5xfLlQmTXf-fdf0VdsAuJ5DCdRvs5w_I3ZPOY8"/>
+<img alt="Member" class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark" data-alt="Portrait of woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXwA1ifQb-W3Eg6Pe3c64G0U0tBcm5hpcrSFsk7MFnnvOKgfzyrcyRl6Tx4BUFA8-pDse1dCSvHi_EXPgpdOyj9vCmUo9Gtast4TfxiL9XhRGiknzzFJEx0QEeJje-fuU_IKGF0dsyx70yJ4cGrqdmbNr4QZVgrq_JNxyfUiuIXdtn47ZnjmH732hWcJ-pkIkwrmV5yJl8lxYIRbU1oqXWZCyOHd4uDG1c8Y1uCeSgpCk6TMMckIJtoqbHmXm6E2gh_JyAIigVGlA"/>
+<div class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[8px] font-bold text-slate-500">+2</div>
+</div>
+<span class="text-xs font-semibold text-primary">80%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 80%"></div>
+</div>
+</div>
+<!-- Team Card 2 -->
+<div class="snap-center shrink-0 w-64 bg-surface dark:bg-surface-dark p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-300">
+<span class="material-icons-round">campaign</span>
+</div>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Marketing</span>
+</div>
+<h3 class="font-bold text-slate-800 dark:text-white mb-1">Growth Marketing</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-4">3 Active tasks</p>
+<div class="flex items-center justify-between mb-2">
+<div class="flex -space-x-2">
+<img alt="Member" class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark" data-alt="Portrait of woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-rSOlbuHeyIrWHErIzPmqx_4Jikrni1dxSn0jAwdXF-CubIx2XmnqV_tNeohKPhQTdml0BiQm7WICkwyxx_CW9vr5PsfUzDVudMp1BVNOjnvBVcveFvLne3GHVtP95XLDi7dbSSzxOSOWSf0DynuDQUTUHqbH70sUHB0CPGU_fP0ztZiqvfQgWK9b4Cwkb0Wx1q2zRuuLEjxpMRR7xbVjeB-h7D8TNaPGVqMn3neMMMRxeRmTCxY82fFVwCozNHfk9UL1komSKZ4"/>
+<img alt="Member" class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark" data-alt="Portrait of man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-XFMnZ7-Dz0a3j5s-peBmxEeTOOmyx7CNTfs7ls-TY45svXLgA0NfG65VGW8uRpaQnaEkXgagiBEA7AOLnh8eAaW8Vy5dcq0sCxTNbgF3LPxefro6yY5-pdWL17UyIUjM9Clz8LohMFAShOwDMz-afmQLcIc8R4Lv3_zb9b99OF5FaU4KPEKEq6WtuMk7UHS8ZGy7veCdw1l2eJWRbwWTPHSgkUmNLGfX2c1o2DIprl2LIKM5quKtmAECHT_lopBZDZICEsfqJSQ"/>
+</div>
+<span class="text-xs font-semibold text-pink-500">45%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+<div class="bg-pink-500 h-1.5 rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<!-- Team Card 3 -->
+<div class="snap-center shrink-0 w-64 bg-surface dark:bg-surface-dark p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-300">
+<span class="material-icons-round">code</span>
+</div>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Dev</span>
+</div>
+<h3 class="font-bold text-slate-800 dark:text-white mb-1">Backend Ops</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-4">12 Active tasks</p>
+<div class="flex items-center justify-between mb-2">
+<div class="flex -space-x-2">
+<img alt="Member" class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark" data-alt="Portrait of man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo86_mfDeyPVfQXOEImp9EbBNkrq08TMri1CnQCidsd22betpUmMw9YMsKLLcXjAEwfcikQT8CG31iBMYEqJeeLPUwn-ZawwTgZFgqcJUEOpZb844I9BJQGXvn-Hb8jIQ1aefoITNHP8nrz_iYOR_YTpCsWsUp4geTTr90anlmXgI-Ny40fMIyuCc0ZAQhCRDTUOrLbtHu6PY1pgt9Gbv-KeU4nbCSKbm-kp84q4daYh3Im4usAflUPJbcarTs54Dg_dy6ioY5qww"/>
+<img alt="Member" class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark" data-alt="Portrait of woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCvMuN2zwkxOUPrWL0xqVPot479Sq9SLX6RQ0brHQjv0kbBsvaRVru7aG6QijpnrHlNsmmzSd9A8PooljDkwEPSzOr2ZpN-JkK7bpOAiUBEHvvOpeANaJW0EnM4tS09cnyN7a2BJaZvJLSwFvy_04_kA5SBAZg2MLXKQr1aI2Ku3DCiZpmIn4dwPSxlZdQKBA-VJ80n7VP2lHZ8yGPiBYHmP09VYyCGjzg9djjYK_iLHnfpDJYPbMQ-5_pg0zRQyMkXZURXELZut0"/>
+<div class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[8px] font-bold text-slate-500">+4</div>
+</div>
+<span class="text-xs font-semibold text-blue-500">20%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+<div class="bg-blue-500 h-1.5 rounded-full" style="width: 20%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Tasks Section -->
+<section>
+<h2 class="text-base font-bold text-slate-800 dark:text-white mb-4">Recent Tasks</h2>
+<div class="flex flex-col gap-3">
+<!-- Task Card 1 -->
+<div class="bg-surface dark:bg-surface-dark p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div>
+<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 mb-1">Design</span>
+<h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">Update Homepage Hero</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 border border-orange-100 dark:border-orange-900/50">
+                            In Progress
+                        </span>
+</div>
+<div class="flex items-center gap-4 text-slate-400 dark:text-slate-500">
+<div class="flex items-center gap-1 text-xs">
+<span class="material-icons-outlined text-sm">calendar_today</span>
+<span>Tomorrow</span>
+</div>
+<div class="flex items-center gap-1 text-xs">
+<span class="material-icons-outlined text-sm">schedule</span>
+<span>10:00 AM</span>
+</div>
+</div>
+</div>
+<!-- Task Card 2 -->
+<div class="bg-surface dark:bg-surface-dark p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div>
+<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 mb-1">Finance</span>
+<h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">Q3 Budget Review</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                            To Do
+                        </span>
+</div>
+<div class="flex items-center gap-4 text-slate-400 dark:text-slate-500">
+<div class="flex items-center gap-1 text-xs">
+<span class="material-icons-outlined text-sm">calendar_today</span>
+<span>Oct 24</span>
+</div>
+<div class="flex items-center gap-1 text-xs">
+<span class="material-icons-outlined text-sm">flag</span>
+<span class="text-red-400">High Priority</span>
+</div>
+</div>
+</div>
+<!-- Task Card 3 -->
+<div class="bg-surface dark:bg-surface-dark p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-3 opacity-60">
+<div class="flex justify-between items-start">
+<div>
+<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 mb-1">Dev</span>
+<h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 line-through">Fix Login Bug</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-100 dark:border-green-900/50">
+                            Done
+                        </span>
+</div>
+<div class="flex items-center gap-4 text-slate-400 dark:text-slate-500">
+<div class="flex items-center gap-1 text-xs">
+<span class="material-icons-outlined text-sm">check_circle</span>
+<span>Completed Today</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full bg-surface dark:bg-surface-dark border-t border-slate-200 dark:border-slate-800 pb-safe pt-2 px-6 z-50">
+<div class="flex justify-between items-center h-16">
+<!-- Home (Active) -->
+<button class="flex flex-col items-center gap-1 w-16 group">
+<div class="px-5 py-1 rounded-full bg-primary/10 dark:bg-primary/20 text-primary group-hover:bg-primary/20 transition-colors">
+<span class="material-icons-round">home</span>
+</div>
+<span class="text-[10px] font-bold text-primary dark:text-blue-400">Home</span>
+</button>
+<!-- Teams -->
+<button class="flex flex-col items-center gap-1 w-16 group text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">
+<div class="px-5 py-1 rounded-full group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors">
+<span class="material-icons-outlined">groups</span>
+</div>
+<span class="text-[10px] font-medium">Teams</span>
+</button>
+<!-- Tasks -->
+<button class="flex flex-col items-center gap-1 w-16 group text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">
+<div class="px-5 py-1 rounded-full group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors">
+<span class="material-icons-outlined">task_alt</span>
+</div>
+<span class="text-[10px] font-medium">Tasks</span>
+</button>
+<!-- Profile -->
+<button class="flex flex-col items-center gap-1 w-16 group text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">
+<div class="px-5 py-1 rounded-full group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors">
+<span class="material-icons-outlined">person</span>
+</div>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+<!-- iOS Home Indicator Spacing -->
+<div class="h-5 w-full"></div>
+</nav>
+</body></html>

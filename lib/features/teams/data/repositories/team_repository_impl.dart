@@ -19,9 +19,6 @@ class TeamsRepositoryImpl implements TeamsRepository {
 
   @override
   Future<Either<Failure, Unit>> createTeam(TeamEntity team) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       final model = TeamModel(
         id: '',
@@ -46,9 +43,6 @@ class TeamsRepositoryImpl implements TeamsRepository {
     String teamId,
     TeamEntity team,
   ) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       final model = TeamModel(
         id: teamId,
@@ -70,9 +64,6 @@ class TeamsRepositoryImpl implements TeamsRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteTeam(String teamId) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       await remoteDataSource.deleteTeam(teamId);
       return const Right(unit);
@@ -83,9 +74,6 @@ class TeamsRepositoryImpl implements TeamsRepository {
 
   @override
   Future<Either<Failure, Unit>> addMember(String teamId, String userId) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       await remoteDataSource.addMember(teamId, userId);
       return const Right(unit);
@@ -99,9 +87,6 @@ class TeamsRepositoryImpl implements TeamsRepository {
     String teamId,
     String userId,
   ) async {
-    if (!await networkInfo.isConnected) {
-      return Left(OfflineFailure());
-    }
     try {
       await remoteDataSource.removeMember(teamId, userId);
       return const Right(unit);

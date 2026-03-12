@@ -24,14 +24,28 @@ class ProfileModel extends ProfileEntity {
   });
 
   factory ProfileModel.fromSnapshot(DocumentSnapshot doc) {
+    return ProfileModel.fromSnapshotWithCounts(
+      doc: doc,
+      teamsCount: 0,
+      completedCount: 0,
+      activeCount: 0,
+    );
+  }
+
+  factory ProfileModel.fromSnapshotWithCounts({
+    required DocumentSnapshot doc,
+    required int teamsCount,
+    required int completedCount,
+    required int activeCount,
+  }) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     return ProfileModel(
       uid: doc.id,
       fullName: data['name'] ?? '',
       email: data['email'] ?? '',
-      teamsCount: data['teamsCount'] ?? 0,
-      completedCount: data['completedCount'] ?? 0,
-      activeCount: data['activeCount'] ?? 0,
+      teamsCount: teamsCount,
+      completedCount: completedCount,
+      activeCount: activeCount,
       phone: data['phone'] ?? '',
       jobTitle: data['jobTitle'] ?? '',
       department: data['department'] ?? '',
@@ -39,7 +53,9 @@ class ProfileModel extends ProfileEntity {
       bio: data['bio'] ?? '',
       skills: List<String>.from(data['skills'] ?? []),
       photoUrl: data['photoUrl'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: data['createdAt'] != null
+          ? (data['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
       isDarkMode: data['isDarkMode'] ?? false,
       notificationsEnabled: data['notificationsEnabled'] ?? true,
       isVisibleToTeam: data['isVisibleToTeam'] ?? true,

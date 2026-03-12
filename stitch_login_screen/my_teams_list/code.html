@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Teams List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-100 antialiased selection:bg-primary/30 min-h-screen relative pb-24">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-primary/10 px-4 py-4 flex items-center justify-between">
+<h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">My Teams</h1>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-primary/10 transition-colors text-slate-600 dark:text-slate-300">
+<span class="material-icons">search</span>
+</button>
+<button class="p-2 rounded-full hover:bg-primary/10 transition-colors text-slate-600 dark:text-slate-300">
+<span class="material-icons">filter_list</span>
+</button>
+</div>
+</header>
+<!-- Main Content List -->
+<main class="px-4 py-6 space-y-4 max-w-lg mx-auto">
+<!-- Team Card 1: Product Design (Admin) -->
+<div class="group bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-700 transition-all duration-300 p-5 relative overflow-hidden">
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center relative overflow-hidden ring-2 ring-white dark:ring-slate-700 shadow-sm">
+<img alt="Team Avatar" class="w-full h-full object-cover opacity-90" data-alt="Abstract office shapes representing design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ8HxVFBrDvjiVKPuiJxNasxJMnLP3JEShdbvLfX35cff76t6MCEKJJVvGDrzxUHh4rF41afW9-kE00W62E4RFI2lKpa6nlJr6v10g-2pphU0XUp14zhDsKFSkDhqAw_GSvFvPdQrJ__0VN7mBNWFfhJudlwUZ1TKKKSIJ2-Ozwlqg4l8TyXQ0C3UT4L8i_ljHW5hpKmPtsvMS49-juT_YSEDT3lzlDCyQTYeNSlW9WgjYycdlcj1LZTOFRy90TNgDX1yozUQm708"/>
+</div>
+<div>
+<h2 class="text-lg font-bold text-slate-900 dark:text-white leading-tight">Product Design</h2>
+<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Updated 2h ago</span>
+</div>
+</div>
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                    Admin
+                </span>
+</div>
+<!-- Body Stats -->
+<div class="grid grid-cols-2 gap-4 mb-5">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+<span class="material-icons text-lg text-slate-400">group</span>
+<span class="text-sm font-medium">8 Members</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+<span class="material-icons text-lg text-slate-400">task_alt</span>
+<span class="text-sm font-medium">12 Active Tasks</span>
+</div>
+</div>
+<!-- Footer Progress -->
+<div class="flex items-center gap-3">
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="text-xs font-medium text-slate-500">Progress</span>
+<span class="text-xs font-bold text-primary">75%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-2 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<button class="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Team Card 2: Marketing (Member) -->
+<div class="group bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-700 transition-all duration-300 p-5 relative overflow-hidden">
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-100 to-amber-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center ring-2 ring-white dark:ring-slate-700 shadow-sm">
+<span class="text-orange-600 font-bold text-xl">M</span>
+</div>
+<div>
+<h2 class="text-lg font-bold text-slate-900 dark:text-white leading-tight">Global Marketing</h2>
+<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Updated 1d ago</span>
+</div>
+</div>
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                    Member
+                </span>
+</div>
+<!-- Body Stats -->
+<div class="grid grid-cols-2 gap-4 mb-5">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+<span class="material-icons text-lg text-slate-400">group</span>
+<span class="text-sm font-medium">24 Members</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+<span class="material-icons text-lg text-slate-400">task_alt</span>
+<span class="text-sm font-medium">5 Active Tasks</span>
+</div>
+</div>
+<!-- Footer Progress -->
+<div class="flex items-center gap-3">
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="text-xs font-medium text-slate-500">Progress</span>
+<span class="text-xs font-bold text-primary">30%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-2 rounded-full opacity-80" style="width: 30%"></div>
+</div>
+</div>
+<button class="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Team Card 3: Engineering (Member) -->
+<div class="group bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-700 transition-all duration-300 p-5 relative overflow-hidden">
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center overflow-hidden ring-2 ring-white dark:ring-slate-700 shadow-sm">
+<img alt="Team Avatar Code" class="w-full h-full object-cover" data-alt="Close up of computer code on screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUr5PU9tX6TI58iZZM0c6jauN4r9VA9pwyTpSYwVnnHVdJfMuV2Jq29i1ndMUTM54pzjONszFoiVJXcYqLCACNcvQQigccBGPKCLX8eHNkGsWeL3J4_BeJghUiI04vgX7JGwwXpaKJbnzJt2V1N3pnetqW4Q1aWj-DiS_-t2mTjNmmoY111EmYtvxUOcsrkbBG39qsZB98mofoIm0Iq8nfnqS5RiwfGuSTbxKYKXz3oChMknP4wtlfjUBb5T6VztoFsYHfjhllllM"/>
+</div>
+<div>
+<h2 class="text-lg font-bold text-slate-900 dark:text-white leading-tight">Backend Eng</h2>
+<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Updated 5m ago</span>
+</div>
+</div>
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                    Member
+                </span>
+</div>
+<!-- Body Stats -->
+<div class="grid grid-cols-2 gap-4 mb-5">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+<span class="material-icons text-lg text-slate-400">group</span>
+<span class="text-sm font-medium">14 Members</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+<span class="material-icons text-lg text-slate-400">task_alt</span>
+<span class="text-sm font-medium">32 Active Tasks</span>
+</div>
+</div>
+<!-- Footer Progress -->
+<div class="flex items-center gap-3">
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="text-xs font-medium text-slate-500">Progress</span>
+<span class="text-xs font-bold text-primary">92%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-2 rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<button class="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+<!-- FAB: Floating Action Button -->
+<div class="fixed bottom-6 right-6 z-40">
+<button class="bg-primary hover:bg-blue-600 text-white w-14 h-14 rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95">
+<span class="material-icons text-2xl">add</span>
+</button>
+</div>
+<!-- Empty State (Example - Hidden by default, unhide to visualize) -->
+<!-- 
+    <div class="hidden flex-col items-center justify-center text-center p-8 mt-12 opacity-0 animate-fade-in">
+        <div class="w-48 h-48 bg-slate-100 dark:bg-slate-800 rounded-full mb-6 flex items-center justify-center relative">
+             <span class="material-icons text-6xl text-slate-300 dark:text-slate-600">groups</span>
+             <div class="absolute inset-0 border-4 border-dashed border-slate-200 dark:border-slate-700 rounded-full animate-spin-slow" style="animation-duration: 20s"></div>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">No teams yet</h3>
+        <p class="text-slate-500 dark:text-slate-400 mb-8 max-w-xs">You aren't part of any team yet. Create one to get started collaborating.</p>
+        <button class="bg-primary hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all">
+            Create Team
+        </button>
+    </div> 
+    -->
+</body></html>

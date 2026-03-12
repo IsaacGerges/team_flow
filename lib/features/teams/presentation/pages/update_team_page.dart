@@ -3,12 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/core/constants/app_strings.dart';
+import 'package:team_flow/core/helpers/image_helper.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
-import 'package:team_flow/features/teams/presentation/pages/create_team_page.dart';
 
-/// Pre-filled form to edit an existing team.
 class UpdateTeamPage extends StatefulWidget {
   final TeamEntity team;
 
@@ -50,55 +49,37 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundScreen,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.backgroundScreen,
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Color(0xFF1E293B),
+            size: 18,
+          ),
           onPressed: () => context.pop(),
         ),
         title: const Text(
-          AppStrings.editTeam,
+          'Update Team',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: Color(0xFF1E293B),
+            fontWeight: FontWeight.w900,
+            fontSize: 18,
           ),
         ),
-        actions: [
-          BlocBuilder<TeamsCubit, TeamsState>(
-            builder: (context, state) {
-              if (state is TeamsLoading) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                );
-              }
-              return TextButton(
-                onPressed: () => _submitForm(context),
-                child: const Text(
-                  AppStrings.saveChanges,
-                  style: TextStyle(
-                    color: AppColors.primaryBlue,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
+        centerTitle: true,
       ),
       body: BlocListener<TeamsCubit, TeamsState>(
         listener: (context, state) {
           if (state is TeamUpdatedSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text(AppStrings.teamUpdated),
+                content: Text('Team updated successfully'),
                 backgroundColor: AppColors.success,
+                behavior: SnackBarBehavior.floating,
               ),
             );
             context.pop();
@@ -109,64 +90,291 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
               SnackBar(
                 content: Text(state.message),
                 backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
               ),
             );
           }
         },
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: DottedCircleAvatar(
-                    onTap: () => context.read<TeamsCubit>().pickTeamLogo(),
-                    photoUrl: _logoBase64,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _FormLabel(label: AppStrings.teamNameLabel),
-                const SizedBox(height: 8),
-                _FormTextField(
-                  controller: _nameController,
-                  hint: AppStrings.teamNameHint,
-                  maxLength: 50,
-                  validator: (val) => val == null || val.trim().isEmpty
-                      ? AppStrings.required
-                      : null,
-                ),
-                const SizedBox(height: 20),
-                _FormLabel(label: AppStrings.teamDescriptionLabel),
-                const SizedBox(height: 8),
-                _FormTextField(
-                  controller: _descriptionController,
-                  hint: AppStrings.teamDescriptionHint,
-                  maxLines: 3,
-                  maxLength: 200,
-                ),
-                const SizedBox(height: 20),
-                _FormLabel(label: AppStrings.teamCategoryLabel),
-                const SizedBox(height: 8),
-                _CategoryDropdown(
-                  value: _selectedCategory,
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedCategory = val);
-                  },
-                ),
-                const SizedBox(height: 24),
-                _PrivacyToggle(
-                  isPrivate: _isPrivate,
-                  onChanged: (val) => setState(() => _isPrivate = val),
-                ),
+                _buildLogoUploadSection(),
                 const SizedBox(height: 32),
-                _SaveButton(onPressed: () => _submitForm(context)),
-                const SizedBox(height: 12),
-                _CancelButton(onPressed: () => context.pop()),
+                _buildLabel('TEAM NAME'),
+                const SizedBox(height: 10),
+                _buildTextField(
+                  controller: _nameController,
+                  hint: 'e.g. Design Team',
+                  validator: (val) =>
+                      val == null || val.trim().isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 24),
+                _buildLabel('DESCRIPTION'),
+                const SizedBox(height: 10),
+                _buildTextField(
+                  controller: _descriptionController,
+                  hint: 'What does this team do?',
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 24),
+                _buildLabel('CATEGORY'),
+                const SizedBox(height: 10),
+                _buildCategoryDropdown(),
+                const SizedBox(height: 32),
+                _buildPrivacyToggle(),
+                const SizedBox(height: 48),
+                _buildSaveButton(),
+                const SizedBox(height: 60),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoUploadSection() {
+    return Center(
+      child: Column(
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 108,
+                height: 108,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFF1F5F9), width: 8),
+                ),
+              ),
+              GestureDetector(
+                onTap: () => context.read<TeamsCubit>().pickTeamLogo(),
+                child: CircleAvatar(
+                  radius: 46,
+                  backgroundColor: const Color(0xFFF8FAFC),
+                  child: _logoBase64 != null
+                      ? ClipOval(
+                          child: Image(
+                            image: ImageHelper.getProvider(_logoBase64)!,
+                            width: 92,
+                            height: 92,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Text(
+                          widget.team.name[0].toUpperCase(),
+                          style: const TextStyle(
+                            color: Color(0xFF2563EB),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 32,
+                          ),
+                        ),
+                ),
+              ),
+              Positioned(
+                bottom: 4,
+                right: 4,
+                child: GestureDetector(
+                  onTap: () => context.read<TeamsCubit>().pickTeamLogo(),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2563EB),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Change Team Logo',
+            style: TextStyle(
+              color: Color(0xFF64748B),
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w900,
+        color: Color(0xFF64748B),
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    int maxLines = 1,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        validator: validator,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+          color: Color(0xFF1E293B),
+        ),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(
+            color: Color(0xFF94A3B8),
+            fontWeight: FontWeight.w500,
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(
+            vertical: maxLines > 1 ? 12 : 14,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButtonFormField<String>(
+          value: _selectedCategory,
+          onChanged: (val) {
+            if (val != null) setState(() => _selectedCategory = val);
+          },
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Color(0xFF64748B),
+          ),
+          decoration: const InputDecoration(border: InputBorder.none),
+          items: AppStrings.teamCategories
+              .map(
+                (cat) => DropdownMenuItem(
+                  value: cat,
+                  child: Text(
+                    cat,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrivacyToggle() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.lock_person_rounded,
+              color: Color(0xFF2563EB),
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Private Team',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Only invited members can join',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: _isPrivate,
+            onChanged: (val) => setState(() => _isPrivate = val),
+            activeColor: const Color(0xFF2563EB),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () => _submitForm(context),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2563EB),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 8,
+          shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.3),
+        ),
+        child: const Text(
+          'Save Changes',
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
       ),
     );
@@ -189,225 +397,5 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
         ),
       );
     }
-  }
-}
-
-// --- Shared sub-widgets (reused from create_team_page style) ---
-
-class _FormLabel extends StatelessWidget {
-  final String label;
-  const _FormLabel({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary,
-        fontSize: 14,
-      ),
-    );
-  }
-}
-
-class _FormTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hint;
-  final int maxLines;
-  final int? maxLength;
-  final String? Function(String?)? validator;
-
-  const _FormTextField({
-    required this.controller,
-    required this.hint,
-    this.maxLines = 1,
-    this.maxLength,
-    this.validator,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      maxLength: maxLength,
-      validator: validator,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.textHint),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
-        ),
-        filled: true,
-        fillColor: AppColors.cardBackground,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryDropdown extends StatelessWidget {
-  final String value;
-  final ValueChanged<String?> onChanged;
-
-  const _CategoryDropdown({required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      initialValue: value,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
-        ),
-        filled: true,
-        fillColor: AppColors.cardBackground,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-      ),
-      items: AppStrings.teamCategories
-          .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-          .toList(),
-    );
-  }
-}
-
-class _PrivacyToggle extends StatelessWidget {
-  final bool isPrivate;
-  final ValueChanged<bool> onChanged;
-
-  const _PrivacyToggle({required this.isPrivate, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primaryBlueLight,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.lock_outline,
-              color: AppColors.primaryBlue,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  AppStrings.privateTeam,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  AppStrings.privateTeamDesc,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: isPrivate,
-            onChanged: onChanged,
-            activeThumbColor: AppColors.primaryBlue,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SaveButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  const _SaveButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.save_outlined),
-        label: const Text(
-          AppStrings.saveChanges,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryBlue,
-          foregroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CancelButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  const _CancelButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textSecondary,
-          side: const BorderSide(color: AppColors.divider),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        child: const Text(AppStrings.cancel, style: TextStyle(fontSize: 16)),
-      ),
-    );
   }
 }

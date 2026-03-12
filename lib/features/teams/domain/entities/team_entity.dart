@@ -11,6 +11,7 @@ class TeamEntity extends Equatable {
   final String category;
   final bool isPrivate;
   final double progressPercent;
+  final int activeTaskCount;
   final DateTime? updatedAt;
 
   const TeamEntity({
@@ -23,6 +24,7 @@ class TeamEntity extends Equatable {
     this.category = 'Other',
     this.isPrivate = false,
     this.progressPercent = 0.0,
+    this.activeTaskCount = 0,
     this.updatedAt,
   });
 
@@ -37,6 +39,7 @@ class TeamEntity extends Equatable {
     category,
     isPrivate,
     progressPercent,
+    activeTaskCount,
     updatedAt,
   ];
 }

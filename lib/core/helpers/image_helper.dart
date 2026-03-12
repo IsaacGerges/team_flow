@@ -10,30 +10,19 @@ class ImageHelper {
   static ImageProvider? getProvider(String? photoUrl) {
     if (photoUrl == null || photoUrl.isEmpty) return null;
 
-    if (photoUrl.startsWith('data:image') || _isBase64(photoUrl)) {
-      try {
-        // Strip data:image/...;base64, prefix if present
-        final String base64Content = photoUrl.contains(',')
-            ? photoUrl.split(',').last
-            : photoUrl;
-        final Uint8List bytes = base64Decode(base64Content);
-        return MemoryImage(bytes);
-      } catch (e) {
-        return null;
-      }
+    if (photoUrl.startsWith('http')) {
+      return NetworkImage(photoUrl);
     }
 
-    return NetworkImage(photoUrl);
-  }
-
-  static bool _isBase64(String str) {
-    // Simple heuristic for base64 without prefix
-    if (str.length < 100) return false;
     try {
-      base64Decode(str);
-      return true;
-    } catch (_) {
-      return false;
+      final String base64Content = photoUrl.contains(',')
+          ? photoUrl.split(',').last
+          : photoUrl;
+      final Uint8List bytes = base64Decode(base64Content);
+      return MemoryImage(bytes);
+    } catch (e) {
+      // Fallback if parsing fails
+      return null;
     }
   }
 }

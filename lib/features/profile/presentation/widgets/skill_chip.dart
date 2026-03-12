@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:team_flow/core/constants/app_colors.dart';
 
 class SkillChip extends StatelessWidget {
   final String label;
@@ -23,70 +22,61 @@ class SkillChip extends StatelessWidget {
       return GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppColors.primary.withOpacity(0.3),
-              style: BorderStyle.solid,
-            ),
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFBFDBFE)),
           ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w500,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.add_rounded, color: Color(0xFF2563EB), size: 16),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Color(0xFF2563EB),
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ),
-        ),
-      );
-    }
-
-    if (isRemovable) {
-      return Container(
-        padding: const EdgeInsets.only(left: 16, right: 8, top: 6, bottom: 6),
-        decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(width: 4),
-            GestureDetector(
-              onTap: onRemove,
-              child: const Icon(
-                Icons.close,
-                size: 16,
-                color: AppColors.primary,
-              ),
-            ),
-          ],
         ),
       );
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.divider),
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF475569),
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+            ),
+          ),
+          if (isRemovable) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: onRemove,
+              child: const Icon(
+                Icons.close_rounded,
+                size: 16,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

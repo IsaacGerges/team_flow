@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Task Assignment Screen</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "primary-dark": "#1a4fb8",
+                        "primary-light": "#6b9af5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1c2433",
+                        "text-main-light": "#1f2937",
+                        "text-main-dark": "#f3f4f6",
+                        "text-sec-light": "#6b7280",
+                        "text-sec-dark": "#9ca3af",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'floating': '0 10px 40px -10px rgba(0, 0, 0, 0.1)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Custom radio button styles */
+        .custom-radio:checked {
+            background-color: #2b6cee;
+            border-color: #2b6cee;
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main-light dark:text-text-main-dark transition-colors duration-200">
+<!-- iOS Status Bar Placeholder (Safe Area) -->
+<div class="h-12 w-full bg-surface-light dark:bg-surface-dark sticky top-0 z-50 border-b border-gray-100 dark:border-gray-800 flex items-end pb-2 px-4 justify-between">
+<div class="text-xs font-semibold w-1/3">9:41</div>
+<div class="w-1/3 flex justify-center">
+<div class="h-1 w-16 bg-black dark:bg-white rounded-full opacity-20 hidden"></div>
+<!-- Notch area usually empty -->
+</div>
+<div class="w-1/3 flex justify-end gap-1 text-xs">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm">battery_full</span>
+</div>
+</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col relative pb-32">
+<!-- Header -->
+<header class="bg-surface-light dark:bg-surface-dark px-4 py-3 sticky top-12 z-40 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<button class="text-primary hover:text-primary-dark font-medium text-sm">Cancel</button>
+<h1 class="text-lg font-bold">Assign Task</h1>
+<button class="text-text-sec-light dark:text-text-sec-dark hover:text-primary transition-colors">
+<span class="material-icons-round">filter_list</span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-icons-round">search</span>
+<input class="w-full bg-background-light dark:bg-background-dark border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50 transition-all placeholder-gray-400 dark:placeholder-gray-600" placeholder="Search team members..." type="text"/>
+</div>
+</header>
+<!-- Main Content: Member List -->
+<main class="flex-1 px-4 py-6 space-y-4">
+<div class="flex items-center justify-between text-xs font-medium text-text-sec-light dark:text-text-sec-dark uppercase tracking-wider mb-2">
+<span>Suggested Members</span>
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full">AI Recommended</span>
+</div>
+<!-- Member Card 1 (Selected State Example) -->
+<label class="group relative flex items-center p-4 bg-surface-light dark:bg-surface-dark rounded-xl border-2 border-primary shadow-soft cursor-pointer transition-all duration-200">
+<input checked="" class="peer sr-only" name="assignee" type="radio"/>
+<div class="relative mr-4">
+<img alt="Smiling woman with short hair portrait" class="w-14 h-14 rounded-full object-cover ring-2 ring-white dark:ring-gray-800" data-alt="Portrait of Sarah Jenkins" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfbRPGtSuvm8ed7Q68MY0ST9MbwT8OMIFNI1EOShbIXUG2KOrH4eMl08G7fNNdkUa5APqGTeJr1cA9NgyW5O3f61ehZ8kPSPLKKAp3cVyPoihVla_3XwxdB6x6YMlHI_jW1Lef_1dg2p5c-hmeB4kgEDsmLC_eJdriYbNUm-huIxOFMw3xBkmAgapqIDALTNpDCXfTOVwTZUfhRfVF2frZ_tfpczoyiiWe9NbkzJ0aeSNaGP9HbnFhAgTsCyUv-CgtoES_iMLIScc"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<div>
+<h3 class="font-semibold text-text-main-light dark:text-text-main-dark truncate">Sarah Jenkins</h3>
+<p class="text-xs text-text-sec-light dark:text-text-sec-dark truncate">Senior UX Designer</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-primary bg-primary flex items-center justify-center transition-colors">
+<span class="material-icons-round text-white text-sm">check</span>
+</div>
+</div>
+<div class="mt-2">
+<div class="flex justify-between text-[10px] text-text-sec-light dark:text-text-sec-dark mb-1 font-medium">
+<span>Capacity</span>
+<span class="text-primary">3 Active Tasks</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 45%"></div>
+</div>
+</div>
+</div>
+</label>
+<!-- Section Divider -->
+<div class="pt-2 flex items-center justify-between text-xs font-medium text-text-sec-light dark:text-text-sec-dark uppercase tracking-wider">
+<span>All Members</span>
+<span>24 Total</span>
+</div>
+<!-- Member Card 2 -->
+<label class="group relative flex items-center p-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-gray-700 shadow-sm cursor-pointer transition-all duration-200">
+<input class="peer sr-only" name="assignee" type="radio"/>
+<div class="relative mr-4">
+<img alt="Man with glasses portrait looking left" class="w-14 h-14 rounded-full object-cover" data-alt="Portrait of David Chen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmv878eoF6E__fQX8uxRZ1BGBxQFb20PqiYkdERaXcg5sM52MrlPUCHbjHN6BSF3EBp3d5AwlgxDk38PYB_V72FKJjXHxb_Ci0EhBQlJMcpLjc4kcpZDKJo2sCsdziKQSVR7APJpjOJbcPRCh-RL4IhFafuGD2qA_GWokf5SGaatFICfpuDcwm4xox9InNqMMG_PIS-u9KVPyqgk4lmPZuQa7LqSFNO0I7Vtbyn2gXZNWj_dgYehvFWIDApXyotCZczBNH0Cfs-Z0"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-yellow-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<div>
+<h3 class="font-semibold text-text-main-light dark:text-text-main-dark truncate">David Chen</h3>
+<p class="text-xs text-text-sec-light dark:text-text-sec-dark truncate">Frontend Developer</p>
+</div>
+<!-- Unselected Radio State -->
+<div class="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all group-hover:border-primary/50">
+<span class="material-icons-round text-white text-sm opacity-0 peer-checked:opacity-100">check</span>
+</div>
+</div>
+<div class="mt-2">
+<div class="flex justify-between text-[10px] text-text-sec-light dark:text-text-sec-dark mb-1 font-medium">
+<span>Capacity</span>
+<span class="text-yellow-600 dark:text-yellow-500">5 Active Tasks</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+<div class="bg-yellow-500 h-1.5 rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</div>
+</label>
+<!-- Member Card 3 -->
+<label class="group relative flex items-center p-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-gray-700 shadow-sm cursor-pointer transition-all duration-200">
+<input class="peer sr-only" name="assignee" type="radio"/>
+<div class="relative mr-4">
+<img alt="Professional woman in blazer portrait" class="w-14 h-14 rounded-full object-cover" data-alt="Portrait of Elena Rodriguez" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX3Dm-HPbrB7Wnn244ZfWBnYkpxB_9rEIuhUfaS7zhn0f1-NaTw3b11-aUEktZx4WCIBorOSUTWhyXcFzocnIkOps4R8HrnUiHuUh9WoseNcTGpjLYcl0dsWouFnXBF6uNHuvQVjo3tcmkYEYZ-S7ds8DBMZVQGD5wLdlrZ2K7InYXWtF0aPwRQgZP2auZKYYZ4pWxGoVVo6T_qkdgXGcUSykmAWx3D73BBy9DjAnasPv62hz1G1YASt7khropR4VzwyK7yvIyrPI"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-gray-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<div>
+<h3 class="font-semibold text-text-main-light dark:text-text-main-dark truncate">Elena Rodriguez</h3>
+<p class="text-xs text-text-sec-light dark:text-text-sec-dark truncate">Product Manager</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all group-hover:border-primary/50">
+<span class="material-icons-round text-white text-sm opacity-0 peer-checked:opacity-100">check</span>
+</div>
+</div>
+<div class="mt-2">
+<div class="flex justify-between text-[10px] text-text-sec-light dark:text-text-sec-dark mb-1 font-medium">
+<span>Capacity</span>
+<span class="text-green-600 dark:text-green-500">1 Active Task</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+<div class="bg-green-500 h-1.5 rounded-full" style="width: 20%"></div>
+</div>
+</div>
+</div>
+</label>
+<!-- Member Card 4 -->
+<label class="group relative flex items-center p-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-gray-700 shadow-sm cursor-pointer transition-all duration-200 opacity-60">
+<input class="peer sr-only" disabled="" name="assignee" type="radio"/>
+<div class="relative mr-4">
+<img alt="Man with beard looking serious portrait" class="w-14 h-14 rounded-full object-cover grayscale" data-alt="Portrait of Marcus Johnson" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTF-aDGWetqsLwtB4rskC_7WCqi9nI7G4vw0nlCeoauwI6AR9jdJ_VaMG3exoQDDPBsl-7ms3_NbbnhPxqE2Y-cEcubAfrXZ8T_rdBDn_z5nsTIL89dLf-IYNIFfUMl9BcEk9Eb5sBzgGxSj6wISF9U1KcwfSEKjfYFsfb50t19Ri8QvrTlTUUEXWfsrYFkedwTmjNxtQLyV_1q3YnaFQGmltTqZD69B64o44vspu1lDYeCraMa7xaYR6pQmZnoJ0R6qSPy_8CGA0"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<div>
+<h3 class="font-semibold text-text-main-light dark:text-text-main-dark truncate">Marcus Johnson</h3>
+<p class="text-xs text-text-sec-light dark:text-text-sec-dark truncate">Backend Lead (Unavailable)</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
+<span class="material-icons-round text-gray-400 text-sm">block</span>
+</div>
+</div>
+<div class="mt-2">
+<div class="flex justify-between text-[10px] text-text-sec-light dark:text-text-sec-dark mb-1 font-medium">
+<span>Capacity</span>
+<span class="text-red-500">Full</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+<div class="bg-red-500 h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</label>
+</main>
+<!-- Sticky Bottom Preview Section -->
+<div class="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-surface-dark rounded-t-2xl shadow-floating border-t border-gray-100 dark:border-gray-800 transform transition-transform duration-300">
+<!-- Pull Indicator -->
+<div class="w-full flex justify-center pt-3 pb-1">
+<div class="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+</div>
+<div class="px-6 pb-8 pt-2">
+<div class="flex items-center gap-4 mb-5">
+<div class="relative">
+<img alt="Smiling woman with short hair portrait preview" class="w-12 h-12 rounded-full object-cover shadow-md" data-alt="Small portrait of Sarah Jenkins" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3uyQ3u7EIa9MbmZsx1VCdLvHHwOJkJS8XAwugp_2kYrm9hjxPibJsDfitRWzWYIclLjRzaLWKQxSvPOwgz9zvQaMEjiyWhFJJ64poYTsHJtyuO36iacYj5_5Ov3qsr9Ao6CJSiogEzxx1Fz_pxd_L3YqVVV7HdbzUgEWniRgezX4rBHQw7pSVhFuETxfsWHCCvicsx98sJLqqkEKHn2soKfgrK35AZ6iQFeghYXRynhGW5PpRsy3-vQsarFgNkgvEmiioqgH-yJU"/>
+</div>
+<div>
+<div class="text-xs font-medium text-text-sec-light dark:text-text-sec-dark mb-0.5">Assigning to</div>
+<h2 class="text-lg font-bold text-text-main-light dark:text-text-main-dark">Sarah Jenkins</h2>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-3 gap-3 mb-6">
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl text-center">
+<div class="text-xs text-text-sec-light dark:text-text-sec-dark mb-1">Efficiency</div>
+<div class="font-bold text-primary text-sm">94%</div>
+</div>
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl text-center">
+<div class="text-xs text-text-sec-light dark:text-text-sec-dark mb-1">Tasks Done</div>
+<div class="font-bold text-text-main-light dark:text-text-main-dark text-sm">128</div>
+</div>
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl text-center">
+<div class="text-xs text-text-sec-light dark:text-text-sec-dark mb-1">Status</div>
+<div class="font-bold text-green-500 text-sm">Active</div>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-4 rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+<span>Confirm Assignment</span>
+<span class="material-icons-round text-lg">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

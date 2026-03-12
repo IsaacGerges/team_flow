@@ -8,9 +8,9 @@ import 'package:team_flow/features/profile/domain/entities/profile_entity.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_state.dart';
 import 'package:team_flow/features/profile/presentation/widgets/edit_profile_text_field.dart';
-import 'package:team_flow/features/profile/presentation/widgets/profile_section_title.dart';
 import 'package:team_flow/features/profile/presentation/widgets/skill_chip.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:team_flow/core/helpers/image_helper.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -108,89 +108,131 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: AppColors.white,
+          backgroundColor: Colors.white,
           elevation: 0,
+          scrolledUnderElevation: 0,
           leading: IconButton(
             icon: const Icon(
-              Icons.arrow_back_ios,
-              color: AppColors.primary,
-              size: 20,
+              Icons.arrow_back_ios_new_rounded,
+              color: Color(0xFF1E293B),
+              size: 18,
             ),
             onPressed: () => context.pop(),
           ),
           title: const Text(
-            AppStrings.editProfile,
+            'Edit Profile',
             style: TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
             ),
           ),
           centerTitle: true,
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildPhotoSection(),
-                const Divider(color: AppColors.divider, thickness: 1),
-                const SizedBox(height: 16),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildPhotoSection(),
+              const SizedBox(height: 32),
+              const Text(
+                'BASIC INFORMATION',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF64748B),
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              EditProfileTextField(
+                label: AppStrings.fullName,
+                controller: _nameController,
+                hint: 'e.g. Isaac Gerges',
+              ),
+              EditProfileTextField(
+                label: AppStrings.emailAddress,
+                controller: _emailController,
+                hint: 'isaac@example.com',
+              ),
+              EditProfileTextField(
+                label: AppStrings.phoneNumber,
+                controller: _phoneController,
+                hint: '+1 234 567 890',
+              ),
 
-                const ProfileSectionTitle(title: AppStrings.basicInfo),
-                EditProfileTextField(
-                  label: AppStrings.fullName,
-                  controller: _nameController,
+              const SizedBox(height: 24),
+              const Text(
+                'PROFESSIONAL INFO',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF64748B),
+                  letterSpacing: 0.5,
                 ),
-                EditProfileTextField(
-                  label: AppStrings.emailAddress,
-                  controller: _emailController,
+              ),
+              const SizedBox(height: 16),
+              EditProfileTextField(
+                label: AppStrings.jobTitle,
+                controller: _jobTitleController,
+                hint: 'e.g. Senior Designer',
+              ),
+              EditProfileTextField(
+                label: AppStrings.department,
+                controller: _departmentController,
+                hint: 'e.g. Product Team',
+              ),
+              EditProfileTextField(
+                label: 'Office Location',
+                controller: _locationController,
+                hint: 'e.g. New York, USA',
+                suffixIcon: const Icon(
+                  Icons.location_on_rounded,
+                  color: Color(0xFF94A3B8),
+                  size: 20,
                 ),
-                EditProfileTextField(
-                  label: AppStrings.phoneNumber,
-                  controller: _phoneController,
-                ),
+              ),
 
-                const SizedBox(height: 24),
-                const ProfileSectionTitle(title: AppStrings.professionalInfo),
-                EditProfileTextField(
-                  label: AppStrings.jobTitle,
-                  controller: _jobTitleController,
+              const SizedBox(height: 24),
+              const Text(
+                'ABOUT ME',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF64748B),
+                  letterSpacing: 0.5,
                 ),
-                EditProfileTextField(
-                  label: AppStrings.department,
-                  controller: _departmentController,
+              ),
+              const SizedBox(height: 16),
+              EditProfileTextField(
+                label: AppStrings.bio,
+                controller: _bioController,
+                maxLines: 4,
+                hint: 'Tell us about yourself...',
+              ),
+
+              _buildSkillsSection(),
+
+              const SizedBox(height: 24),
+              const Text(
+                'PRIVACY SETTINGS',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF64748B),
+                  letterSpacing: 0.5,
                 ),
-                EditProfileTextField(
-                  label: AppStrings.officeLocation,
-                  controller: _locationController,
-                  suffixIcon: const Icon(
-                    Icons.location_on,
-                    color: AppColors.textHint,
-                  ),
-                ),
+              ),
+              const SizedBox(height: 16),
+              _buildPrivacyToggles(),
 
-                const SizedBox(height: 24),
-                const ProfileSectionTitle(title: AppStrings.about),
-                EditProfileTextField(
-                  label: AppStrings.bio,
-                  controller: _bioController,
-                  maxLines: 4,
-                ),
-
-                _buildSkillsSection(),
-
-                const SizedBox(height: 24),
-                const ProfileSectionTitle(title: AppStrings.privacySettings),
-                _buildPrivacyToggles(),
-
-                const SizedBox(height: 32),
-                _buildBottomActions(),
-                const SizedBox(height: 32),
-              ],
-            ),
+              const SizedBox(height: 40),
+              _buildBottomActions(),
+              const SizedBox(height: 60),
+            ],
           ),
         ),
       ),
@@ -203,72 +245,71 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Center(
       child: Column(
         children: [
-          const SizedBox(height: 16),
-          CircleAvatar(
-            radius: 70,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
-            child: ClipOval(
-              child: displayPhoto != null && displayPhoto.isNotEmpty
-                  ? Image.memory(
-                      base64Decode(displayPhoto),
-                      width: 133,
-                      height: 133,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: AppColors.textHint,
-                      ),
-                    )
-                  : Image.asset(
-                      'assets/images/profile/profile_default_image.png',
-                      width: 133,
-                      height: 133,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: AppColors.textHint,
-                      ),
-                    ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Stack(
+            alignment: Alignment.center,
             children: [
-              TextButton(
-                onPressed: () {
-                  context.read<ProfileCubit>().pickPhoto();
-                },
-                child: const Text(
-                  AppStrings.changePhoto,
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
+              Container(
+                width: 128,
+                height: 128,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFF1F5F9), width: 8),
+                ),
+              ),
+              CircleAvatar(
+                radius: 54,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 51,
+                  backgroundImage:
+                      ImageHelper.getProvider(displayPhoto) ??
+                      const AssetImage(
+                        'assets/images/profile/profile_default_image.png',
+                      ),
+                ),
+              ),
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: () => context.read<ProfileCubit>().pickPhoto(),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2563EB),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF2563EB).withValues(alpha: 0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                   ),
                 ),
               ),
-              if (displayPhoto != null && displayPhoto.isNotEmpty)
-                Container(
-                  width: 1,
-                  height: 16,
-                  color: AppColors.divider,
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               if (displayPhoto != null && displayPhoto.isNotEmpty)
                 TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _pickedPhoto =
-                          ''; // Using empty string to represent removed
-                    });
-                  },
+                  onPressed: () => setState(() => _pickedPhoto = ''),
                   child: const Text(
-                    AppStrings.remove,
+                    'Remove Photo',
                     style: TextStyle(
-                      color: AppColors.error,
-                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFEF4444),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
                     ),
                   ),
                 ),
@@ -280,125 +321,139 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _buildSkillsSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const ProfileSectionTitle(title: AppStrings.skills),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              ..._currentSkills.map(
-                (s) => SkillChip(
-                  label: s,
-                  isRemovable: true,
-                  onRemove: () => setState(() => _currentSkills.remove(s)),
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+        const Text(
+          'SKILLS',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF64748B),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            ..._currentSkills.map(
+              (s) => SkillChip(
+                label: s,
+                isRemovable: true,
+                onRemove: () => setState(() => _currentSkills.remove(s)),
               ),
-              SkillChip(
-                label: AppStrings.addSkill,
-                isAddButton: true,
-                onTap: _showAddSkillDialog,
+            ),
+            SkillChip(
+              label: 'Add Skill',
+              isAddButton: true,
+              onTap: _showAddSkillDialog,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showAddSkillDialog() async {
+    final skillController = TextEditingController();
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text(
+          'Add New Skill',
+          style: TextStyle(fontWeight: FontWeight.w900),
+        ),
+        content: TextField(
+          controller: skillController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'e.g. Project Management',
+            border: UnderlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final val = skillController.text.trim();
+              if (val.isNotEmpty && !_currentSkills.contains(val))
+                setState(() => _currentSkills.add(val));
+              context.pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2563EB),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            ],
+            ),
+            child: const Text('Add'),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _showAddSkillDialog() async {
-    final skillController = TextEditingController();
-
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(AppStrings.addSkill),
-          content: TextField(
-            controller: skillController,
-            decoration: const InputDecoration(
-              hintText: 'e.g. Flutter, UI/UX, Dart',
-            ),
-            autofocus: true,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (value) {
-              final trimmed = value.trim();
-              if (trimmed.isNotEmpty && !_currentSkills.contains(trimmed)) {
-                setState(() {
-                  _currentSkills.add(trimmed);
-                });
-              }
-              context.pop();
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text(
-                AppStrings.cancel,
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final trimmed = skillController.text.trim();
-                if (trimmed.isNotEmpty && !_currentSkills.contains(trimmed)) {
-                  setState(() {
-                    _currentSkills.add(trimmed);
-                  });
-                }
-                context.pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
-              ),
-              child: const Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildPrivacyToggles() {
     return Container(
-      // margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         children: [
           SwitchListTile(
             title: const Text(
-              AppStrings.visibleToTeam,
-              style: TextStyle(fontSize: 14),
+              'Visible to Team',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1E293B),
+              ),
             ),
             subtitle: const Text(
-              AppStrings.visibleToTeamDesc,
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              'Allow others to see your status',
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w500,
+              ),
             ),
             value: _isVisibleToTeam,
-            activeThumbColor: AppColors.primary,
+            activeColor: const Color(0xFF2563EB),
             onChanged: (v) => setState(() => _isVisibleToTeam = v),
           ),
-          const Divider(height: 1, indent: 16, endIndent: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+          ),
           SwitchListTile(
             title: const Text(
-              AppStrings.shareContactInfo,
-              style: TextStyle(fontSize: 14),
+              'Share Contact Info',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1E293B),
+              ),
             ),
             subtitle: const Text(
-              AppStrings.shareContactInfoDesc,
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              'Show phone/email to members',
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w500,
+              ),
             ),
             value: _shareContactInfo,
-            activeThumbColor: AppColors.primary,
+            activeColor: const Color(0xFF2563EB),
             onChanged: (v) => setState(() => _shareContactInfo = v),
           ),
         ],
@@ -407,43 +462,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _buildBottomActions() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextButton(
-              onPressed: () {
-                _pickedPhoto = ''; // Using empty string to represent removed
-                context.pop();
-              },
-              child: const Text(
-                AppStrings.cancel,
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
-              ),
-            ),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _saveChanges,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2563EB),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: _saveChanges,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text(
-                AppStrings.saveChanges,
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
+          elevation: 8,
+          shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.3),
+        ),
+        child: const Text(
+          'Save Changes',
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+        ),
       ),
     );
   }

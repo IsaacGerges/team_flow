@@ -28,7 +28,17 @@ import 'features/profile/domain/usecases/get_all_users_usecase.dart';
 import 'features/profile/domain/usecases/get_profile_usecase.dart';
 import 'features/profile/domain/usecases/update_profile_usecase.dart';
 import 'features/profile/presentation/cubit/profile_cubit.dart';
-
+import 'features/tasks/data/datasources/task_remote_data_source.dart';
+import 'features/tasks/data/repositories/task_repository_impl.dart';
+import 'features/tasks/domain/repositories/task_repository.dart';
+import 'features/tasks/domain/usecases/add_comment_usecase.dart';
+import 'features/tasks/domain/usecases/create_task_usecase.dart';
+import 'features/tasks/domain/usecases/delete_task_usecase.dart';
+import 'features/tasks/domain/usecases/get_tasks_for_team_usecase.dart';
+import 'features/tasks/domain/usecases/get_tasks_for_teams_usecase.dart';
+import 'features/tasks/domain/usecases/get_tasks_for_user_usecase.dart';
+import 'features/tasks/domain/usecases/update_task_usecase.dart';
+import 'features/tasks/presentation/cubit/task_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:team_flow/core/helpers/cache_helper.dart';
 
@@ -123,7 +133,44 @@ Future<void> init() async {
 
   // Cubit
   sl.registerFactory(
-    () => ProfileCubit(getProfileUseCase: sl(), updateProfileUseCase: sl()),
+    () => ProfileCubit(
+      getProfileUseCase: sl(),
+      updateProfileUseCase: sl(),
+      getAllUsersUseCase: sl(),
+    ),
+  );
+
+  // === Tasks Feature ===
+  // Use Cases
+  sl.registerLazySingleton(() => CreateTaskUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateTaskUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteTaskUseCase(sl()));
+  sl.registerLazySingleton(() => GetTasksForUserUseCase(sl()));
+  sl.registerLazySingleton(() => GetTasksForTeamUseCase(sl()));
+  sl.registerLazySingleton(() => GetTasksForTeamsUseCase(sl()));
+  sl.registerLazySingleton(() => AddCommentUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<TasksRepository>(
+    () => TasksRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+
+  // Data Source
+  sl.registerLazySingleton<TasksRemoteDataSource>(
+    () => TasksRemoteDataSourceImpl(firestore: sl()),
+  );
+
+  // Cubit
+  sl.registerFactory(
+    () => TasksCubit(
+      createTaskUseCase: sl(),
+      updateTaskUseCase: sl(),
+      deleteTaskUseCase: sl(),
+      getTasksForUserUseCase: sl(),
+      getTasksForTeamUseCase: sl(),
+      getTasksForTeamsUseCase: sl(),
+      addCommentUseCase: sl(),
+    ),
   );
 
   // === External ===
