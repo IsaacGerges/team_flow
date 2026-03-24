@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/core/constants/app_strings.dart';
 
 class MainScaffoldWithNavBar extends StatelessWidget {
@@ -50,11 +49,12 @@ class MainScaffoldWithNavBar extends StatelessWidget {
               onTap: () => _onTap(2),
             ),
             _NavBarItem(
-              iconOutlined: Icons.person_rounded,
-              iconFilled: Icons.person_rounded,
+              iconOutlined: Icons.person,
+              iconFilled: Icons.person,
               label: AppStrings.profileNav,
               isActive: navigationShell.currentIndex == 3,
               onTap: () => _onTap(3),
+              hasBadge: true,
             ),
           ],
         ),
@@ -76,6 +76,7 @@ class _NavBarItem extends StatelessWidget {
   final String label;
   final bool isActive;
   final VoidCallback onTap;
+  final bool hasBadge;
 
   const _NavBarItem({
     required this.iconOutlined,
@@ -83,6 +84,7 @@ class _NavBarItem extends StatelessWidget {
     required this.label,
     required this.isActive,
     required this.onTap,
+    this.hasBadge = false,
   });
 
   @override
@@ -105,10 +107,29 @@ class _NavBarItem extends StatelessWidget {
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(
-              isActive ? iconFilled : iconOutlined,
-              color: isActive ? activeColor : inactiveColor,
-              size: 24,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  isActive ? iconFilled : iconOutlined,
+                  color: isActive ? activeColor : inactiveColor,
+                  size: 24,
+                ),
+                // if (hasBadge)
+                //   Positioned(
+                //     top: -2,
+                //     right: -2,
+                //     child: Container(
+                //       width: 10,
+                //       height: 10,
+                //       decoration: BoxDecoration(
+                //         color: const Color(0xFFEF4444),
+                //         shape: BoxShape.circle,
+                //         border: Border.all(color: Colors.white, width: 2),
+                //       ),
+                //     ),
+                //   ),
+              ],
             ),
           ),
           const SizedBox(height: 6),

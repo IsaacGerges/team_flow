@@ -32,8 +32,8 @@ class SocialLoginButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.network(
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuDkkWWNkuLENHev-vjmw78nkMBVrzo2HDacEAiJ_bB2a87CmpNFirJIxyCBSXRvy-_GsgDAG9_jPPcAuVeOB-xq4c-bvqRyEvOhDeMLzYenMyxripeps8xJ7bkS5InmvW2AEDvV4ndMQpsUssaMURz5cDDtlnK7B9E20k-lzdHXPnh4ZXLQEgtqjGsrNziYzNIA46IbGNh9bpytrYyP4DY8lABfVG9tZdsEsvEUewP-F4p_UhMxPP9yqce_bqp_RIw93g4MAHDoo9M',
+            Image.asset(
+              'assets/images/login/google.png',
               height: 20,
               errorBuilder: (_, __, ___) =>
                   const Icon(Icons.g_mobiledata, size: 24),

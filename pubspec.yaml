@@ -86,6 +86,7 @@ flutter:
     - assets/icons/google.png
     - assets/images/profile/
     - assets/images/onboarding/
+    - assets/images/login/
     # - images/a_dot_burr.jpeg
     # - images/a_dot_ham.jpeg
 

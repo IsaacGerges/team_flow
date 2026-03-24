@@ -18,7 +18,7 @@ class TeamsRepositoryImpl implements TeamsRepository {
   });
 
   @override
-  Future<Either<Failure, Unit>> createTeam(TeamEntity team) async {
+  Future<Either<Failure, String>> createTeam(TeamEntity team) async {
     try {
       final model = TeamModel(
         id: '',
@@ -31,8 +31,8 @@ class TeamsRepositoryImpl implements TeamsRepository {
         isPrivate: team.isPrivate,
         progressPercent: team.progressPercent,
       );
-      await remoteDataSource.createTeam(model);
-      return const Right(unit);
+      final teamId = await remoteDataSource.createTeam(model);
+      return Right(teamId);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

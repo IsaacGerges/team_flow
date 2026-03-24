@@ -19,6 +19,8 @@ import 'package:team_flow/features/tasks/presentation/pages/create_task_page.dar
 import 'package:team_flow/features/tasks/presentation/pages/my_tasks_page.dart';
 import 'package:team_flow/features/tasks/presentation/pages/task_assignment_page.dart';
 import 'package:team_flow/features/tasks/presentation/pages/task_details_page.dart';
+import 'package:team_flow/features/notifications/presentation/cubit/notifications_cubit.dart';
+import 'package:team_flow/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:team_flow/injection_container.dart';
 
 // Auth Pages
@@ -40,6 +42,8 @@ final GlobalKey<NavigatorState> _teamsNavigatorKey = GlobalKey<NavigatorState>(
 );
 final GlobalKey<NavigatorState> _profileNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'profileNav');
+final GlobalKey<NavigatorState> _notificationsNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'notificationsNav');
 
 final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -71,7 +75,6 @@ final GoRouter router = GoRouter(
       name: 'signup',
       builder: (context, state) => const SignUpPage(),
     ),
-
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         // Wrap everything with the necessary Cubits so they are shared across branches
@@ -80,6 +83,7 @@ final GoRouter router = GoRouter(
             BlocProvider(create: (_) => sl<ProfileCubit>()),
             BlocProvider(create: (_) => sl<TeamsCubit>()),
             BlocProvider(create: (_) => sl<TasksCubit>()),
+            BlocProvider(create: (_) => sl<NotificationsCubit>()),
           ],
           child: MainScaffoldWithNavBar(navigationShell: navigationShell),
         );
@@ -191,6 +195,17 @@ final GoRouter router = GoRouter(
                   builder: (context, state) => const EditProfilePage(),
                 ),
               ],
+            ),
+          ],
+        ),
+        // Branch 4: Notifications (Alerts)
+        StatefulShellBranch(
+          navigatorKey: _notificationsNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/notifications',
+              name: 'notifications',
+              builder: (context, state) => const NotificationsPage(),
             ),
           ],
         ),

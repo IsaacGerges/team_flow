@@ -104,18 +104,18 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
                 ? taskState.tasks
                 : <TaskEntity>[];
             final teamsState = context.read<TeamsCubit>().state;
-            final adminId = teamsState is TeamsLoaded
-                ? teamsState.teams
-                      .where((t) => t.id == widget.teamId)
-                      .firstOrNull
-                      ?.adminId
+            final currentTeam = teamsState is TeamsLoaded
+                ? teamsState.teams.where((t) => t.id == widget.teamId).firstOrNull
                 : null;
+            final memberIds = currentTeam?.membersIds ?? [];
+            final adminId = currentTeam?.adminId;
 
             final users = profileState.users
+                .where((u) => memberIds.contains(u.uid))
                 .where(
                   (u) => u.fullName.toLowerCase().contains(
-                    _searchQuery.toLowerCase(),
-                  ),
+                        _searchQuery.toLowerCase(),
+                      ),
                 )
                 .where((u) => u.uid != adminId)
                 .toList();

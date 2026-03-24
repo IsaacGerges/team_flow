@@ -8,6 +8,8 @@ import '../../domain/usecases/get_tasks_for_team_usecase.dart';
 import '../../domain/usecases/get_tasks_for_teams_usecase.dart';
 import '../../domain/usecases/get_tasks_for_user_usecase.dart';
 import '../../domain/usecases/update_task_usecase.dart';
+import '../../../notifications/domain/entities/notification_entity.dart';
+import '../../../notifications/domain/usecases/create_notification_usecase.dart';
 import 'task_state.dart';
 
 /// Manages the state for tasks across the application.
@@ -23,6 +25,7 @@ class TasksCubit extends Cubit<TasksState> {
   final GetTasksForTeamUseCase getTasksForTeamUseCase;
   final GetTasksForTeamsUseCase getTasksForTeamsUseCase;
   final AddCommentUseCase addCommentUseCase;
+  final CreateNotificationUseCase createNotificationUseCase;
 
   StreamSubscription? _tasksSubscription;
 
@@ -34,6 +37,7 @@ class TasksCubit extends Cubit<TasksState> {
     required this.getTasksForTeamUseCase,
     required this.getTasksForTeamsUseCase,
     required this.addCommentUseCase,
+    required this.createNotificationUseCase,
   }) : super(TasksInitial());
 
   // ----------------------------------------------------------
@@ -81,7 +85,43 @@ class TasksCubit extends Cubit<TasksState> {
     return result.fold((failure) {
       emit(TasksError(_mapFailureToMessage(failure)));
       return null;
-    }, (taskId) => taskId);
+    }, (taskId) {
+      // Notify each assignee (fire-and-forget individually but await together)
+      Future.wait([
+        // Assignee notifications
+        ...task.assigneeIds
+            .where((id) => id != task.creatorId)
+            .map(
+              (assigneeId) => createNotificationUseCase(NotificationEntity(
+                id: '',
+                userId: assigneeId,
+                type: NotificationType.assignment,
+                title: 'New Task Assignment',
+                body: 'You were assigned to: ${task.title}',
+                targetId: taskId,
+                targetName: task.title,
+                senderName: 'Team Member',
+                isRead: false,
+                createdAt: DateTime.now(),
+              )),
+            ),
+        // Self-notification for the creator
+        createNotificationUseCase(NotificationEntity(
+          id: '',
+          userId: task.creatorId,
+          type: NotificationType.taskAlert,
+          title: 'Task Created',
+          body: 'You created: ${task.title}',
+          targetId: taskId,
+          targetName: task.title,
+          senderName: 'System',
+          isRead: false,
+          createdAt: DateTime.now(),
+        )),
+      ]);
+
+      return taskId;
+    });
   }
 
   Future<bool> updateTask(String taskId, TaskEntity task) async {
@@ -130,7 +170,10 @@ class TasksCubit extends Cubit<TasksState> {
     return result.fold((failure) {
       emit(TasksError(_mapFailureToMessage(failure)));
       return false;
-    }, (_) => true);
+    }, (_) {
+      // Logic for notifications on comments can be added here
+      return true;
+    });
   }
 
   // ----------------------------------------------------------

@@ -4,7 +4,7 @@ import '../models/team_model.dart';
 
 /// Handles all Firestore operations for the teams feature.
 abstract class TeamsRemoteDataSource {
-  Future<void> createTeam(TeamModel teamModel);
+  Future<String> createTeam(TeamModel teamModel);
   Future<void> updateTeam(String teamId, TeamModel teamModel);
   Future<void> deleteTeam(String teamId);
   Stream<List<TeamModel>> getTeams(String userId);
@@ -18,9 +18,22 @@ class TeamsRemoteDataSourceImpl implements TeamsRemoteDataSource {
   TeamsRemoteDataSourceImpl({required this.firestore});
 
   @override
-  Future<void> createTeam(TeamModel teamModel) async {
+  Future<String> createTeam(TeamModel teamModel) async {
     try {
-      await firestore.collection('teams').add(teamModel.toJson());
+      final docRef = firestore.collection('teams').doc();
+      final modelWithId = TeamModel(
+        id: docRef.id,
+        name: teamModel.name,
+        description: teamModel.description,
+        adminId: teamModel.adminId,
+        membersIds: teamModel.membersIds,
+        photoUrl: teamModel.photoUrl,
+        category: teamModel.category,
+        isPrivate: teamModel.isPrivate,
+        progressPercent: teamModel.progressPercent,
+      );
+      await docRef.set(modelWithId.toJson());
+      return docRef.id;
     } catch (e) {
       throw ServerException(message: 'Failed to create team');
     }

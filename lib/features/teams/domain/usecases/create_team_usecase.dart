@@ -9,7 +9,7 @@ class CreateTeamUseCase {
 
   CreateTeamUseCase(this.repository);
 
-  Future<Either<Failure, Unit>> call(TeamEntity team) {
+  Future<Either<Failure, String>> call(TeamEntity team) {
     return repository.createTeam(team);
   }
 }

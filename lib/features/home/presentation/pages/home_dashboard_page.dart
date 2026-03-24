@@ -5,6 +5,7 @@ import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart
 import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
+import 'package:team_flow/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:team_flow/features/home/presentation/widgets/greeting_header.dart';
 import 'package:team_flow/features/home/presentation/widgets/home_stats_section.dart';
 import 'package:team_flow/features/home/presentation/widgets/my_teams_section.dart';
@@ -38,6 +39,7 @@ class _HomeContentState extends State<_HomeContent> {
         sl<CacheHelper>().getData(key: CacheKeys.userId) as String?;
     if (userId == null) return;
     context.read<ProfileCubit>().getProfile(userId);
+    context.read<NotificationsCubit>().loadNotifications(userId);
 
     final teamsState = context.read<TeamsCubit>().state;
     if (teamsState is TeamsLoaded) {

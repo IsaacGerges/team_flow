@@ -81,7 +81,7 @@ class HomeTeamCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: _getCategoryColor(team.category).iconColor,
+                    color: Color(0xFF2563EB),
                   ),
                 ),
               ],

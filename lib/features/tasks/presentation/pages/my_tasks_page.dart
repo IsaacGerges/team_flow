@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/task_entity.dart';
+import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
+import 'package:team_flow/core/helpers/progress_helper.dart';
 import '../cubit/task_cubit.dart';
 import '../cubit/task_state.dart';
 import '../widgets/task_card.dart';
@@ -21,7 +22,11 @@ class MyTasksPage extends StatefulWidget {
 class _MyTasksPageState extends State<MyTasksPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _tabs = ['All Tasks', 'To Do', 'In Progress', 'Done'];
+  final List<String> _tabs = ['All Tasks', 'To Do', 'In Progress', 'Review', 'Done'];
+  bool _isSearching = false;
+  String _searchQuery = '';
+  TaskPriority? _selectedPriority;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -66,23 +71,53 @@ class _MyTasksPageState extends State<MyTasksPage>
         elevation: 0,
         scrolledUnderElevation: 0,
         toolbarHeight: 80,
-        title: const Text(
-          'My Tasks',
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 28,
-            color: Color(0xFF1E293B),
-            letterSpacing: -1,
-          ),
-        ),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Search tasks...',
+                  border: InputBorder.none,
+                ),
+                onChanged: (val) {
+                  setState(() => _searchQuery = val);
+                },
+              )
+            : const Text(
+                'My Tasks',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 28,
+                  color: Color(0xFF1E293B),
+                  letterSpacing: -1,
+                ),
+              ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Color(0xFF64748B)),
-            onPressed: () {},
+            icon: Icon(
+              _isSearching ? Icons.close : Icons.search,
+              color: const Color(0xFF64748B),
+            ),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchQuery = '';
+                  _searchController.clear();
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
           ),
           IconButton(
-            icon: const Icon(Icons.tune, color: Color(0xFF64748B)),
-            onPressed: () {},
+            icon: Icon(
+              Icons.tune,
+              color: _selectedPriority != null
+                  ? const Color(0xFF2563EB)
+                  : const Color(0xFF64748B),
+            ),
+            onPressed: () => _showFilterSheet(),
           ),
           const SizedBox(width: 8),
         ],
@@ -312,9 +347,7 @@ class _MyTasksPageState extends State<MyTasksPage>
   }
 
   Widget _buildStats(List<TaskEntity> tasks) {
-    final doneCount = tasks.where((t) => t.status == TaskStatus.done).length;
-    final total = tasks.length;
-    final velocity = total > 0 ? doneCount / total : 0.0;
+    final velocity = ProgressHelper.calculateTasksProgress(tasks);
     final pending = tasks.where((t) => t.status != TaskStatus.done).length;
     final highPriority = tasks
         .where((t) => t.priority == TaskPriority.high)
@@ -409,15 +442,102 @@ class _MyTasksPageState extends State<MyTasksPage>
   }
 
   List<TaskEntity> _filterTasks(List<TaskEntity> tasks) {
+    Iterable<TaskEntity> filtered = tasks;
+
+    // 1. Tab filter
     final selectedTab = _tabs[_tabController.index];
-    if (selectedTab == 'All Tasks') return tasks;
-    return tasks
-        .where(
-          (t) =>
-              t.status.name.toLowerCase() ==
-              selectedTab.replaceAll(' ', '').toLowerCase(),
-        )
-        .toList();
+    if (selectedTab != 'All Tasks') {
+      filtered = filtered.where(
+        (t) =>
+            t.status.name.toLowerCase() ==
+            selectedTab.replaceAll(' ', '').toLowerCase(),
+      );
+    }
+
+    // 2. Search query filter
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered.where(
+        (t) => t.title.toLowerCase().contains(_searchQuery.toLowerCase()),
+      );
+    }
+
+    // 3. Priority filter
+    if (_selectedPriority != null) {
+      filtered = filtered.where((t) => t.priority == _selectedPriority);
+    }
+
+    return filtered.toList();
+  }
+
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Filter by Priority',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 12,
+                    children: [
+                      _buildFilterChip(null, 'All', setSheetState),
+                      _buildFilterChip(TaskPriority.high, 'High', setSheetState),
+                      _buildFilterChip(
+                        TaskPriority.medium,
+                        'Medium',
+                        setSheetState,
+                      ),
+                      _buildFilterChip(TaskPriority.low, 'Low', setSheetState),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterChip(
+    TaskPriority? priority,
+    String label,
+    StateSetter setSheetState,
+  ) {
+    final isSelected = _selectedPriority == priority;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        setState(() => _selectedPriority = priority);
+        setSheetState(() {});
+        Navigator.pop(context);
+      },
+      selectedColor: const Color(0xFF2563EB),
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : const Color(0xFF64748B),
+        fontWeight: FontWeight.w700,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
   }
 
   /// Returns the number of tasks matching the given [tab] filter.

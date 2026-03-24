@@ -5,6 +5,7 @@ import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
 import 'package:team_flow/features/home/presentation/widgets/home_team_card.dart';
 import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
+import 'package:team_flow/core/helpers/progress_helper.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
 
@@ -75,12 +76,7 @@ class MyTeamsSection extends StatelessWidget {
                         final activeCount = teamTasks
                             .where((t) => t.status != TaskStatus.done)
                             .length;
-                        final doneCount = teamTasks
-                            .where((t) => t.status == TaskStatus.done)
-                            .length;
-                        final progress = teamTasks.isEmpty
-                            ? 0.0
-                            : doneCount / teamTasks.length;
+                        final progress = ProgressHelper.calculateTasksProgress(teamTasks);
 
                         return HomeTeamCard(
                           team: team,
