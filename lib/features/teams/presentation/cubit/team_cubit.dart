@@ -12,6 +12,8 @@ import 'package:team_flow/features/teams/domain/usecases/delete_team_usecase.dar
 import 'package:team_flow/features/teams/domain/usecases/get_teams_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/update_team_usecase.dart';
 import 'package:team_flow/core/error/failures.dart';
+import 'package:team_flow/features/notifications/domain/entities/notification_entity.dart';
+import 'package:team_flow/features/notifications/domain/usecases/create_notification_usecase.dart';
 import 'team_state.dart';
 
 /// Manages the state for the entire Teams feature.
@@ -26,6 +28,7 @@ class TeamsCubit extends Cubit<TeamsState> {
   final DeleteTeamUseCase deleteTeamUseCase;
   final AddMemberUseCase addMemberUseCase;
   final GetAllUsersUseCase getAllUsersUseCase;
+  final CreateNotificationUseCase createNotificationUseCase;
 
   StreamSubscription<List<TeamEntity>>? _teamsSubscription;
   String? _currentUserId;
@@ -37,6 +40,7 @@ class TeamsCubit extends Cubit<TeamsState> {
     required this.deleteTeamUseCase,
     required this.addMemberUseCase,
     required this.getAllUsersUseCase,
+    required this.createNotificationUseCase,
   }) : super(const TeamsInitial());
 
   // ----------------------------------------------------------
@@ -68,12 +72,24 @@ class TeamsCubit extends Cubit<TeamsState> {
   Future<void> createTeam(TeamEntity team) async {
     emit(const TeamsLoading());
     final result = await createTeamUseCase(team);
-    result.fold((failure) => emit(TeamsError(_mapFailureToMessage(failure))), (
-      _,
-    ) {
-      emit(const TeamCreatedSuccess());
-      _refreshTeams();
-    });
+    await result.fold(
+      (failure) async => emit(TeamsError(_mapFailureToMessage(failure))),
+      (teamId) async {
+        // Self-notification for the admin using the real teamId
+        await createNotificationUseCase(NotificationEntity(
+          id: '',
+          userId: team.adminId,
+          type: NotificationType.teamActivity,
+          title: 'Team Created',
+          body: 'You created team: ${team.name}',
+          targetId: teamId,
+          isRead: false,
+          createdAt: DateTime.now(),
+        ));
+        emit(const TeamCreatedSuccess());
+        _refreshTeams();
+      },
+    );
   }
 
   Future<void> updateTeam(String teamId, TeamEntity team) async {
@@ -102,12 +118,23 @@ class TeamsCubit extends Cubit<TeamsState> {
   Future<void> addMember(String teamId, String userId) async {
     emit(const TeamsLoading());
     final result = await addMemberUseCase(teamId, userId);
-    result.fold((failure) => emit(TeamsError(_mapFailureToMessage(failure))), (
-      _,
-    ) {
-      emit(const TeamMemberAddedSuccess());
-      _refreshTeams();
-    });
+    await result.fold(
+      (failure) async => emit(TeamsError(_mapFailureToMessage(failure))),
+      (_) async {
+        await createNotificationUseCase(NotificationEntity(
+          id: '',
+          userId: userId,
+          type: NotificationType.teamActivity,
+          title: 'New Team Membership',
+          body: 'You were added to a new team',
+          targetId: teamId,
+          isRead: false,
+          createdAt: DateTime.now(),
+        ));
+        emit(const TeamMemberAddedSuccess());
+        _refreshTeams();
+      },
+    );
   }
 
   /// Adds multiple members sequentially, then refreshes once.
@@ -120,6 +147,18 @@ class TeamsCubit extends Cubit<TeamsState> {
         return true;
       }, (_) => false);
       if (failed) return;
+
+      // Notify the newly added member
+      await createNotificationUseCase(NotificationEntity(
+        id: '',
+        userId: uid,
+        type: NotificationType.teamActivity,
+        title: 'New Team Membership',
+        body: 'You were added to a new team',
+        targetId: teamId,
+        isRead: false,
+        createdAt: DateTime.now(),
+      ));
     }
     emit(const TeamMemberAddedSuccess());
     _refreshTeams();

@@ -60,7 +60,7 @@ class TaskCard extends StatelessWidget {
                           children: [
                             // Custom Rounded Checkbox
                             GestureDetector(
-                              onTap: () => onCheckboxChanged(!isDone),
+                              onTap: onTap,
                               child: Container(
                                 width: 24,
                                 height: 24,

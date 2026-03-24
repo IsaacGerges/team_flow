@@ -4,7 +4,7 @@ import '../../../../core/error/failures.dart';
 
 /// Abstract contract for all team operations.
 abstract class TeamsRepository {
-  Future<Either<Failure, Unit>> createTeam(TeamEntity team);
+  Future<Either<Failure, String>> createTeam(TeamEntity team);
   Future<Either<Failure, Unit>> updateTeam(String teamId, TeamEntity team);
   Future<Either<Failure, Unit>> deleteTeam(String teamId);
   Future<Either<Failure, Unit>> addMember(String teamId, String userId);

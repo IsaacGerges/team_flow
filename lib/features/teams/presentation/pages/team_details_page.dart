@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
+import 'package:team_flow/core/helpers/progress_helper.dart';
 import 'package:team_flow/features/profile/domain/entities/profile_entity.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
@@ -436,16 +437,11 @@ class _StatsOverlay extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: BlocBuilder<TasksCubit, TasksState>(
           builder: (context, state) {
-            final tasks = state is TasksLoaded ? state.tasks : [];
+            final tasks = state is TasksLoaded ? state.tasks : <TaskEntity>[];
+            final progress = ProgressHelper.calculateTasksProgress(tasks);
             final activeCount = tasks
                 .where((t) => t.status != TaskStatus.done)
                 .length;
-            final doneCount = tasks
-                .where((t) => t.status == TaskStatus.done)
-                .length;
-            final completePct = tasks.isEmpty
-                ? 0
-                : ((doneCount / tasks.length) * 100).round();
 
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
@@ -486,7 +482,7 @@ class _StatsOverlay extends StatelessWidget {
                     ),
                     _StatItem(
                       label: 'COMPLETE',
-                      value: '$completePct%',
+                      value: '${(progress * 100).toInt()}%',
                       valueColor: const Color(0xFF10B981), // emerald-500
                       icon: Icons.trending_up_rounded,
                     ),

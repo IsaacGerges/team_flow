@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_state.dart';
+import 'package:team_flow/features/notifications/presentation/cubit/notifications_cubit.dart';
+import 'package:team_flow/features/notifications/presentation/cubit/notifications_state.dart';
 
 class GreetingHeader extends StatelessWidget {
   const GreetingHeader({super.key});
@@ -33,7 +36,7 @@ class GreetingHeader extends StatelessWidget {
               ],
             ),
           ),
-          _buildNotificationIcon(),
+          _buildNotificationIcon(context),
         ],
       ),
     );
@@ -47,8 +50,8 @@ class GreetingHeader extends StatelessWidget {
             state.profile.photoUrl != null &&
             state.profile.photoUrl!.isNotEmpty;
         return Container(
-          width: 40,
-          height: 40,
+          width: 45,
+          height: 45,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
@@ -83,7 +86,7 @@ class GreetingHeader extends StatelessWidget {
         return Text(
           '${_getGreeting()}, $name!',
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w700,
             color: Color(0xFF1E293B),
             height: 1.25,
@@ -93,47 +96,56 @@ class GreetingHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationIcon() {
-    return Stack(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.transparent, // using Material / InkWell for hover
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              highlightColor: const Color(0xFFE2E8F0),
-              splashColor: const Color(0xFFCBD5E1),
-              onTap: () {},
-              child: const Icon(
-                Icons.notifications_none_rounded,
-                color: Color(0xFF475569),
-                size: 24,
+  Widget _buildNotificationIcon(BuildContext context) {
+    return BlocBuilder<NotificationsCubit, NotificationsState>(
+      builder: (context, state) {
+        final hasUnread =
+            state is NotificationsLoaded &&
+            state.notifications.any((n) => !n.isRead);
+
+        return Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  highlightColor: const Color(0xFFE2E8F0),
+                  splashColor: const Color(0xFFCBD5E1),
+                  onTap: () => context.go('/notifications'),
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Color(0xFF475569),
+                    size: 26,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        Positioned(
-          right: 6,
-          top: 6,
-          child: Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEF4444), // red-500
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color(0xFFF6F7F8),
-                width: 2,
-              ), // matching background cut
-            ),
-          ),
-        ),
-      ],
+            if (hasUnread)
+              Positioned(
+                right: 6,
+                top: 6,
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFF6F7F8),
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 

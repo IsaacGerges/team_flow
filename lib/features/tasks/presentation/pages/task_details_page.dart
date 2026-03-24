@@ -205,7 +205,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    '${_currentTask.teamName} Team Flow',
+                    _currentTask.teamName,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Color(0xFF64748B),
                       fontWeight: FontWeight.w500,
@@ -338,8 +339,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                         color: isCompleted
                             ? const Color(0xFF3B82F6)
                             : isCurrent
-                                ? const Color(0xFFEFF6FF)
-                                : const Color(0xFFF1F5F9),
+                            ? const Color(0xFFEFF6FF)
+                            : const Color(0xFFF1F5F9),
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isActive
@@ -355,17 +356,17 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                               color: Colors.white,
                             )
                           : isCurrent
-                              ? Center(
-                                  child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xFF3B82F6),
-                                    ),
-                                  ),
-                                )
-                              : null,
+                          ? Center(
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xFF3B82F6),
+                                ),
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -373,9 +374,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     stageLabels[index],
                     style: TextStyle(
                       fontSize: 9,
-                      fontWeight: isActive
-                          ? FontWeight.w700
-                          : FontWeight.w400,
+                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                       color: isActive
                           ? const Color(0xFF3B82F6)
                           : const Color(0xFF94A3B8),
@@ -508,7 +507,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
           color: Color(0xFFF1F5F9),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.person_outline, color: Color(0xFF94A3B8), size: 18),
+        child: const Icon(
+          Icons.person_outline,
+          color: Color(0xFF94A3B8),
+          size: 18,
+        ),
       );
     }
     return BlocProvider(
@@ -620,7 +623,6 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     );
   }
 
-
   Widget _buildCommentsHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -730,7 +732,6 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
           children: [
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEEF2F9),
                   borderRadius: BorderRadius.circular(16),

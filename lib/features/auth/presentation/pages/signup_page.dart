@@ -75,19 +75,8 @@ class _SignUpFormState extends State<_SignUpForm> {
       },
       child: Stack(
         children: [
-          // Decorative background circles
-          Positioned(
-            top: -100,
-            left: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
+          // Decorative background circles removed as requested
+          const SizedBox.shrink(),
           SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),

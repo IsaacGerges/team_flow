@@ -39,6 +39,14 @@ import 'features/tasks/domain/usecases/get_tasks_for_teams_usecase.dart';
 import 'features/tasks/domain/usecases/get_tasks_for_user_usecase.dart';
 import 'features/tasks/domain/usecases/update_task_usecase.dart';
 import 'features/tasks/presentation/cubit/task_cubit.dart';
+import 'features/notifications/data/datasources/notification_remote_data_source.dart';
+import 'features/notifications/data/repositories/notification_repository_impl.dart';
+import 'features/notifications/domain/repositories/notification_repository.dart';
+import 'features/notifications/domain/usecases/get_notifications_usecase.dart';
+import 'features/notifications/domain/usecases/mark_all_notifications_read_usecase.dart';
+import 'features/notifications/domain/usecases/mark_notification_read_usecase.dart';
+import 'features/notifications/domain/usecases/create_notification_usecase.dart';
+import 'features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:team_flow/core/helpers/cache_helper.dart';
 
@@ -112,6 +120,7 @@ Future<void> init() async {
       deleteTeamUseCase: sl(),
       addMemberUseCase: sl(),
       getAllUsersUseCase: sl(),
+      createNotificationUseCase: sl(),
     ),
   );
 
@@ -170,6 +179,35 @@ Future<void> init() async {
       getTasksForTeamUseCase: sl(),
       getTasksForTeamsUseCase: sl(),
       addCommentUseCase: sl(),
+      createNotificationUseCase: sl(),
+    ),
+  );
+
+  // === Notifications Feature ===
+  // Use Cases
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => MarkNotificationReadUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAllNotificationsReadUseCase(sl()));
+  sl.registerLazySingleton(() => CreateNotificationUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data Source
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(firestore: sl()),
+  );
+
+  // Cubit
+  sl.registerFactory(
+    () => NotificationsCubit(
+      getNotificationsUseCase: sl(),
+      markNotificationReadUseCase: sl(),
+      markAllNotificationsReadUseCase: sl(),
     ),
   );
 

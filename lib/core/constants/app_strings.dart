@@ -61,6 +61,25 @@ class AppStrings {
   static const String tasksNav = 'Tasks';
   static const String teamsNav = 'Teams';
   static const String profileNav = 'Profile';
+  static const String alertsNav = 'Alerts';
+
+  // Notifications Feature
+  static const String notifications = 'Notifications';
+  static const String markAllAsRead = 'Mark all as read';
+  static const String filterAll = 'All';
+  static const String filterUnread = 'Unread';
+  static const String filterTeams = 'Teams';
+  static const String filterTasks = 'Tasks';
+  static const String filterMentions = 'Mentions';
+  static const String today = 'Today';
+  static const String yesterday = 'Yesterday';
+  static const String reply = 'Reply';
+  static const String viewTaskLabel = 'View Task';
+  static const String snooze = 'Snooze';
+  static const String accept = 'Accept';
+  static const String decline = 'Decline';
+  static const String noNotifications = 'No notifications yet';
+  static const String noNotificationsHint = "You're all caught up! 🎉";
 
   // Teams — General
   static const String myTeams = 'My Teams';
@@ -132,7 +151,6 @@ class AppStrings {
     'Marketing',
     'Sales',
     'HR',
-    'Other',
   ];
 
   // Teams — Empty State
@@ -182,7 +200,7 @@ class AppStrings {
   static const String biography = 'BIOGRAPHY';
   static const String preferences = 'PREFERENCES';
   static const String darkMode = 'Dark Mode';
-  static const String notifications = 'Notifications';
+  static const String notificationsLabel = 'Notifications';
   static const String privacyAndSecurity = 'Privacy & Security';
   static const String activity = 'Activity';
 }

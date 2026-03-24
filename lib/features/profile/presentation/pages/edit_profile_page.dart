@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -141,9 +140,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const Text(
                 'BASIC INFORMATION',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF64748B),
+                  color: AppColors.black,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -168,9 +167,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const Text(
                 'PROFESSIONAL INFO',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF64748B),
+                  color: AppColors.black,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -200,9 +199,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const Text(
                 'ABOUT ME',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF64748B),
+                  color: AppColors.black,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -220,9 +219,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const Text(
                 'PRIVACY SETTINGS',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF64748B),
+                  color: AppColors.black,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -383,8 +382,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ElevatedButton(
             onPressed: () {
               final val = skillController.text.trim();
-              if (val.isNotEmpty && !_currentSkills.contains(val))
+              if (val.isNotEmpty && !_currentSkills.contains(val)) {
                 setState(() => _currentSkills.add(val));
+              }
               context.pop();
             },
             style: ElevatedButton.styleFrom(

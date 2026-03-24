@@ -55,6 +55,15 @@ class AppColors {
   static const Color gray = Color(0xFF9E9E9E);
   static const Color darkGray = Color(0xFF666666);
 
+  // ── Notifications ────────────────────────────────────────────────────────
+  static const Color notificationAmber = Color(0xFFF59E0B);
+  static const Color notificationAmberBg = Color(0xFFFFFBEB);
+  static const Color notificationPurple = Color(0xFF9333EA);
+  static const Color notificationPurpleBg = Color(0xFFFAF5FF);
+  static const Color unreadDot = Color(0xFF2B6CEE);
+  static const Color primaryBluePure = Color(0xFF2B6CEE);
+  static const Color bgLight = Color(0xFFF6F6F8);
+
   // ── Misc ────────────────────────────────────────────────────────────────
   static const Color divider = Color(0xFFE0E0E0);
   static const Color shadow = Color(0x1A000000);

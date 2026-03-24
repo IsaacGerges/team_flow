@@ -262,42 +262,172 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
   }
 
   Widget _buildCategoryDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButtonFormField<String>(
-          value: _selectedCategory,
-          onChanged: (val) {
-            if (val != null) setState(() => _selectedCategory = val);
-          },
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Color(0xFF64748B),
-          ),
-          decoration: const InputDecoration(border: InputBorder.none),
-          items: AppStrings.teamCategories
-              .map(
-                (cat) => DropdownMenuItem(
-                  value: cat,
-                  child: Text(
-                    cat,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
+    return GestureDetector(
+      onTap: () => _showCategoryPicker(),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                _getCategoryIcon(_selectedCategory),
+                color: const Color(0xFF2563EB),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                _selectedCategory,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: Color(0xFF1E293B),
                 ),
-              )
-              .toList(),
+              ),
+            ),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Color(0xFF64748B),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  void _showCategoryPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Select Category',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: AppStrings.teamCategories.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final category = AppStrings.teamCategories[index];
+                  final isSelected = category == _selectedCategory;
+                  return InkWell(
+                    onTap: () {
+                      setState(() => _selectedCategory = category);
+                      Navigator.pop(context);
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFF2563EB).withValues(alpha: 0.05)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFF2563EB)
+                              : const Color(0xFFE2E8F0),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF2563EB)
+                                  : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              _getCategoryIcon(category),
+                              color: isSelected ? Colors.white : const Color(0xFF64748B),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Text(
+                            category,
+                            style: TextStyle(
+                              fontWeight: isSelected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
+                              fontSize: 16,
+                              color: isSelected
+                                  ? const Color(0xFF2563EB)
+                                  : const Color(0xFF1E293B),
+                            ),
+                          ),
+                          const Spacer(),
+                          if (isSelected)
+                            const Icon(
+                              Icons.check_circle_rounded,
+                              color: Color(0xFF2563EB),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    return switch (category) {
+      'Development' => Icons.code_rounded,
+      'Design' => Icons.palette_outlined,
+      'Marketing' => Icons.campaign_outlined,
+      'Sales' => Icons.trending_up_rounded,
+      'HR' => Icons.groups_outlined,
+      _ => Icons.more_horiz_rounded,
+    };
   }
 
   Widget _buildPrivacyToggle() {

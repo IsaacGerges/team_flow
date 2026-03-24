@@ -5,12 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/features/profile/domain/entities/profile_entity.dart';
 import 'package:team_flow/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:team_flow/injection_container.dart';
 import 'package:team_flow/core/helpers/cache_helper.dart';
 import 'dart:convert';
+import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
+import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 
@@ -75,21 +79,8 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Stack(
         children: [
           // Background Noise Texture Placeholder (Subtle Overlay)
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.03,
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(
-                      'assets/images/profile/profile_default_image.png',
-                    ), // Ensure this exists or use a container pattern
-                    repeat: ImageRepeat.repeat,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // Background noise texture removed as requested
+          const SizedBox.shrink(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -206,7 +197,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ))
                                 as ImageProvider
                           : const AssetImage(
-                              'assets/images/profile_default.png',
+                              'assets/images/profile/profile_default_image.png',
                             ),
                     ),
                   ),
@@ -324,26 +315,46 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildStatsRow(ProfileEntity profile) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildGlassStatCard(profile.teamsCount.toString(), 'Teams'),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildPrimaryStatCard(
-              profile.completedCount.toString(),
-              'Completed',
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildGlassStatCard(
-              profile.activeCount.toString(),
-              'Active',
-            ),
-          ),
-        ],
+      child: BlocBuilder<TeamsCubit, TeamsState>(
+        builder: (context, teamsState) {
+          return BlocBuilder<TasksCubit, TasksState>(
+            builder: (context, tasksState) {
+              final teamsCount = teamsState is TeamsLoaded
+                  ? teamsState.teams.length
+                  : profile.teamsCount;
+
+              final tasks = tasksState is TasksLoaded ? tasksState.tasks : [];
+              final completedCount = tasks
+                  .where((t) => t.status == TaskStatus.done)
+                  .length;
+              final pendingCount = tasks
+                  .where((t) => t.status != TaskStatus.done)
+                  .length;
+
+              return Row(
+                children: [
+                  Expanded(
+                    child: _buildGlassStatCard(teamsCount.toString(), 'Teams'),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildPrimaryStatCard(
+                      completedCount.toString(),
+                      'Completed',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildGlassStatCard(
+                      pendingCount.toString(),
+                      'Pending',
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -632,7 +643,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   trailing: Switch(
                     value: true,
                     onChanged: (v) {},
-                    activeColor: const Color(0xFF2B6CEE),
+                    activeThumbColor: const Color(0xFF2B6CEE),
                   ),
                 ),
                 const Divider(height: 1, indent: 50, color: Color(0xFFF1F5F9)),
