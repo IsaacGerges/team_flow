@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../injection_container.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../.././../splash/presentation/widgets/splash_logo.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_form_field.dart';
@@ -72,29 +73,10 @@ class _LoginFormState extends State<_LoginForm> {
                 child: Column(
                   children: [
                     const SizedBox(height: 60),
-                    // Abstract Logo Shape
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B), // Navy from mockup
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons
-                              .grid_view_rounded, // Alternative to abstract shape
-                          color: Color(0xFF4A8FE3),
-                          size: 40,
-                        ),
-                      ),
+                    const SplashLogo(
+                      backgroundColor: AppColors.primaryBlueLight,
+                      borderColor: AppColors.primaryBlue,
+                      iconColor: AppColors.primaryBlue,
                     ),
                     const SizedBox(height: 32),
                     const Text(

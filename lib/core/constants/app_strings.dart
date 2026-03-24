@@ -6,6 +6,11 @@ class AppStrings {
   static const String appName = 'TeamFlow';
   static const String appSlogan = 'Manage your team flow';
 
+  // Splash Screen
+  static const String splashTitle = 'Team Task Manager';
+  static const String splashTagline = 'Sync. Manage. Succeed.';
+  static const String splashVersion = 'V1.0.0';
+
   // Authentication
   static const String welcomeBack = 'Welcome Back! 👋';
   static const String loginSubtitle = 'Login to manage your team flow.';

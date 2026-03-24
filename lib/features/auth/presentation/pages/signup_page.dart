@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../injection_container.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../.././../splash/presentation/widgets/splash_logo.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_form_field.dart';
@@ -85,21 +86,10 @@ class _SignUpFormState extends State<_SignUpForm> {
                 child: Column(
                   children: [
                     const SizedBox(height: 40),
-                    // Abstract Logo Shape
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.grid_view_rounded,
-                          color: Color(0xFF4A8FE3),
-                          size: 30,
-                        ),
-                      ),
+                    const SplashLogo(
+                      backgroundColor: AppColors.primaryBlueLight,
+                      borderColor: AppColors.primaryBlue,
+                      iconColor: AppColors.primaryBlue,
                     ),
                     const SizedBox(height: 24),
                     const Text(

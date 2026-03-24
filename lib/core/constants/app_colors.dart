@@ -64,6 +64,11 @@ class AppColors {
   static const Color primaryBluePure = Color(0xFF2B6CEE);
   static const Color bgLight = Color(0xFFF6F6F8);
 
+  // ── Splash Screen Gradient ────────────────────────────────────────────────
+  static const Color splashGradientStart = Color(0xFF4A90E2);
+  static const Color splashGradientMiddle = Color(0xFF2B6CEE);
+  static const Color splashGradientEnd = Color(0xFF1A4BB0);
+
   // ── Misc ────────────────────────────────────────────────────────────────
   static const Color divider = Color(0xFFE0E0E0);
   static const Color shadow = Color(0x1A000000);

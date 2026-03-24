@@ -21,6 +21,7 @@ import 'package:team_flow/features/tasks/presentation/pages/task_assignment_page
 import 'package:team_flow/features/tasks/presentation/pages/task_details_page.dart';
 import 'package:team_flow/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:team_flow/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:team_flow/features/splash/presentation/pages/splash_page.dart';
 import 'package:team_flow/injection_container.dart';
 
 // Auth Pages
@@ -47,7 +48,7 @@ final GlobalKey<NavigatorState> _notificationsNavigatorKey =
 
 final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/login',
+  initialLocation: '/splash',
   redirect: (context, state) {
     final cacheHelper = sl<CacheHelper>();
     final userId = cacheHelper.getData(key: CacheKeys.userId);
@@ -55,6 +56,9 @@ final GoRouter router = GoRouter(
 
     final isGoingToLogin = state.matchedLocation == '/login';
     final isGoingToSignup = state.matchedLocation == '/signup';
+    final isGoingToSplash = state.matchedLocation == '/splash';
+
+    if (isGoingToSplash) return null;
 
     if (!isLoggedIn && !isGoingToLogin && !isGoingToSignup) {
       return '/login';
@@ -65,6 +69,11 @@ final GoRouter router = GoRouter(
     return null;
   },
   routes: [
+    GoRoute(
+      path: '/splash',
+      name: 'splash',
+      builder: (context, state) => const SplashPage(),
+    ),
     GoRoute(
       path: '/login',
       name: 'login',
