@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
 
 class ProfileStatCard extends StatelessWidget {
   final String count;
@@ -18,12 +19,12 @@ class ProfileStatCard extends StatelessWidget {
       width: 105,
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: isPrimary ? const Color(0xFF2563EB) : Colors.white,
+        color: isPrimary ? AppColors.primaryBlue : Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color:
-                (isPrimary ? const Color(0xFF2563EB) : const Color(0xFF1E293B))
+                (isPrimary ? AppColors.primaryBlue : const Color(0xFF1E293B))
                     .withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),

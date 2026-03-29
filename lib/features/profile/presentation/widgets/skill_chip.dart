@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
 
 class SkillChip extends StatelessWidget {
   final String label;
@@ -31,12 +32,12 @@ class SkillChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.add_rounded, color: Color(0xFF2563EB), size: 16),
+              Icon(Icons.add_rounded, color: AppColors.primaryBlue, size: 16),
               const SizedBox(width: 4),
               Text(
                 label,
-                style: const TextStyle(
-                  color: Color(0xFF2563EB),
+                style: TextStyle(
+                  color: AppColors.primaryBlue,
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
                 ),

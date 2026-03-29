@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:team_flow/core/constants/app_assets.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/features/profile/domain/entities/profile_entity.dart';
 import 'package:team_flow/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:team_flow/injection_container.dart';
@@ -58,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context, state) {
           if (state is ProfileLoading) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF2B6CEE)),
+              child: CircularProgressIndicator(color: AppColors.primaryBlue),
             );
           } else if (state is ProfileError) {
             return Center(child: Text(state.message));
@@ -66,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
             return _buildProfileContent(context, state.profile);
           }
           return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF2B6CEE)),
+            child: CircularProgressIndicator(color: AppColors.primaryBlue),
           );
         },
       ),
@@ -78,8 +80,6 @@ class _ProfilePageState extends State<ProfilePage> {
       physics: const BouncingScrollPhysics(),
       child: Stack(
         children: [
-          // Background Noise Texture Placeholder (Subtle Overlay)
-          // Background noise texture removed as requested
           const SizedBox.shrink(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,28 +107,24 @@ class _ProfilePageState extends State<ProfilePage> {
     final joinedDate = DateFormat('MMM yyyy').format(profile.createdAt);
     return Stack(
       children: [
-        // Premium Gradient Background
         Container(
           height: 240,
           width: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFF2B6CEE),
-                Color(0xFF2B6CEE),
-                Color(0xFF2B6CEE),
-                Color(0xFF2B6CEE),
+                AppColors.primaryBlue,
+                AppColors.primaryBlue,
+                AppColors.primaryBlue,
+                AppColors.primaryBlue,
                 Color(0xFFF6F7F8),
               ],
             ),
           ),
           child: Stack(
             children: [
-              // Abstract Pattern Overlay
-
-              // Fade to background
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -150,7 +146,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
-        // Toolbar
         SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -167,13 +162,11 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
-        // Profile Info
         Container(
           width: double.infinity,
           margin: const EdgeInsets.only(top: 130),
           child: Column(
             children: [
-              // Avatar with Glow and Edit
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
@@ -196,9 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         base64Decode(profile.photoUrl!),
                                       ))
                                 as ImageProvider
-                          : const AssetImage(
-                              'assets/images/profile/profile_default_image.png',
-                            ),
+                          : const AssetImage(AppAssets.profileDefaultImage),
                     ),
                   ),
                   GestureDetector(
@@ -206,7 +197,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2B6CEE),
+                        color: AppColors.primaryBlue,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: const Color(0xFFF6F6F8),
@@ -214,9 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(
-                              0xFF2B6CEE,
-                            ).withValues(alpha: 0.3),
+                            color: AppColors.primaryBlue.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -234,11 +223,12 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 16),
               Text(
                 profile.fullName,
+                textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
-                  letterSpacing: -0.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.black,
+                  letterSpacing: 1,
                 ),
               ),
               const SizedBox(height: 4),
@@ -257,7 +247,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2B6CEE).withValues(alpha: 0.1),
+                  color: AppColors.primaryBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -266,7 +256,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const Icon(
                       Icons.calendar_today_rounded,
                       size: 12,
-                      color: Color(0xFF2B6CEE),
+                      color: AppColors.primaryBlue,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -274,7 +264,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF2B6CEE),
+                        color: AppColors.primaryBlue,
                       ),
                     ),
                   ],
@@ -403,11 +393,11 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF2B6CEE),
+        color: AppColors.primaryBlue,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2B6CEE).withValues(alpha: 0.2),
+            color: AppColors.primaryBlue.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -577,23 +567,27 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFF2B6CEE).withValues(alpha: 0.05),
+          color: AppColors.primaryBlue.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: const Color(0xFF2B6CEE).withValues(alpha: 0.2),
+            color: AppColors.primaryBlue.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.add_rounded, size: 14, color: Color(0xFF2B6CEE)),
+            const Icon(
+              Icons.add_rounded,
+              size: 14,
+              color: AppColors.primaryBlue,
+            ),
             const SizedBox(width: 4),
             Text(
               'Add new',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF2B6CEE),
+                color: AppColors.primaryBlue,
               ),
             ),
           ],
@@ -619,31 +613,13 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               children: [
                 _buildPreferenceTile(
-                  icon: Icons.dark_mode_rounded,
-                  color: Colors.indigo,
-                  title: 'Dark Mode',
-                  trailing: Switch(
-                    value: false,
-                    onChanged: (v) {},
-                    activeThumbColor: const Color(0xFF2B6CEE),
-                    activeTrackColor: const Color(
-                      0xFF2B6CEE,
-                    ).withValues(alpha: 0.2),
-                    inactiveThumbColor: const Color(0xFF2B6CEE),
-                    inactiveTrackColor: const Color(
-                      0xFF2B6CEE,
-                    ).withValues(alpha: 0.2),
-                  ),
-                ),
-                const Divider(height: 1, indent: 50, color: Color(0xFFF1F5F9)),
-                _buildPreferenceTile(
                   icon: Icons.notifications_rounded,
                   color: Colors.pink,
                   title: 'Notifications',
                   trailing: Switch(
                     value: true,
                     onChanged: (v) {},
-                    activeThumbColor: const Color(0xFF2B6CEE),
+                    activeThumbColor: AppColors.primaryBlue,
                   ),
                 ),
                 const Divider(height: 1, indent: 50, color: Color(0xFFF1F5F9)),

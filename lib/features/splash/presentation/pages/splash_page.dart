@@ -33,7 +33,7 @@ class _SplashPageState extends State<SplashPage>
   void _setupAnimations() {
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 3500),
     );
 
     // Title fades and slides up starting at 300ms
@@ -79,8 +79,7 @@ class _SplashPageState extends State<SplashPage>
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    // Ensure splash shows for at least 2.5 seconds
-    await Future.delayed(const Duration(milliseconds: 2500));
+    await Future.delayed(const Duration(milliseconds: 3700));
 
     if (!mounted) return;
 
@@ -152,7 +151,7 @@ class _SplashPageState extends State<SplashPage>
                 AppStrings.splashTagline,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 1.2,
@@ -190,7 +189,7 @@ class _SplashPageState extends State<SplashPage>
                 child: Text(
                   AppStrings.splashVersion,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 2,

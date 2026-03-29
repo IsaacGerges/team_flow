@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 
@@ -19,13 +21,19 @@ class TeamCard extends StatelessWidget {
   });
 
   String _formatTimeAgo(DateTime? date) {
-    if (date == null) return 'Updated recently';
+    if (date == null) return AppStrings.updatedRecently;
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1) return 'Updated just now';
-    if (diff.inMinutes < 60) return 'Updated ${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return 'Updated ${diff.inHours}h ago';
-    if (diff.inDays < 7) return 'Updated ${diff.inDays}d ago';
-    return 'Updated on ${date.day}/${date.month}';
+    if (diff.inMinutes < 1) return AppStrings.updatedJustNow;
+    if (diff.inMinutes < 60) {
+      return '${AppStrings.updated} ${diff.inMinutes}m ${AppStrings.ago}';
+    }
+    if (diff.inHours < 24) {
+      return '${AppStrings.updated} ${diff.inHours}h ${AppStrings.ago}';
+    }
+    if (diff.inDays < 7) {
+      return '${AppStrings.updated} ${diff.inDays}d ${AppStrings.ago}';
+    }
+    return '${AppStrings.updatedOn} ${date.day}/${date.month}';
   }
 
   @override
@@ -36,12 +44,12 @@ class TeamCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          border: Border.all(color: AppColors.slate100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: AppColors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -63,7 +71,7 @@ class TeamCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F172A),
+                          color: AppColors.slate900,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -73,7 +81,7 @@ class TeamCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF64748B),
+                          color: AppColors.slate500,
                         ),
                       ),
                     ],
@@ -87,10 +95,13 @@ class TeamCard extends StatelessWidget {
               children: [
                 _buildStatItem(
                   Icons.group,
-                  '${team.membersIds.length} Members',
+                  '${team.membersIds.length} ${AppStrings.members}',
                 ),
                 const SizedBox(width: 24),
-                _buildStatItem(Icons.task_alt, '$activeTaskCount Active Tasks'),
+                _buildStatItem(
+                  Icons.task_alt,
+                  '$activeTaskCount ${AppStrings.activeTasksSuffix}',
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -109,10 +120,10 @@ class TeamCard extends StatelessWidget {
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
+        border: Border.all(color: AppColors.white, width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: AppColors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -129,7 +140,7 @@ class TeamCard extends StatelessWidget {
             : Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFFFFEDD5), Color(0xFFFEF3C7)],
+                    colors: [AppColors.orangeBorder, AppColors.amberBorder],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -138,7 +149,7 @@ class TeamCard extends StatelessWidget {
                   child: Text(
                     team.name[0].toUpperCase(),
                     style: const TextStyle(
-                      color: Color(0xFFEA580C),
+                      color: AppColors.orange600,
                       fontWeight: FontWeight.w700,
                       fontSize: 20,
                     ),
@@ -150,26 +161,25 @@ class TeamCard extends StatelessWidget {
   }
 
   Widget _buildRoleBadge() {
-    final primaryBlue = const Color(0xFF2B6CEE);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: isAdmin
-            ? primaryBlue.withValues(alpha: 0.1)
-            : const Color(0xFFF1F5F9),
+            ? AppColors.primaryBlue.withValues(alpha: 0.1)
+            : AppColors.slate100,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isAdmin
-              ? primaryBlue.withValues(alpha: 0.2)
-              : const Color(0xFFE2E8F0),
+              ? AppColors.primaryBlue.withValues(alpha: 0.2)
+              : AppColors.slate200,
         ),
       ),
       child: Text(
-        isAdmin ? 'Admin' : 'Member',
+        isAdmin ? AppStrings.admin : AppStrings.member,
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: isAdmin ? primaryBlue : const Color(0xFF64748B),
+          color: isAdmin ? AppColors.primaryBlue : AppColors.slate500,
         ),
       ),
     );
@@ -178,14 +188,14 @@ class TeamCard extends StatelessWidget {
   Widget _buildStatItem(IconData icon, String label) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF94A3B8)),
+        Icon(icon, size: 18, color: AppColors.slate400),
         const SizedBox(width: 8),
         Text(
           label,
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF475569),
+            color: AppColors.slate600,
           ),
         ),
       ],
@@ -193,7 +203,6 @@ class TeamCard extends StatelessWidget {
   }
 
   Widget _buildProgressRow() {
-    final primaryBlue = const Color(0xFF2B6CEE);
     final percent = (progressPercent * 100).toInt();
     return Row(
       children: [
@@ -205,19 +214,19 @@ class TeamCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Progress',
+                    AppStrings.progress,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF64748B),
+                      color: AppColors.slate500,
                     ),
                   ),
                   Text(
                     '$percent%',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: primaryBlue,
+                      color: AppColors.primaryBlue,
                     ),
                   ),
                 ],
@@ -228,15 +237,17 @@ class TeamCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progressPercent.clamp(0.0, 1.0),
                   minHeight: 8,
-                  backgroundColor: const Color(0xFFF1F5F9),
-                  valueColor: AlwaysStoppedAnimation<Color>(primaryBlue),
+                  backgroundColor: AppColors.slate100,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.primaryBlue,
+                  ),
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(width: 12),
-        const Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
+        const Icon(Icons.chevron_right, color: AppColors.slate400),
       ],
     );
   }

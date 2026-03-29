@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_state.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
 import 'package:team_flow/injection_container.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 
+/// Horizontal team card used on the home dashboard.
 class HomeTeamCard extends StatelessWidget {
   final TeamEntity team;
   final VoidCallback onTap;
@@ -31,12 +34,12 @@ class HomeTeamCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          border: Border.all(color: AppColors.slate100),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1E293B).withValues(alpha: 0.05),
+              color: AppColors.slate800.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),
@@ -58,17 +61,17 @@ class HomeTeamCard extends StatelessWidget {
               style: const TextStyle(
                 fontWeight: FontWeight.w800,
                 fontSize: 16,
-                color: Color(0xFF1E293B),
+                color: AppColors.slate800,
                 letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              '$activeTaskCount Active tasks',
+              '$activeTaskCount ${AppStrings.activeTasksSuffix}',
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF64748B),
+                color: AppColors.slate500,
               ),
             ),
             const SizedBox(height: 16),
@@ -78,10 +81,10 @@ class HomeTeamCard extends StatelessWidget {
                 _buildAvatarCluster(),
                 Text(
                   '$progressInt%',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF2563EB),
+                    color: AppColors.primaryBlue,
                   ),
                 ),
               ],
@@ -92,8 +95,10 @@ class HomeTeamCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progressPercent,
                 minHeight: 6,
-                backgroundColor: const Color(0xFFF1F5F9),
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2563EB)),
+                backgroundColor: AppColors.slate100,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primaryBlue,
+                ),
               ),
             ),
           ],
@@ -106,27 +111,18 @@ class HomeTeamCard extends StatelessWidget {
     if (category.toLowerCase().contains('design')) {
       return (
         bgColor: const Color(0xFFF3E8FF),
-        iconColor: const Color(0xFF9333EA),
+        iconColor: AppColors.notificationPurple,
       );
     }
     if (category.toLowerCase().contains('marketing') ||
         category.toLowerCase().contains('growth')) {
-      return (
-        bgColor: const Color(0xFFFCE7F3),
-        iconColor: const Color(0xFFDB2777),
-      );
+      return (bgColor: AppColors.pinkBg, iconColor: AppColors.pink700);
     }
     if (category.toLowerCase().contains('dev') ||
         category.toLowerCase().contains('tech')) {
-      return (
-        bgColor: const Color(0xFFDBEAFE),
-        iconColor: const Color(0xFF2563EB),
-      );
+      return (bgColor: AppColors.blueBorder, iconColor: AppColors.primaryBlue);
     }
-    return (
-      bgColor: const Color(0xFFF1F5F9),
-      iconColor: const Color(0xFF64748B),
-    );
+    return (bgColor: AppColors.slate100, iconColor: AppColors.slate500);
   }
 
   IconData _getCategoryIcon(String category) {
@@ -179,7 +175,7 @@ class HomeTeamCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.slate100,
         borderRadius: BorderRadius.circular(100),
       ),
       child: Text(
@@ -187,7 +183,7 @@ class HomeTeamCard extends StatelessWidget {
         style: const TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF475569),
+          color: AppColors.slate600,
           letterSpacing: 0.5,
         ),
       ),
@@ -219,9 +215,9 @@ class HomeTeamCard extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: AppColors.slate100,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: AppColors.white, width: 2),
                 ),
                 child: Center(
                   child: Text(
@@ -229,7 +225,7 @@ class HomeTeamCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF64748B),
+                      color: AppColors.slate500,
                     ),
                   ),
                 ),
@@ -253,7 +249,7 @@ class HomeTeamCard extends StatelessWidget {
               height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(color: AppColors.white, width: 2),
                 image: DecorationImage(
                   image: ImageHelper.getProvider(state.profile.photoUrl!)!,
                   fit: BoxFit.cover,
@@ -265,11 +261,15 @@ class HomeTeamCard extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.slate100,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
+              border: Border.all(color: AppColors.white, width: 2),
             ),
-            child: const Icon(Icons.person, size: 14, color: Color(0xFF94A3B8)),
+            child: const Icon(
+              Icons.person,
+              size: 14,
+              color: AppColors.slate400,
+            ),
           );
         },
       ),

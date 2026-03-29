@@ -19,12 +19,14 @@ import 'package:team_flow/features/tasks/presentation/pages/create_task_page.dar
 import 'package:team_flow/features/tasks/presentation/pages/my_tasks_page.dart';
 import 'package:team_flow/features/tasks/presentation/pages/task_assignment_page.dart';
 import 'package:team_flow/features/tasks/presentation/pages/task_details_page.dart';
+import 'package:team_flow/features/tasks/presentation/create_task_page_args.dart';
+
 import 'package:team_flow/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:team_flow/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:team_flow/features/splash/presentation/pages/splash_page.dart';
 import 'package:team_flow/injection_container.dart';
+import 'package:team_flow/features/onboarding/presentation/pages/onboarding_page.dart';
 
-// Auth Pages
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../helpers/cache_helper.dart';
@@ -52,18 +54,34 @@ final GoRouter router = GoRouter(
   redirect: (context, state) {
     final cacheHelper = sl<CacheHelper>();
     final userId = cacheHelper.getData(key: CacheKeys.userId);
+    final hasSeenOnboarding =
+        cacheHelper.getData(key: CacheKeys.hasSeenOnboarding) ?? false;
     final isLoggedIn = userId != null;
 
     final isGoingToLogin = state.matchedLocation == '/login';
     final isGoingToSignup = state.matchedLocation == '/signup';
     final isGoingToSplash = state.matchedLocation == '/splash';
+    final isGoingToOnboarding = state.matchedLocation == '/onboarding';
 
     if (isGoingToSplash) return null;
 
-    if (!isLoggedIn && !isGoingToLogin && !isGoingToSignup) {
+    if (!hasSeenOnboarding && !isGoingToOnboarding) {
+      return '/onboarding';
+    }
+
+    if (hasSeenOnboarding && isGoingToOnboarding) {
+      if (isLoggedIn) return '/home';
       return '/login';
     }
-    if (isLoggedIn && (isGoingToLogin || isGoingToSignup)) {
+
+    if (!isLoggedIn &&
+        !isGoingToLogin &&
+        !isGoingToSignup &&
+        !isGoingToOnboarding) {
+      return '/login';
+    }
+    if (isLoggedIn &&
+        (isGoingToLogin || isGoingToSignup || isGoingToOnboarding)) {
       return '/home';
     }
     return null;
@@ -73,6 +91,11 @@ final GoRouter router = GoRouter(
       path: '/splash',
       name: 'splash',
       builder: (context, state) => const SplashPage(),
+    ),
+    GoRoute(
+      path: '/onboarding',
+      name: 'onboarding',
+      builder: (context, state) => const OnboardingPage(),
     ),
     GoRoute(
       path: '/login',
@@ -86,7 +109,6 @@ final GoRouter router = GoRouter(
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        // Wrap everything with the necessary Cubits so they are shared across branches
         return MultiBlocProvider(
           providers: [
             BlocProvider(create: (_) => sl<ProfileCubit>()),
@@ -98,7 +120,6 @@ final GoRouter router = GoRouter(
         );
       },
       branches: [
-        // Branch 0: Home
         StatefulShellBranch(
           navigatorKey: _homeNavigatorKey,
           routes: [
@@ -109,7 +130,6 @@ final GoRouter router = GoRouter(
             ),
           ],
         ),
-        // Branch 1: Teams (REORDERED to match visual nav bar position)
         StatefulShellBranch(
           navigatorKey: _teamsNavigatorKey,
           routes: [
@@ -151,7 +171,6 @@ final GoRouter router = GoRouter(
             ),
           ],
         ),
-        // Branch 2: Tasks
         StatefulShellBranch(
           navigatorKey: _tasksNavigatorKey,
           routes: [
@@ -163,8 +182,12 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: 'create',
                   name: 'createTask',
-                  builder: (context, state) => const CreateTaskPage(),
+                  builder: (context, state) {
+                    final args = state.extra as CreateTaskPageArgs?;
+                    return CreateTaskPage(args: args);
+                  },
                 ),
+
                 GoRoute(
                   path: 'details',
                   name: 'taskDetails',
@@ -189,7 +212,6 @@ final GoRouter router = GoRouter(
             ),
           ],
         ),
-        // Branch 3: Profile
         StatefulShellBranch(
           navigatorKey: _profileNavigatorKey,
           routes: [
@@ -207,7 +229,6 @@ final GoRouter router = GoRouter(
             ),
           ],
         ),
-        // Branch 4: Notifications (Alerts)
         StatefulShellBranch(
           navigatorKey: _notificationsNavigatorKey,
           routes: [

@@ -28,4 +28,5 @@ class CacheHelper {
 
 class CacheKeys {
   static const String userId = 'USER_ID';
+  static const String hasSeenOnboarding = 'HAS_SEEN_ONBOARDING';
 }

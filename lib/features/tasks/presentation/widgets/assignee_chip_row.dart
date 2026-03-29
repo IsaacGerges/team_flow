@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
 import '../../../../core/helpers/image_helper.dart';
 import '../../../profile/presentation/cubit/profile_cubit.dart';
 import '../../../profile/presentation/cubit/profile_state.dart';
 import '../../../../injection_container.dart';
 
+/// A horizontal scrollable row of assignee avatar chips.
 class AssigneeChipRow extends StatelessWidget {
   final List<String> assigneeIds;
   final VoidCallback onAddTap;
@@ -35,13 +37,9 @@ class AssigneeChipRow extends StatelessWidget {
                     height: 44,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFFCBD5E1), // slate-300
-                        style: BorderStyle.solid,
-                        width: 1.5,
-                      ),
+                      border: Border.all(color: AppColors.slate300, width: 1.5),
                     ),
-                    child: const Icon(Icons.add, color: Color(0xFF64748B)),
+                    child: const Icon(Icons.add, color: AppColors.slate500),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -59,12 +57,10 @@ class AssigneeChipRow extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFF6FF), // blue-50
+                          color: AppColors.blueBg,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: const Color(
-                              0xFF3B82F6,
-                            ).withValues(alpha: 0.3),
+                            color: AppColors.primaryBlue.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -80,7 +76,7 @@ class AssigneeChipRow extends StatelessWidget {
                             Text(
                               user.fullName.split(' ').first,
                               style: const TextStyle(
-                                color: Color(0xFF2563EB),
+                                color: AppColors.primaryBlue,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13,
                               ),
@@ -91,7 +87,7 @@ class AssigneeChipRow extends StatelessWidget {
                               child: const Icon(
                                 Icons.close,
                                 size: 16,
-                                color: Color(0xFF3B82F6),
+                                color: AppColors.primaryBlue,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -99,7 +95,7 @@ class AssigneeChipRow extends StatelessWidget {
                         ),
                       ),
                     );
-                  }).toList(),
+                  }),
               ],
             ),
           );

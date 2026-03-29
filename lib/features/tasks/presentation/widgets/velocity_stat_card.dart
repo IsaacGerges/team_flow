@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 
+/// A card showing the team's weekly task completion velocity.
 class VelocityStatCard extends StatelessWidget {
   final double velocityPercent;
   final double trend;
@@ -16,11 +19,11 @@ class VelocityStatCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       height: 140,
       decoration: BoxDecoration(
-        color: const Color(0xFF2563EB), // Premium Blue
+        color: AppColors.primaryBlue,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+            color: AppColors.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -34,9 +37,9 @@ class VelocityStatCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'WEEKLY VELOCITY',
+                AppStrings.weeklyVelocity,
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: AppColors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
@@ -50,7 +53,7 @@ class VelocityStatCard extends StatelessWidget {
                   Text(
                     '${(velocityPercent * 100).toInt()}%',
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -1,
@@ -59,8 +62,8 @@ class VelocityStatCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     '${trend >= 0 ? '+' : ''}${trend.toInt()}%',
-                    style: const TextStyle(
-                      color: Colors.white60,
+                    style: TextStyle(
+                      color: AppColors.white.withValues(alpha: 0.6),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -73,8 +76,8 @@ class VelocityStatCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: velocityPercent,
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              backgroundColor: AppColors.white.withValues(alpha: 0.2),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.white),
               minHeight: 6,
             ),
           ),

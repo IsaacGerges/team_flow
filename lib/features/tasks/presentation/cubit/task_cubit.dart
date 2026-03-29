@@ -62,7 +62,13 @@ class TasksCubit extends Cubit<TasksState> {
     );
   }
 
-  void loadTasksForTeams(List<String> teamIds) {
+  /// Loads tasks for multiple teams in a viewer-aware fashion:
+  /// - All published tasks for [teamIds].
+  /// - Only the [viewerId]'s own drafts from those teams.
+  void loadTasksForTeams(
+    List<String> teamIds, {
+    required String viewerId,
+  }) {
     if (teamIds.isEmpty) {
       emit(const TasksLoaded([]));
       return;
@@ -70,7 +76,10 @@ class TasksCubit extends Cubit<TasksState> {
 
     emit(TasksLoading());
     _tasksSubscription?.cancel();
-    _tasksSubscription = getTasksForTeamsUseCase(teamIds).listen(
+    _tasksSubscription = getTasksForTeamsUseCase(
+      teamIds,
+      viewerId: viewerId,
+    ).listen(
       (tasks) => emit(TasksLoaded(tasks)),
       onError: (error) => emit(TasksError(error.toString())),
     );
@@ -80,48 +89,21 @@ class TasksCubit extends Cubit<TasksState> {
   // Mutations
   // ----------------------------------------------------------
 
+  /// Creates a task. Notifications are skipped when [task.isDraft] is true.
   Future<String?> createTask(TaskEntity task) async {
     final result = await createTaskUseCase(task);
-    return result.fold((failure) {
-      emit(TasksError(_mapFailureToMessage(failure)));
-      return null;
-    }, (taskId) {
-      // Notify each assignee (fire-and-forget individually but await together)
-      Future.wait([
-        // Assignee notifications
-        ...task.assigneeIds
-            .where((id) => id != task.creatorId)
-            .map(
-              (assigneeId) => createNotificationUseCase(NotificationEntity(
-                id: '',
-                userId: assigneeId,
-                type: NotificationType.assignment,
-                title: 'New Task Assignment',
-                body: 'You were assigned to: ${task.title}',
-                targetId: taskId,
-                targetName: task.title,
-                senderName: 'Team Member',
-                isRead: false,
-                createdAt: DateTime.now(),
-              )),
-            ),
-        // Self-notification for the creator
-        createNotificationUseCase(NotificationEntity(
-          id: '',
-          userId: task.creatorId,
-          type: NotificationType.taskAlert,
-          title: 'Task Created',
-          body: 'You created: ${task.title}',
-          targetId: taskId,
-          targetName: task.title,
-          senderName: 'System',
-          isRead: false,
-          createdAt: DateTime.now(),
-        )),
-      ]);
-
-      return taskId;
-    });
+    return result.fold(
+      (failure) {
+        emit(TasksError(_mapFailureToMessage(failure)));
+        return null;
+      },
+      (taskId) {
+        if (!task.isDraft) {
+          _sendCreationNotifications(taskId, task);
+        }
+        return taskId;
+      },
+    );
   }
 
   Future<bool> updateTask(String taskId, TaskEntity task) async {
@@ -130,6 +112,37 @@ class TasksCubit extends Cubit<TasksState> {
       emit(TasksError(_mapFailureToMessage(failure)));
       return false;
     }, (_) => true);
+  }
+
+  /// Publishes an existing draft by setting [isDraft] to false and
+  /// sending the same notifications used for a freshly created task.
+  Future<bool> publishDraft(String taskId, TaskEntity publishedTask) async {
+    final taskToPublish = TaskEntity(
+      id: taskId,
+      title: publishedTask.title,
+      description: publishedTask.description,
+      teamId: publishedTask.teamId,
+      teamName: publishedTask.teamName,
+      assigneeIds: publishedTask.assigneeIds,
+      creatorId: publishedTask.creatorId,
+      priority: publishedTask.priority,
+      status: publishedTask.status,
+      startDate: publishedTask.startDate,
+      dueDate: publishedTask.dueDate,
+      isRecurring: publishedTask.isRecurring,
+      isDraft: false,
+      createdAt: publishedTask.createdAt,
+      updatedAt: DateTime.now(),
+    );
+
+    final result = await updateTaskUseCase(taskId, taskToPublish);
+    return result.fold((failure) {
+      emit(TasksError(_mapFailureToMessage(failure)));
+      return false;
+    }, (_) {
+      _sendCreationNotifications(taskId, taskToPublish);
+      return true;
+    });
   }
 
   Future<bool> updateTaskStatus(
@@ -167,22 +180,58 @@ class TasksCubit extends Cubit<TasksState> {
 
   Future<bool> addComment(String taskId, TaskCommentEntity comment) async {
     final result = await addCommentUseCase(taskId, comment);
-    return result.fold((failure) {
-      emit(TasksError(_mapFailureToMessage(failure)));
-      return false;
-    }, (_) {
-      // Logic for notifications on comments can be added here
-      return true;
-    });
+    return result.fold(
+      (failure) {
+        emit(TasksError(_mapFailureToMessage(failure)));
+        return false;
+      },
+      (_) => true,
+    );
   }
 
   // ----------------------------------------------------------
   // Helpers
   // ----------------------------------------------------------
 
-  String _mapFailureToMessage(dynamic failure) {
-    return failure.toString();
+  /// Fans out assignment and creator notifications after a task is published.
+  void _sendCreationNotifications(String taskId, TaskEntity task) {
+    Future.wait([
+      ...task.assigneeIds
+          .where((id) => id != task.creatorId)
+          .map(
+            (assigneeId) => createNotificationUseCase(
+              NotificationEntity(
+                id: '',
+                userId: assigneeId,
+                type: NotificationType.assignment,
+                title: 'New Task Assignment',
+                body: 'You were assigned to: ${task.title}',
+                targetId: taskId,
+                targetName: task.title,
+                senderName: 'Team Member',
+                isRead: false,
+                createdAt: DateTime.now(),
+              ),
+            ),
+          ),
+      createNotificationUseCase(
+        NotificationEntity(
+          id: '',
+          userId: task.creatorId,
+          type: NotificationType.taskAlert,
+          title: 'Task Created',
+          body: 'You created: ${task.title}',
+          targetId: taskId,
+          targetName: task.title,
+          senderName: 'System',
+          isRead: false,
+          createdAt: DateTime.now(),
+        ),
+      ),
+    ]);
   }
+
+  String _mapFailureToMessage(dynamic failure) => failure.toString();
 
   @override
   Future<void> close() {

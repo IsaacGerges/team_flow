@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +24,8 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
   late final TextEditingController _descriptionController;
   late String _selectedCategory;
   late bool _isPrivate;
-  String? _logoBase64;
+  String? _logoUrl;
+  Uint8List? _pickedLogoBytes;
 
   @override
   void initState() {
@@ -36,7 +38,7 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
         ? widget.team.category
         : AppStrings.teamCategories.first;
     _isPrivate = widget.team.isPrivate;
-    _logoBase64 = widget.team.photoUrl;
+    _logoUrl = widget.team.photoUrl;
   }
 
   @override
@@ -49,23 +51,23 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF1E293B),
+            color: AppColors.slate800,
             size: 18,
           ),
           onPressed: () => context.pop(),
         ),
         title: const Text(
-          'Update Team',
+          AppStrings.updateTeam,
           style: TextStyle(
-            color: Color(0xFF1E293B),
+            color: AppColors.slate800,
             fontWeight: FontWeight.w900,
             fontSize: 18,
           ),
@@ -77,14 +79,14 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
           if (state is TeamUpdatedSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Team updated successfully'),
+                content: Text(AppStrings.teamUpdatedSuccess),
                 backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
               ),
             );
             context.pop();
           } else if (state is TeamLogoPicked) {
-            setState(() => _logoBase64 = state.base64Image);
+            setState(() => _pickedLogoBytes = state.imageBytes);
           } else if (state is TeamsError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -104,24 +106,25 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
               children: [
                 _buildLogoUploadSection(),
                 const SizedBox(height: 32),
-                _buildLabel('TEAM NAME'),
+                _buildLabel(AppStrings.teamNameLabel),
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _nameController,
-                  hint: 'e.g. Design Team',
-                  validator: (val) =>
-                      val == null || val.trim().isEmpty ? 'Required' : null,
+                  hint: AppStrings.teamNameHint,
+                  validator: (val) => val == null || val.trim().isEmpty
+                      ? AppStrings.requiredField
+                      : null,
                 ),
                 const SizedBox(height: 24),
-                _buildLabel('DESCRIPTION'),
+                _buildLabel(AppStrings.teamDescriptionLabel),
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _descriptionController,
-                  hint: 'What does this team do?',
+                  hint: AppStrings.teamDescriptionHint,
                   maxLines: 3,
                 ),
                 const SizedBox(height: 24),
-                _buildLabel('CATEGORY'),
+                _buildLabel(AppStrings.teamCategoryLabel),
                 const SizedBox(height: 10),
                 _buildCategoryDropdown(),
                 const SizedBox(height: 32),
@@ -149,18 +152,27 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                 height: 108,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF1F5F9), width: 8),
+                  border: Border.all(color: AppColors.slate100, width: 8),
                 ),
               ),
               GestureDetector(
                 onTap: () => context.read<TeamsCubit>().pickTeamLogo(),
                 child: CircleAvatar(
                   radius: 46,
-                  backgroundColor: const Color(0xFFF8FAFC),
-                  child: _logoBase64 != null
+                  backgroundColor: AppColors.primaryBlue,
+                  child: _pickedLogoBytes != null
+                      ? ClipOval(
+                          child: Image.memory(
+                            _pickedLogoBytes!,
+                            width: 92,
+                            height: 92,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : _logoUrl != null
                       ? ClipOval(
                           child: Image(
-                            image: ImageHelper.getProvider(_logoBase64)!,
+                            image: ImageHelper.getProvider(_logoUrl)!,
                             width: 92,
                             height: 92,
                             fit: BoxFit.cover,
@@ -169,7 +181,7 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                       : Text(
                           widget.team.name[0].toUpperCase(),
                           style: const TextStyle(
-                            color: Color(0xFF2563EB),
+                            color: AppColors.primaryBlue,
                             fontWeight: FontWeight.w900,
                             fontSize: 32,
                           ),
@@ -184,13 +196,13 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2563EB),
+                      color: AppColors.primaryBlue,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
+                      border: Border.all(color: AppColors.white, width: 3),
                     ),
                     child: const Icon(
                       Icons.camera_alt_rounded,
-                      color: Colors.white,
+                      color: AppColors.white,
                       size: 16,
                     ),
                   ),
@@ -200,9 +212,9 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Change Team Logo',
+            AppStrings.changeTeamLogo,
             style: TextStyle(
-              color: Color(0xFF64748B),
+              color: AppColors.slate500,
               fontWeight: FontWeight.w700,
               fontSize: 13,
             ),
@@ -218,7 +230,7 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
       style: const TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w900,
-        color: Color(0xFF64748B),
+        color: AppColors.slate500,
         letterSpacing: 0.5,
       ),
     );
@@ -233,9 +245,9 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.slate50,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.slate200),
       ),
       child: TextFormField(
         controller: controller,
@@ -244,12 +256,12 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
         style: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 15,
-          color: Color(0xFF1E293B),
+          color: AppColors.slate800,
         ),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(
-            color: Color(0xFF94A3B8),
+            color: AppColors.slate400,
             fontWeight: FontWeight.w500,
           ),
           border: InputBorder.none,
@@ -267,21 +279,21 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: AppColors.slate50,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.slate200),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                color: AppColors.blueBg,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 _getCategoryIcon(_selectedCategory),
-                color: const Color(0xFF2563EB),
+                color: AppColors.primaryBlue,
                 size: 20,
               ),
             ),
@@ -292,13 +304,13 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate800,
                 ),
               ),
             ),
             const Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF64748B),
+              color: AppColors.slate500,
             ),
           ],
         ),
@@ -309,11 +321,11 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
   void _showCategoryPicker() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       isScrollControlled: true,
       builder: (context) => Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
         ),
         padding: const EdgeInsets.all(24),
@@ -326,18 +338,18 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0),
+                  color: AppColors.slate200,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 24),
             const Text(
-              'Select Category',
+              AppStrings.selectCategory,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1E293B),
+                color: AppColors.slate800,
               ),
             ),
             const SizedBox(height: 24),
@@ -346,7 +358,8 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: AppStrings.teamCategories.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final category = AppStrings.teamCategories[index];
                   final isSelected = category == _selectedCategory;
@@ -359,14 +372,12 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFF2563EB).withValues(alpha: 0.05)
-                            : Colors.white,
+                        color: isSelected ? AppColors.blueBg : AppColors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFF2563EB)
-                              : const Color(0xFFE2E8F0),
+                              ? AppColors.primaryBlue
+                              : AppColors.slate200,
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -376,13 +387,15 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF2563EB)
-                                  : const Color(0xFFF1F5F9),
+                                  ? AppColors.primaryBlue
+                                  : AppColors.slate100,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
                               _getCategoryIcon(category),
-                              color: isSelected ? Colors.white : const Color(0xFF64748B),
+                              color: isSelected
+                                  ? AppColors.white
+                                  : AppColors.slate500,
                               size: 20,
                             ),
                           ),
@@ -395,15 +408,15 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                                   : FontWeight.w600,
                               fontSize: 16,
                               color: isSelected
-                                  ? const Color(0xFF2563EB)
-                                  : const Color(0xFF1E293B),
+                                  ? AppColors.primaryBlue
+                                  : AppColors.slate800,
                             ),
                           ),
                           const Spacer(),
                           if (isSelected)
                             const Icon(
                               Icons.check_circle_rounded,
-                              color: Color(0xFF2563EB),
+                              color: AppColors.primaryBlue,
                             ),
                         ],
                       ),
@@ -434,21 +447,21 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.slate50,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.slate200),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
+              color: AppColors.blueBorder,
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(
               Icons.lock_person_rounded,
-              color: Color(0xFF2563EB),
+              color: AppColors.primaryBlue,
               size: 20,
             ),
           ),
@@ -458,19 +471,19 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Private Team',
+                  AppStrings.privateTeam,
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 15,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.slate800,
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  'Only invited members can join',
+                const Text(
+                  AppStrings.privateTeamDescription,
                   style: TextStyle(
                     fontSize: 12,
-                    color: const Color(0xFF64748B),
+                    color: AppColors.slate500,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -480,7 +493,7 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
           Switch(
             value: _isPrivate,
             onChanged: (val) => setState(() => _isPrivate = val),
-            activeColor: const Color(0xFF2563EB),
+            activeThumbColor: AppColors.primaryBlue,
           ),
         ],
       ),
@@ -493,17 +506,17 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
       child: ElevatedButton(
         onPressed: () => _submitForm(context),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2563EB),
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.primaryBlue,
+          foregroundColor: AppColors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           elevation: 8,
-          shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.3),
+          shadowColor: AppColors.primaryBlue.withValues(alpha: 0.3),
         ),
         child: const Text(
-          'Save Changes',
+          AppStrings.saveChanges,
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
       ),
@@ -520,11 +533,12 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
           description: _descriptionController.text.trim(),
           adminId: widget.team.adminId,
           membersIds: widget.team.membersIds,
-          photoUrl: _logoBase64,
+          photoUrl: _logoUrl,
           category: _selectedCategory,
           isPrivate: _isPrivate,
           progressPercent: widget.team.progressPercent,
         ),
+        logoBytes: _pickedLogoBytes,
       );
     }
   }

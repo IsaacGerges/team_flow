@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../injection_container.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../.././../splash/presentation/widgets/splash_logo.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_form_field.dart';
 import '../widgets/social_login_button.dart';
 
+/// Sign-up screen for new user registration.
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: BlocProvider(
         create: (_) => sl<AuthCubit>(),
         child: const _SignUpForm(),
@@ -74,219 +75,210 @@ class _SignUpFormState extends State<_SignUpForm> {
           );
         }
       },
-      child: Stack(
-        children: [
-          // Decorative background circles removed as requested
-          const SizedBox.shrink(),
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const SizedBox(height: 40),
+                // const SplashLogo(
+                //   backgroundColor: AppColors.primaryBlueLight,
+                //   borderColor: AppColors.primaryBlue,
+                //   iconColor: AppColors.primaryBlue,
+                // ),
+                // const SizedBox(height: 24),
+                const Text(
+                  AppStrings.createAccount,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimary,
+                    letterSpacing: .5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  AppStrings.signUpSubtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.slate500,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                AuthFormField(
+                  controller: _nameController,
+                  hintText: AppStrings.fullName,
+                  prefixIcon: Icons.person_outline_rounded,
+                  validator: (val) =>
+                      val!.isEmpty ? AppStrings.enterYourName : null,
+                ),
+                const SizedBox(height: 16),
+                AuthFormField(
+                  controller: _emailController,
+                  hintText: AppStrings.emailAddress,
+                  prefixIcon: Icons.mail_outline_rounded,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (val) =>
+                      !val!.contains('@') ? AppStrings.enterValidEmail : null,
+                ),
+                const SizedBox(height: 16),
+                AuthFormField(
+                  controller: _passwordController,
+                  hintText: AppStrings.password,
+                  prefixIcon: Icons.lock_outline_rounded,
+                  obscureText: !_isPasswordVisible,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppColors.slate400,
+                      size: 20,
+                    ),
+                    onPressed: () => setState(
+                      () => _isPasswordVisible = !_isPasswordVisible,
+                    ),
+                  ),
+                  validator: (val) =>
+                      val!.length < 6 ? AppStrings.passwordMinLength : null,
+                ),
+                const SizedBox(height: 16),
+                AuthFormField(
+                  controller: _confirmPasswordController,
+                  hintText: AppStrings.confirmPassword,
+                  prefixIcon: Icons.lock_reset_rounded,
+                  obscureText: !_isConfirmVisible,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isConfirmVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppColors.slate400,
+                      size: 20,
+                    ),
+                    onPressed: () =>
+                        setState(() => _isConfirmVisible = !_isConfirmVisible),
+                  ),
+                  validator: (val) => val != _passwordController.text
+                      ? AppStrings.passwordsDoNotMatch
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                Row(
                   children: [
-                    const SizedBox(height: 40),
-                    const SplashLogo(
-                      backgroundColor: AppColors.primaryBlueLight,
-                      borderColor: AppColors.primaryBlue,
-                      iconColor: AppColors.primaryBlue,
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      AppStrings.createAccount,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -1,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Join TeamFlow to collaborate better.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    AuthFormField(
-                      controller: _nameController,
-                      hintText: AppStrings.fullName,
-                      prefixIcon: Icons.person_outline_rounded,
-                      validator: (val) =>
-                          val!.isEmpty ? AppStrings.enterYourName : null,
-                    ),
-                    const SizedBox(height: 16),
-                    AuthFormField(
-                      controller: _emailController,
-                      hintText: AppStrings.emailAddress,
-                      prefixIcon: Icons.mail_outline_rounded,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (val) => !val!.contains('@')
-                          ? AppStrings.enterValidEmail
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    AuthFormField(
-                      controller: _passwordController,
-                      hintText: AppStrings.password,
-                      prefixIcon: Icons.lock_outline_rounded,
-                      obscureText: !_isPasswordVisible,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isPasswordVisible
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: const Color(0xFF94A3B8),
-                          size: 20,
-                        ),
-                        onPressed: () => setState(
-                          () => _isPasswordVisible = !_isPasswordVisible,
+                    SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: Checkbox(
+                        value: _acceptTerms,
+                        onChanged: (val) =>
+                            setState(() => _acceptTerms = val ?? false),
+                        activeColor: AppColors.primaryBlue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      validator: (val) =>
-                          val!.length < 6 ? AppStrings.passwordMinLength : null,
                     ),
-                    const SizedBox(height: 16),
-                    AuthFormField(
-                      controller: _confirmPasswordController,
-                      hintText: AppStrings.confirmPassword,
-                      prefixIcon: Icons.lock_reset_rounded,
-                      obscureText: !_isConfirmVisible,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isConfirmVisible
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: const Color(0xFF94A3B8),
-                          size: 20,
-                        ),
-                        onPressed: () => setState(
-                          () => _isConfirmVisible = !_isConfirmVisible,
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        AppStrings.acceptTerms,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.slate500,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      validator: (val) => val != _passwordController.text
-                          ? 'Passwords do not match'
-                          : null,
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: Checkbox(
-                            value: _acceptTerms,
-                            onChanged: (val) =>
-                                setState(() => _acceptTerms = val ?? false),
-                            activeColor: AppColors.primaryBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            AppStrings.acceptTerms,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF64748B),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    BlocBuilder<AuthCubit, AuthState>(
-                      builder: (context, state) {
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: (state is AuthLoading || !_acceptTerms)
-                                ? null
-                                : () {
-                                    if (_formKey.currentState!.validate()) {
-                                      context.read<AuthCubit>().register(
-                                        _emailController.text.trim(),
-                                        _passwordController.text.trim(),
-                                        _nameController.text.trim(),
-                                      );
-                                    }
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryBlue,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                              disabledBackgroundColor: AppColors.primaryBlue
-                                  .withValues(alpha: 0.3),
-                            ),
-                            child: state is AuthLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text(
-                                    AppStrings.signUp,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    SocialLoginButton(
-                      label: 'Sign up with Google',
-                      iconPath: 'assets/icons/google.png',
-                      onPressed: () =>
-                          context.read<AuthCubit>().signInWithGoogle(),
-                    ),
-                    const SizedBox(height: 32),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Already have an account?',
-                          style: TextStyle(
-                            color: Color(0xFF64748B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => context.pop(),
-                          child: const Text(
-                            AppStrings.login,
-                            style: TextStyle(
-                              color: AppColors.primaryBlue,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
                   ],
                 ),
-              ),
+                const SizedBox(height: 32),
+                BlocBuilder<AuthCubit, AuthState>(
+                  builder: (context, state) {
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: (state is AuthLoading || !_acceptTerms)
+                            ? null
+                            : () {
+                                if (_formKey.currentState!.validate()) {
+                                  context.read<AuthCubit>().register(
+                                    _emailController.text.trim(),
+                                    _passwordController.text.trim(),
+                                    _nameController.text.trim(),
+                                  );
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryBlue,
+                          foregroundColor: AppColors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                          disabledBackgroundColor: AppColors.primaryBlue
+                              .withValues(alpha: 0.3),
+                        ),
+                        child: state is AuthLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.white,
+                                ),
+                              )
+                            : const Text(
+                                AppStrings.signUp,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                SocialLoginButton(
+                  label: AppStrings.signUpWithGoogle,
+                  iconPath: AppAssets.googleIcon,
+                  onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      AppStrings.alreadyHaveAccountShort,
+                      style: TextStyle(
+                        color: AppColors.slate500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => context.pop(),
+                      child: const Text(
+                        AppStrings.login,
+                        style: TextStyle(
+                          color: AppColors.primaryBlue,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

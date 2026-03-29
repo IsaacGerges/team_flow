@@ -45,7 +45,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
                 return NotificationFilterTabs(
                   activeFilter: activeFilter,
-                  hasUnread: state is NotificationsLoaded &&
+                  hasUnread:
+                      state is NotificationsLoaded &&
                       state.notifications.any((n) => !n.isRead),
                   onFilterChanged: (filter) {
                     context.read<NotificationsCubit>().setFilter(filter);
@@ -111,7 +112,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
           BlocBuilder<NotificationsCubit, NotificationsState>(
             builder: (context, state) {
-              final hasUnread = state is NotificationsLoaded &&
+              final hasUnread =
+                  state is NotificationsLoaded &&
                   state.notifications.any((n) => !n.isRead);
 
               if (!hasUnread) {
@@ -120,15 +122,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
               return IconButton(
                 onPressed: () {
-                  final userId =
-                      sl<CacheHelper>().getData(key: CacheKeys.userId);
+                  final userId = sl<CacheHelper>().getData(
+                    key: CacheKeys.userId,
+                  );
                   if (userId != null) {
                     context.read<NotificationsCubit>().markAllAsRead(userId);
                   }
                 },
                 icon: const Icon(
                   Icons.done_all_rounded,
-                  color: AppColors.primaryBluePure,
+                  color: AppColors.primaryBlue,
                 ),
                 tooltip: AppStrings.markAllAsRead,
                 style: IconButton.styleFrom(

@@ -12,9 +12,9 @@ class SplashGradientBackground extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.splashGradientStart,
-            AppColors.splashGradientMiddle,
-            AppColors.splashGradientEnd,
+            AppColors.primaryBlue,
+            AppColors.primaryBluePure,
+            AppColors.primaryBlueDark,
           ],
         ),
       ),

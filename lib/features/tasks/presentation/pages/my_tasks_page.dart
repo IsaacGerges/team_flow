@@ -3,15 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
 import 'package:team_flow/core/helpers/progress_helper.dart';
 import '../cubit/task_cubit.dart';
 import '../cubit/task_state.dart';
+import '../create_task_page_args.dart';
 import '../widgets/task_card.dart';
 import '../widgets/velocity_stat_card.dart';
 import '../../../teams/presentation/cubit/team_cubit.dart';
 import '../../../teams/presentation/cubit/team_state.dart';
 
+/// Page that displays the current user's tasks grouped by due date,
+/// with filters for priority and status, and a dedicated Drafts tab.
 class MyTasksPage extends StatefulWidget {
   const MyTasksPage({super.key});
 
@@ -22,7 +27,15 @@ class MyTasksPage extends StatefulWidget {
 class _MyTasksPageState extends State<MyTasksPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _tabs = ['All Tasks', 'To Do', 'In Progress', 'Review', 'Done'];
+  final List<String> _tabs = [
+    'All Tasks',
+    'To Do',
+    'In Progress',
+    'Review',
+    'Done',
+    AppStrings.drafts,
+  ];
+
   bool _isSearching = false;
   String _searchQuery = '';
   TaskPriority? _selectedPriority;
@@ -32,11 +45,9 @@ class _MyTasksPageState extends State<MyTasksPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _syncTasksFromTeams();
     });
-
     _tabController.addListener(() {
       setState(() {});
     });
@@ -48,7 +59,10 @@ class _MyTasksPageState extends State<MyTasksPage>
     final teamsState = context.read<TeamsCubit>().state;
     if (teamsState is TeamsLoaded) {
       final teamIds = teamsState.teams.map((t) => t.id).toList();
-      context.read<TasksCubit>().loadTasksForTeams(teamIds);
+      context.read<TasksCubit>().loadTasksForTeams(
+        teamIds,
+        viewerId: userId,
+      );
     } else {
       context.read<TeamsCubit>().getTeams(userId);
     }
@@ -57,17 +71,31 @@ class _MyTasksPageState extends State<MyTasksPage>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
-  List<TaskEntity>? _lastTasks;
+  /// All published tasks cached across state updates.
+  List<TaskEntity>? _lastPublished;
+
+  /// Creator-owned drafts cached across state updates.
+  List<TaskEntity>? _lastDrafts;
+
+  bool get _isDraftsTabActive =>
+      _tabs[_tabController.index] == AppStrings.drafts;
 
   @override
   Widget build(BuildContext context) {
+    final teamsState = context.watch<TeamsCubit>().state;
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final canCreateTask = teamsState is TeamsLoaded &&
+        currentUserId != null &&
+        teamsState.teams.any((team) => team.adminId == currentUserId);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), //slate-50
+      backgroundColor: AppColors.slate50,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: AppColors.slate50,
         elevation: 0,
         scrolledUnderElevation: 0,
         toolbarHeight: 80,
@@ -84,41 +112,43 @@ class _MyTasksPageState extends State<MyTasksPage>
                 },
               )
             : const Text(
-                'My Tasks',
+                AppStrings.myTasks,
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 28,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate800,
                   letterSpacing: -1,
                 ),
               ),
         actions: [
-          IconButton(
-            icon: Icon(
-              _isSearching ? Icons.close : Icons.search,
-              color: const Color(0xFF64748B),
+          if (!_isDraftsTabActive)
+            IconButton(
+              icon: Icon(
+                _isSearching ? Icons.close : Icons.search,
+                color: AppColors.slate500,
+              ),
+              onPressed: () {
+                setState(() {
+                  if (_isSearching) {
+                    _isSearching = false;
+                    _searchQuery = '';
+                    _searchController.clear();
+                  } else {
+                    _isSearching = true;
+                  }
+                });
+              },
             ),
-            onPressed: () {
-              setState(() {
-                if (_isSearching) {
-                  _isSearching = false;
-                  _searchQuery = '';
-                  _searchController.clear();
-                } else {
-                  _isSearching = true;
-                }
-              });
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.tune,
-              color: _selectedPriority != null
-                  ? const Color(0xFF2563EB)
-                  : const Color(0xFF64748B),
+          if (!_isDraftsTabActive)
+            IconButton(
+              icon: Icon(
+                Icons.tune,
+                color: _selectedPriority != null
+                    ? AppColors.primaryBlue
+                    : AppColors.slate500,
+              ),
+              onPressed: () => _showFilterSheet(),
             ),
-            onPressed: () => _showFilterSheet(),
-          ),
           const SizedBox(width: 8),
         ],
         bottom: PreferredSize(
@@ -129,8 +159,8 @@ class _MyTasksPageState extends State<MyTasksPage>
             child: TabBar(
               controller: _tabController,
               isScrollable: true,
-              dividerColor: Colors.transparent,
-              indicatorColor: Colors.transparent,
+              dividerColor: AppColors.transparent,
+              indicatorColor: AppColors.transparent,
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               tabs: _tabs.map((tab) {
                 final isSelected = _tabs[_tabController.index] == tab;
@@ -144,16 +174,14 @@ class _MyTasksPageState extends State<MyTasksPage>
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFF2563EB)
-                          : Colors.white,
+                      color: isSelected ? AppColors.primaryBlue : AppColors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: const Color(
-                                  0xFF2563EB,
-                                ).withValues(alpha: 0.2),
+                                color: AppColors.primaryBlue.withValues(
+                                  alpha: 0.2,
+                                ),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -161,8 +189,8 @@ class _MyTasksPageState extends State<MyTasksPage>
                           : [],
                       border: Border.all(
                         color: isSelected
-                            ? const Color(0xFF2563EB)
-                            : const Color(0xFFE2E8F0),
+                            ? AppColors.primaryBlue
+                            : AppColors.slate200,
                       ),
                     ),
                     child: Row(
@@ -172,8 +200,8 @@ class _MyTasksPageState extends State<MyTasksPage>
                           tab,
                           style: TextStyle(
                             color: isSelected
-                                ? Colors.white
-                                : const Color(0xFF64748B),
+                                ? AppColors.white
+                                : AppColors.slate500,
                             fontWeight: isSelected
                                 ? FontWeight.w700
                                 : FontWeight.w600,
@@ -185,14 +213,14 @@ class _MyTasksPageState extends State<MyTasksPage>
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: const BoxDecoration(
-                              color: Color(0xFFF1F5F9),
+                              color: AppColors.slate100,
                               shape: BoxShape.circle,
                             ),
                             child: Text(
                               '$badgeCount',
                               style: const TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFF64748B),
+                                color: AppColors.slate500,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -210,26 +238,39 @@ class _MyTasksPageState extends State<MyTasksPage>
       body: BlocListener<TeamsCubit, TeamsState>(
         listener: (context, state) {
           if (state is TeamsLoaded) {
+            final userId = FirebaseAuth.instance.currentUser!.uid;
             final teamIds = state.teams.map((t) => t.id).toList();
-            context.read<TasksCubit>().loadTasksForTeams(teamIds);
+            context.read<TasksCubit>().loadTasksForTeams(
+              teamIds,
+              viewerId: userId,
+            );
           }
         },
         child: BlocBuilder<TasksCubit, TasksState>(
           builder: (context, state) {
-            if (state is TasksLoaded) _lastTasks = state.tasks;
+            if (state is TasksLoaded) {
+              _lastPublished = state.tasks.where((t) => !t.isDraft).toList();
+              _lastDrafts = state.tasks.where((t) => t.isDraft).toList();
+            }
 
-            if (state is TasksLoading && _lastTasks == null) {
+            if (state is TasksLoading &&
+                _lastPublished == null &&
+                _lastDrafts == null) {
               return const Center(
-                child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+                child: CircularProgressIndicator(color: AppColors.primaryBlue),
               );
             }
 
-            if (_lastTasks != null) {
-              final filteredTasks = _filterTasks(_lastTasks!);
+            if (_isDraftsTabActive) {
+              return _buildDraftsTab();
+            }
+
+            if (_lastPublished != null) {
+              final filteredTasks = _filterTasks(_lastPublished!);
               return ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
-                  _buildStats(_lastTasks!),
+                  _buildStats(_lastPublished!),
                   const SizedBox(height: 32),
                   ..._buildGroupedTasks(filteredTasks),
                   const SizedBox(height: 100),
@@ -240,18 +281,102 @@ class _MyTasksPageState extends State<MyTasksPage>
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/tasks/create'),
-        backgroundColor: const Color(0xFF2563EB),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 8,
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
+      floatingActionButton: canCreateTask
+          ? FloatingActionButton(
+              heroTag: 'my_tasks_fab',
+              onPressed: () => context.push('/tasks/create'),
+              backgroundColor: AppColors.primaryBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 8,
+              child: const Icon(Icons.add, color: AppColors.white, size: 30),
+            )
+          : null,
+    );
+  }
+
+  // ----------------------------------------------------------
+  // Drafts tab
+  // ----------------------------------------------------------
+
+  Widget _buildDraftsTab() {
+    final drafts = _lastDrafts ?? [];
+    if (drafts.isEmpty) {
+      return _buildDraftsEmptyState();
+    }
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        ...drafts.map(
+          (draft) => TaskCard(
+            task: draft,
+            isDraftCard: true,
+            onTap: () => context.push(
+              '/tasks/create',
+              extra: CreateTaskPageArgs(draftTask: draft),
+            ),
+            onCheckboxChanged: (_) {},
+          ),
+        ),
+        const SizedBox(height: 100),
+      ],
+    );
+  }
+
+  Widget _buildDraftsEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppColors.slate100,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Icon(
+                Icons.edit_note_rounded,
+                size: 36,
+                color: AppColors.slate400,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              AppStrings.noDraftsYet,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: AppColors.slate800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              AppStrings.noDraftsHint,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.slate500,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  // ----------------------------------------------------------
+  // Published tasks tab
+  // ----------------------------------------------------------
+
   List<Widget> _buildGroupedTasks(List<TaskEntity> tasks) {
-    if (tasks.isEmpty) return [const Center(child: Text('No tasks found.'))];
+    if (tasks.isEmpty) {
+      return [const Center(child: Text(AppStrings.noTasksFound))];
+    }
 
     final Map<String, List<TaskEntity>> grouped = {};
     for (var task in tasks) {
@@ -267,7 +392,7 @@ class _MyTasksPageState extends State<MyTasksPage>
         );
 
         if (taskDate == today) {
-          key = 'Today';
+          key = AppStrings.today;
         } else if (taskDate == tomorrow) {
           key = 'Tomorrow';
         } else {
@@ -278,7 +403,7 @@ class _MyTasksPageState extends State<MyTasksPage>
     }
 
     final List<Widget> widgets = [];
-    final sortedKeys = grouped.keys.toList(); // Simplified sorting for now
+    final sortedKeys = grouped.keys.toList();
 
     for (var key in sortedKeys) {
       widgets.add(
@@ -291,14 +416,14 @@ class _MyTasksPageState extends State<MyTasksPage>
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate800,
                 ),
               ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: AppColors.slate100,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -306,16 +431,16 @@ class _MyTasksPageState extends State<MyTasksPage>
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF64748B),
+                    color: AppColors.slate500,
                   ),
                 ),
               ),
               const Spacer(),
-              if (key == 'Today' || key == 'Tomorrow')
+              if (key == AppStrings.today || key == 'Tomorrow')
                 Text(
                   DateFormat('MMM d').format(grouped[key]!.first.dueDate!),
                   style: const TextStyle(
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.slate400,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -364,11 +489,11 @@ class _MyTasksPageState extends State<MyTasksPage>
             padding: const EdgeInsets.all(20),
             height: 140,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: AppColors.black.withValues(alpha: 0.04),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -381,7 +506,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                 const Text(
                   'PENDING',
                   style: TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.slate500,
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
                   ),
@@ -398,7 +523,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                           style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.slate800,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -407,7 +532,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF94A3B8),
+                            color: AppColors.slate400,
                           ),
                         ),
                       ],
@@ -417,7 +542,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                       children: [
                         const Icon(
                           Icons.assignment_late_rounded,
-                          color: Color(0xFFF97316),
+                          color: AppColors.warning,
                           size: 16,
                         ),
                         const SizedBox(width: 4),
@@ -425,7 +550,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                           '$highPriority High Priority',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF64748B),
+                            color: AppColors.slate500,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -444,9 +569,8 @@ class _MyTasksPageState extends State<MyTasksPage>
   List<TaskEntity> _filterTasks(List<TaskEntity> tasks) {
     Iterable<TaskEntity> filtered = tasks;
 
-    // 1. Tab filter
     final selectedTab = _tabs[_tabController.index];
-    if (selectedTab != 'All Tasks') {
+    if (selectedTab != 'All Tasks' && selectedTab != AppStrings.drafts) {
       filtered = filtered.where(
         (t) =>
             t.status.name.toLowerCase() ==
@@ -454,14 +578,12 @@ class _MyTasksPageState extends State<MyTasksPage>
       );
     }
 
-    // 2. Search query filter
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where(
         (t) => t.title.toLowerCase().contains(_searchQuery.toLowerCase()),
       );
     }
 
-    // 3. Priority filter
     if (_selectedPriority != null) {
       filtered = filtered.where((t) => t.priority == _selectedPriority);
     }
@@ -472,7 +594,7 @@ class _MyTasksPageState extends State<MyTasksPage>
   void _showFilterSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
@@ -490,7 +612,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.slate800,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -498,7 +620,11 @@ class _MyTasksPageState extends State<MyTasksPage>
                     spacing: 12,
                     children: [
                       _buildFilterChip(null, 'All', setSheetState),
-                      _buildFilterChip(TaskPriority.high, 'High', setSheetState),
+                      _buildFilterChip(
+                        TaskPriority.high,
+                        'High',
+                        setSheetState,
+                      ),
                       _buildFilterChip(
                         TaskPriority.medium,
                         'Medium',
@@ -531,26 +657,25 @@ class _MyTasksPageState extends State<MyTasksPage>
         setSheetState(() {});
         Navigator.pop(context);
       },
-      selectedColor: const Color(0xFF2563EB),
+      selectedColor: AppColors.primaryBlue,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : const Color(0xFF64748B),
+        color: isSelected ? AppColors.white : AppColors.slate500,
         fontWeight: FontWeight.w700,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 
-  /// Returns the number of tasks matching the given [tab] filter.
   int _getCountForTab(String tab) {
-    if (_lastTasks == null) return 0;
-    if (tab == 'All Tasks') return _lastTasks!.length;
-    return _lastTasks!
+    if (tab == AppStrings.drafts) return _lastDrafts?.length ?? 0;
+    if (_lastPublished == null) return 0;
+    if (tab == 'All Tasks') return _lastPublished!.length;
+    return _lastPublished!
         .where(
           (t) =>
               t.status.name.toLowerCase() ==
               tab.replaceAll(' ', '').toLowerCase(),
         )
-        .toList()
         .length;
   }
 }

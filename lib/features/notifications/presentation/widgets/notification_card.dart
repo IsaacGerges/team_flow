@@ -146,7 +146,7 @@ class NotificationCard extends StatelessWidget {
                         : Icons.assignment_ind,
                     size: 10,
                     color: notification.type == NotificationType.mention
-                        ? AppColors.primaryBluePure
+                        ? AppColors.primaryBlue
                         : const Color(0xFF475569),
                   ),
                 ),
@@ -170,14 +170,14 @@ class NotificationCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.primaryBluePure.withValues(alpha: 0.1),
+                color: AppColors.primaryBlue.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Text(
                 notification.teamInitials ?? '??',
                 style: const TextStyle(
-                  color: AppColors.primaryBluePure,
+                  color: AppColors.primaryBlue,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -267,7 +267,7 @@ class NotificationCard extends StatelessWidget {
             text: notification.targetName ?? '',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              color: AppColors.primaryBluePure,
+              color: AppColors.primaryBlue,
             ),
           ),
         ];
@@ -432,14 +432,14 @@ class _ActionBtn extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: isPrimary
-              ? AppColors.primaryBluePure
+              ? AppColors.primaryBlue
               : (isGhost ? Colors.transparent : const Color(0xFFF1F5F9)),
           foregroundColor: isPrimary
               ? Colors.white
               : (isGhost ? const Color(0xFF64748B) : const Color(0xFF1E293B)),
           elevation: isPrimary ? 2 : 0,
           shadowColor: isPrimary
-              ? AppColors.primaryBluePure.withValues(alpha: 0.4)
+              ? AppColors.primaryBlue.withValues(alpha: 0.4)
               : null,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           shape: RoundedRectangleBorder(

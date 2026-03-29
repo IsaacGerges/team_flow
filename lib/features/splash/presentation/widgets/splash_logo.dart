@@ -1,3 +1,4 @@
+import '../../../../core/constants/app_assets.dart';
 import 'package:flutter/material.dart';
 
 /// A branded logo widget with an entrance scale + fade animation.
@@ -19,7 +20,7 @@ class SplashLogo extends StatefulWidget {
   /// Container border color. Defaults to `white @ 20%` for dark backgrounds.
   final Color? borderColor;
 
-  /// Icon color. Defaults to white.
+  /// Icon color. Defaults to white. (Note: Only used if image fails or for tinting if applicable)
   final Color? iconColor;
 
   @override
@@ -63,12 +64,6 @@ class _SplashLogoState extends State<SplashLogo>
 
   @override
   Widget build(BuildContext context) {
-    final bgColor =
-        widget.backgroundColor ?? Colors.white.withOpacity(0.1);
-    final bdColor =
-        widget.borderColor ?? Colors.white.withOpacity(0.2);
-    final icColor = widget.iconColor ?? Colors.white;
-
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -77,24 +72,18 @@ class _SplashLogoState extends State<SplashLogo>
           child: Transform.scale(scale: _scaleAnimation.value, child: child),
         );
       },
-      child: Container(
-        width: 120,
-        height: 120,
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: bdColor, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 20,
-              spreadRadius: 5,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Icon(Icons.check_circle, color: icColor, size: 56),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(
+          AppAssets.logo,
+          width: 125,
+          height: 125,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => Icon(
+            Icons.image_not_supported_outlined,
+            color: widget.iconColor ?? Colors.white,
+            size: 40,
+          ),
         ),
       ),
     );

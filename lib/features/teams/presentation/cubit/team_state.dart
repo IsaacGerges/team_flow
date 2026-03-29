@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'dart:typed_data';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 
 /// Base state class for the Teams feature.
@@ -17,6 +18,11 @@ class TeamsInitial extends TeamsState {
 /// Emitted while a teams operation is in progress.
 class TeamsLoading extends TeamsState {
   const TeamsLoading();
+}
+
+/// Emitted while a team creation is specifically in progress.
+class TeamCreateSubmitting extends TeamsState {
+  const TeamCreateSubmitting();
 }
 
 /// Emitted when the teams list is loaded successfully.
@@ -56,12 +62,12 @@ class TeamMemberRemovedSuccess extends TeamsState {
 
 /// Emitted when a team logo is picked from gallery but not yet saved.
 class TeamLogoPicked extends TeamsState {
-  final String base64Image;
+  final Uint8List imageBytes;
 
-  const TeamLogoPicked(this.base64Image);
+  const TeamLogoPicked(this.imageBytes);
 
   @override
-  List<Object> get props => [base64Image];
+  List<Object> get props => [imageBytes];
 }
 
 /// Emitted when a teams operation fails.

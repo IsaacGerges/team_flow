@@ -36,7 +36,7 @@ class _SplashSpinnerState extends State<SplashSpinner>
         child: CircularProgressIndicator(
           strokeWidth: 3,
           valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-          backgroundColor: Colors.white.withOpacity(0.3),
+          backgroundColor: Colors.white.withValues(alpha: 0.3),
         ),
       ),
     );

@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:team_flow/features/onboarding/domain/usecases/save_onboarding_status_usecase.dart';
+import 'package:team_flow/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:team_flow/core/network/network_info.dart';
 import 'package:team_flow/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:team_flow/features/teams/data/datasources/team_remote_data_source.dart';
@@ -12,8 +15,12 @@ import 'package:team_flow/features/teams/domain/usecases/add_member_usecase.dart
 import 'package:team_flow/features/teams/domain/usecases/create_team_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/delete_team_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/get_teams_usecase.dart';
+import 'package:team_flow/features/teams/domain/usecases/update_team_photo_usecase.dart';
+import 'package:team_flow/features/teams/domain/usecases/upload_team_logo_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/update_team_usecase.dart';
+import 'package:team_flow/features/teams/domain/usecases/get_coworker_ids_usecase.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
+import 'package:team_flow/features/teams/presentation/cubit/add_member_cubit.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
@@ -61,6 +68,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => InternetConnectionChecker.createInstance());
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
+  // === Onboarding Feature ===
+  sl.registerLazySingleton(() => SaveOnboardingStatusUseCase(sl()));
+  sl.registerFactory(() => OnboardingCubit(saveOnboardingStatusUseCase: sl()));
+
   // === Auth Feature ===
   // Use Cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -98,8 +109,13 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateTeamUseCase(sl()));
   sl.registerLazySingleton(() => GetTeamsUseCase(sl()));
   sl.registerLazySingleton(() => UpdateTeamUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateTeamPhotoUseCase(sl()));
   sl.registerLazySingleton(() => DeleteTeamUseCase(sl()));
   sl.registerLazySingleton(() => AddMemberUseCase(sl()));
+  sl.registerLazySingleton(() => UploadTeamLogoUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetCoworkerIdsUseCase(teamsRepository: sl(), tasksRepository: sl()),
+  );
 
   // Repository
   sl.registerLazySingleton<TeamsRepository>(
@@ -108,7 +124,7 @@ Future<void> init() async {
 
   // Data Source
   sl.registerLazySingleton<TeamsRemoteDataSource>(
-    () => TeamsRemoteDataSourceImpl(firestore: sl()),
+    () => TeamsRemoteDataSourceImpl(firestore: sl(), storage: sl()),
   );
 
   // Cubit
@@ -117,11 +133,17 @@ Future<void> init() async {
       createTeamUseCase: sl(),
       getTeamsUseCase: sl(),
       updateTeamUseCase: sl(),
+      updateTeamPhotoUseCase: sl(),
       deleteTeamUseCase: sl(),
       addMemberUseCase: sl(),
+      uploadTeamLogoUseCase: sl(),
       getAllUsersUseCase: sl(),
       createNotificationUseCase: sl(),
     ),
+  );
+
+  sl.registerFactory(
+    () => AddMemberCubit(getAllUsersUseCase: sl(), getCoworkerIdsUseCase: sl()),
   );
 
   // === Profile Feature ===
@@ -192,9 +214,7 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<NotificationsRepository>(
-    () => NotificationsRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
+    () => NotificationsRepositoryImpl(remoteDataSource: sl()),
   );
 
   // Data Source
@@ -214,5 +234,6 @@ Future<void> init() async {
   // === External ===
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
   sl.registerLazySingleton(() => FirebaseAuth.instance);
+  sl.registerLazySingleton(() => FirebaseStorage.instance);
   sl.registerLazySingleton(() => GoogleSignIn());
 }

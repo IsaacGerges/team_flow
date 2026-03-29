@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import '../../domain/entities/task_entity.dart';
 
+/// A coloured pill badge that shows the current [TaskStatus].
 class TaskStatusBadge extends StatelessWidget {
   final TaskStatus status;
   final bool isOverdue;
@@ -34,29 +37,33 @@ class TaskStatusBadge extends StatelessWidget {
 
   (String, Color, Color) _getData() {
     if (isOverdue && status != TaskStatus.done) {
-      return ('Overdue', const Color(0xFFFEF2F2), const Color(0xFFEF4444));
+      return (
+        AppStrings.overdue,
+        AppColors.taskReviewBg,
+        AppColors.taskReviewText,
+      );
     }
 
     return switch (status) {
       TaskStatus.todo => (
-        'To Do',
-        const Color(0xFFF1F5F9),
-        const Color(0xFF64748B),
+        AppStrings.toDo,
+        AppColors.taskTodoBg,
+        AppColors.taskTodoText,
       ),
       TaskStatus.review => (
-        'Review',
-        const Color(0xFFFFF7ED),
-        const Color(0xFFEA580C),
+        AppStrings.review,
+        AppColors.taskInProgressBg,
+        AppColors.taskInProgressText,
       ),
       TaskStatus.inProgress => (
-        'In Progress',
-        const Color(0xFFEFF6FF),
-        const Color(0xFF3B82F6),
+        AppStrings.inProgressLabel,
+        AppColors.blueBg,
+        AppColors.primaryBlue,
       ),
       TaskStatus.done => (
-        'Done',
-        const Color(0xFFF0FDF4),
-        const Color(0xFF22C55E),
+        AppStrings.done,
+        AppColors.taskDoneBg,
+        AppColors.taskDoneText,
       ),
     };
   }

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
@@ -13,13 +14,14 @@ import 'package:team_flow/features/home/presentation/widgets/recent_tasks_sectio
 import 'package:team_flow/core/helpers/cache_helper.dart';
 import 'package:team_flow/injection_container.dart';
 
+/// Main dashboard screen with greeting, stats, teams, and tasks.
 class HomeDashboardPage extends StatelessWidget {
   const HomeDashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Color(0xFFF6F7F8),
+      backgroundColor: AppColors.backgroundDashboard,
       body: SafeArea(child: _HomeContent()),
     );
   }
@@ -44,7 +46,10 @@ class _HomeContentState extends State<_HomeContent> {
     final teamsState = context.read<TeamsCubit>().state;
     if (teamsState is TeamsLoaded) {
       final teamIds = teamsState.teams.map((t) => t.id).toList();
-      context.read<TasksCubit>().loadTasksForTeams(teamIds);
+      context.read<TasksCubit>().loadTasksForTeams(
+        teamIds,
+        viewerId: userId,
+      );
     } else {
       context.read<TeamsCubit>().getTeams(userId);
     }
@@ -63,8 +68,15 @@ class _HomeContentState extends State<_HomeContent> {
     return BlocListener<TeamsCubit, TeamsState>(
       listener: (context, state) {
         if (state is TeamsLoaded) {
+          final userId =
+              FirebaseAuth.instance.currentUser?.uid ??
+              sl<CacheHelper>().getData(key: CacheKeys.userId) as String?;
+          if (userId == null) return;
           final teamIds = state.teams.map((t) => t.id).toList();
-          context.read<TasksCubit>().loadTasksForTeams(teamIds);
+          context.read<TasksCubit>().loadTasksForTeams(
+            teamIds,
+            viewerId: userId,
+          );
         }
       },
       child: SingleChildScrollView(

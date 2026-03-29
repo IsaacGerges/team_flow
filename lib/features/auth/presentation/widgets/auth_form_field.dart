@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
 
-/// A redesigned reusable text field for auth-related forms matching Stitch assets.
+/// Reusable text field for auth-related forms.
 class AuthFormField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
@@ -45,19 +45,17 @@ class _AuthFormFieldState extends State<AuthFormField> {
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: const TextStyle(
-            color: Color(0xFF94A3B8), // slate-400
+            color: AppColors.slate400,
             fontWeight: FontWeight.w400,
           ),
           prefixIcon: Icon(
             widget.prefixIcon,
-            color: _isFocused ? AppColors.primaryBlue : const Color(0xFF94A3B8),
+            color: _isFocused ? AppColors.primaryBlue : AppColors.slate400,
             size: 22,
           ),
           suffixIcon: widget.suffixIcon,
           filled: true,
-          fillColor: _isFocused
-              ? Colors.white
-              : const Color(0xFFF1F5F9), // surface-light / slate-100
+          fillColor: _isFocused ? AppColors.white : AppColors.slate100,
           contentPadding: const EdgeInsets.symmetric(vertical: 18),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

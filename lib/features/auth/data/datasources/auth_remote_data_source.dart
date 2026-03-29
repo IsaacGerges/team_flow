@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:team_flow/core/error/exceptions.dart';
 import 'package:team_flow/features/auth/data/models/user_model.dart';
 
+/// Contract for remote authentication operations.
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
   Future<UserModel> register(String email, String password, String name);
@@ -11,6 +12,7 @@ abstract class AuthRemoteDataSource {
   Future<void> logout();
 }
 
+/// Firebase implementation of [AuthRemoteDataSource].
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth firebaseAuth;
   final GoogleSignIn googleSignIn;
@@ -45,33 +47,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return UserModel.fromFirebaseUser(userCredential.user!);
     } on FirebaseAuthException catch (e) {
-      throw ServerException(message: e.message ?? "Unknown Error");
+      throw ServerException(message: e.message ?? 'Unknown Error');
     }
   }
 
   @override
   Future<UserModel> register(String email, String password, String name) async {
     try {
-      // 1. Create User in Firebase Auth
       final userCredential = await firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // 2. Update Display Name (التاتش الزيادة 😉)
       await userCredential.user!.updateDisplayName(name);
-      await userCredential.user!.reload(); // Refresh user data
+      await userCredential.user!.reload();
 
-      // 3. Get updated user
       final updatedUser = firebaseAuth.currentUser!;
-
-      // 4. Create User in Firestore collection
       await _createUserInFirestore(updatedUser);
 
-      // 5. Return UserModel
       return UserModel.fromFirebaseUser(updatedUser);
     } on FirebaseAuthException catch (e) {
-      // هنا بنهندل الأخطاء المشهورة زي: email-already-in-use
       if (e.code == 'weak-password') {
         throw ServerException(message: 'The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
@@ -79,7 +74,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: 'The account already exists for that email.',
         );
       } else {
-        throw ServerException(message: e.message ?? "Registration Failed");
+        throw ServerException(message: e.message ?? 'Registration Failed');
       }
     }
   }
@@ -87,35 +82,28 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> signInWithGoogle() async {
     try {
-      // 1. Trigger the authentication flow (يطلع بوب اب يختار الايميل)
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
-        // اليوزر قفل البوب اب ومختارش حاجة
-        throw ServerException(message: "Google Sign In Cancelled");
+        throw ServerException(message: 'Google Sign In Cancelled');
       }
 
-      // 2. Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      // 3. Create a new credential
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // 4. Sign in to Firebase with the credential
       final UserCredential userCredential = await firebaseAuth
           .signInWithCredential(credential);
 
-      // 5. Sync user in Firestore
       await _createUserInFirestore(userCredential.user!);
 
-      // 6. Return UserModel
       return UserModel.fromFirebaseUser(userCredential.user!);
     } on FirebaseAuthException catch (e) {
-      throw ServerException(message: e.message ?? "Google Sign In Failed");
+      throw ServerException(message: e.message ?? 'Google Sign In Failed');
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -127,7 +115,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await firebaseAuth.signOut();
       await googleSignIn.signOut();
     } catch (e) {
-      throw ServerException(message: "Logout failed");
+      throw ServerException(message: 'Logout failed');
     }
   }
 }
