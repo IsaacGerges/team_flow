@@ -94,8 +94,11 @@ class TasksRepositoryImpl implements TasksRepository {
   }
 
   @override
-  Stream<List<TaskEntity>> getTasksForTeams(List<String> teamIds) {
-    return remoteDataSource.getTasksForTeams(teamIds);
+  Stream<List<TaskEntity>> getTasksForTeams(
+    List<String> teamIds, {
+    required String viewerId,
+  }) {
+    return remoteDataSource.getTasksForTeams(teamIds, viewerId: viewerId);
   }
 
   @override

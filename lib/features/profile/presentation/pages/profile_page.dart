@@ -1,14 +1,16 @@
 import 'dart:ui';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:team_flow/core/constants/app_assets.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/features/profile/domain/entities/profile_entity.dart';
 import 'package:team_flow/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:team_flow/injection_container.dart';
-import 'package:team_flow/core/helpers/cache_helper.dart';
 import 'dart:convert';
 import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
@@ -34,8 +36,8 @@ class _ProfilePageState extends State<ProfilePage> {
     final currentState = context.read<ProfileCubit>().state;
     if (currentState is! ProfileLoaded) {
       final uid =
-          FirebaseAuth.instance.currentUser?.uid ??
-          sl<CacheHelper>().getData(key: CacheKeys.userId) as String?;
+          sl<GetCurrentUserIdUseCase>()() ??
+          sl<GetCurrentUserIdUseCase>()();
       if (uid != null) {
         context.read<ProfileCubit>().getProfile(uid);
       }
@@ -53,12 +55,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F8),
+      backgroundColor: AppColors.backgroundDashboard,
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           if (state is ProfileLoading) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF2B6CEE)),
+              child: CircularProgressIndicator(color: AppColors.primaryBlue),
             );
           } else if (state is ProfileError) {
             return Center(child: Text(state.message));
@@ -66,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
             return _buildProfileContent(context, state.profile);
           }
           return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF2B6CEE)),
+            child: CircularProgressIndicator(color: AppColors.primaryBlue),
           );
         },
       ),
@@ -78,8 +80,6 @@ class _ProfilePageState extends State<ProfilePage> {
       physics: const BouncingScrollPhysics(),
       child: Stack(
         children: [
-          // Background Noise Texture Placeholder (Subtle Overlay)
-          // Background noise texture removed as requested
           const SizedBox.shrink(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,28 +107,24 @@ class _ProfilePageState extends State<ProfilePage> {
     final joinedDate = DateFormat('MMM yyyy').format(profile.createdAt);
     return Stack(
       children: [
-        // Premium Gradient Background
         Container(
           height: 240,
           width: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFF2B6CEE),
-                Color(0xFF2B6CEE),
-                Color(0xFF2B6CEE),
-                Color(0xFF2B6CEE),
-                Color(0xFFF6F7F8),
+                AppColors.primaryBlue,
+                AppColors.primaryBlue,
+                AppColors.primaryBlue,
+                AppColors.primaryBlue,
+                AppColors.backgroundDashboard,
               ],
             ),
           ),
           child: Stack(
             children: [
-              // Abstract Pattern Overlay
-
-              // Fade to background
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -140,8 +136,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        const Color(0xFFF6F6F8),
-                        const Color(0xFFF6F6F8).withValues(alpha: 0),
+                        AppColors.bgLight,
+                        AppColors.bgLight.withValues(alpha: 0),
                       ],
                     ),
                   ),
@@ -150,7 +146,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
-        // Toolbar
         SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -167,25 +162,23 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
-        // Profile Info
         Container(
           width: double.infinity,
           margin: const EdgeInsets.only(top: 130),
           child: Column(
             children: [
-              // Avatar with Glow and Edit
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF6F7F8),
+                      color: AppColors.backgroundDashboard,
                       shape: BoxShape.circle,
                     ),
                     child: CircleAvatar(
                       radius: 54,
-                      backgroundColor: const Color(0xFFF6F7F8),
+                      backgroundColor: AppColors.backgroundDashboard,
                       backgroundImage:
                           profile.photoUrl != null &&
                               profile.photoUrl!.isNotEmpty
@@ -196,9 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         base64Decode(profile.photoUrl!),
                                       ))
                                 as ImageProvider
-                          : const AssetImage(
-                              'assets/images/profile/profile_default_image.png',
-                            ),
+                          : const AssetImage(AppAssets.profileDefaultImage),
                     ),
                   ),
                   GestureDetector(
@@ -206,17 +197,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2B6CEE),
+                        color: AppColors.primaryBlue,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: const Color(0xFFF6F6F8),
+                          color: AppColors.bgLight,
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(
-                              0xFF2B6CEE,
-                            ).withValues(alpha: 0.3),
+                            color: AppColors.primaryBlue.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -224,7 +213,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       child: const Icon(
                         Icons.edit_rounded,
-                        color: Colors.white,
+                        color: AppColors.white,
                         size: 14,
                       ),
                     ),
@@ -234,11 +223,12 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 16),
               Text(
                 profile.fullName,
+                textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
-                  letterSpacing: -0.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.black,
+                  letterSpacing: 1,
                 ),
               ),
               const SizedBox(height: 4),
@@ -247,7 +237,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF64748B),
+                  color: AppColors.slate500,
                 ),
               ),
               const SizedBox(height: 12),
@@ -257,7 +247,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2B6CEE).withValues(alpha: 0.1),
+                  color: AppColors.primaryBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -266,7 +256,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const Icon(
                       Icons.calendar_today_rounded,
                       size: 12,
-                      color: Color(0xFF2B6CEE),
+                      color: AppColors.primaryBlue,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -274,7 +264,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF2B6CEE),
+                        color: AppColors.primaryBlue,
                       ),
                     ),
                   ],
@@ -303,7 +293,7 @@ class _ProfilePageState extends State<ProfilePage> {
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            icon: Icon(icon, color: Colors.white, size: 18),
+            icon: Icon(icon, color: AppColors.white, size: 18),
             onPressed: onPressed,
             padding: EdgeInsets.zero,
           ),
@@ -347,7 +337,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   Expanded(
                     child: _buildGlassStatCard(
                       pendingCount.toString(),
-                      'Pending',
+                      AppStrings.pendingLabel,
                     ),
                   ),
                 ],
@@ -363,12 +353,12 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.slate100),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E293B).withValues(alpha: 0.05),
+            color: AppColors.slate800.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -381,7 +371,7 @@ class _ProfilePageState extends State<ProfilePage> {
             style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF0F172A),
+              color: AppColors.slate900,
             ),
           ),
           const SizedBox(height: 2),
@@ -390,7 +380,7 @@ class _ProfilePageState extends State<ProfilePage> {
             style: GoogleFonts.inter(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF64748B),
+              color: AppColors.slate500,
               letterSpacing: 0.5,
             ),
           ),
@@ -403,11 +393,11 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF2B6CEE),
+        color: AppColors.primaryBlue,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2B6CEE).withValues(alpha: 0.2),
+            color: AppColors.primaryBlue.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -420,7 +410,7 @@ class _ProfilePageState extends State<ProfilePage> {
             style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: AppColors.white,
             ),
           ),
           const SizedBox(height: 2),
@@ -439,14 +429,14 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildTabSelector() {
-    final tabs = ['About', 'Activity', 'Teams'];
+    final tabs = [AppStrings.aboutTab, AppStrings.activitySection, 'Teams'];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         height: 46,
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: const Color(0xFFE2E8F0),
+          color: AppColors.slate200,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -460,7 +450,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : Colors.transparent,
+                    color: isSelected ? AppColors.white : AppColors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: isSelected
                         ? [
@@ -479,8 +469,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: isSelected
-                            ? const Color(0xFF0F172A)
-                            : const Color(0xFF64748B),
+                            ? AppColors.slate900
+                            : AppColors.slate500,
                       ),
                     ),
                   ),
@@ -499,8 +489,8 @@ class _ProfilePageState extends State<ProfilePage> {
         height: 100,
         child: Center(
           child: Text(
-            'Coming Soon',
-            style: TextStyle(color: Color(0xFF64748B)),
+            AppStrings.comingSoon,
+            style: TextStyle(color: AppColors.slate500),
           ),
         ),
       );
@@ -511,19 +501,19 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Biography'),
+          _buildSectionHeader(AppStrings.biographySection),
           const SizedBox(height: 12),
           Text(
-            profile.bio.isEmpty ? 'No biography added yet.' : profile.bio,
+            profile.bio.isEmpty ? AppStrings.noBiographyAdded : profile.bio,
             style: GoogleFonts.inter(
               fontSize: 14,
               height: 1.6,
-              color: const Color(0xFF475569),
+              color: AppColors.slate600,
               fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader('Skills'),
+          _buildSectionHeader(AppStrings.skillsSection),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -544,7 +534,7 @@ class _ProfilePageState extends State<ProfilePage> {
       style: GoogleFonts.inter(
         fontSize: 11,
         fontWeight: FontWeight.w800,
-        color: const Color(0xFF0F172A),
+        color: AppColors.slate900,
         letterSpacing: 1.2,
       ),
     );
@@ -554,16 +544,16 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.slate100),
       ),
       child: Text(
         label,
         style: GoogleFonts.inter(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: const Color(0xFF475569),
+          color: AppColors.slate600,
         ),
       ),
     );
@@ -577,23 +567,27 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFF2B6CEE).withValues(alpha: 0.05),
+          color: AppColors.primaryBlue.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: const Color(0xFF2B6CEE).withValues(alpha: 0.2),
+            color: AppColors.primaryBlue.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.add_rounded, size: 14, color: Color(0xFF2B6CEE)),
+            const Icon(
+              Icons.add_rounded,
+              size: 14,
+              color: AppColors.primaryBlue,
+            ),
             const SizedBox(width: 4),
             Text(
-              'Add new',
+              AppStrings.addNew,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF2B6CEE),
+                color: AppColors.primaryBlue,
               ),
             ),
           ],
@@ -608,34 +602,16 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Preferences'),
+          _buildSectionHeader(AppStrings.preferencesSection),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.slate100),
             ),
             child: Column(
               children: [
-                _buildPreferenceTile(
-                  icon: Icons.dark_mode_rounded,
-                  color: Colors.indigo,
-                  title: 'Dark Mode',
-                  trailing: Switch(
-                    value: false,
-                    onChanged: (v) {},
-                    activeThumbColor: const Color(0xFF2B6CEE),
-                    activeTrackColor: const Color(
-                      0xFF2B6CEE,
-                    ).withValues(alpha: 0.2),
-                    inactiveThumbColor: const Color(0xFF2B6CEE),
-                    inactiveTrackColor: const Color(
-                      0xFF2B6CEE,
-                    ).withValues(alpha: 0.2),
-                  ),
-                ),
-                const Divider(height: 1, indent: 50, color: Color(0xFFF1F5F9)),
                 _buildPreferenceTile(
                   icon: Icons.notifications_rounded,
                   color: Colors.pink,
@@ -643,17 +619,17 @@ class _ProfilePageState extends State<ProfilePage> {
                   trailing: Switch(
                     value: true,
                     onChanged: (v) {},
-                    activeThumbColor: const Color(0xFF2B6CEE),
+                    activeThumbColor: AppColors.primaryBlue,
                   ),
                 ),
-                const Divider(height: 1, indent: 50, color: Color(0xFFF1F5F9)),
+                const Divider(height: 1, indent: 50, color: AppColors.slate100),
                 _buildPreferenceTile(
                   icon: Icons.lock_rounded,
-                  color: Colors.green,
+                  color: AppColors.success,
                   title: 'Privacy & Security',
                   trailing: const Icon(
                     Icons.chevron_right_rounded,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.slate400,
                   ),
                 ),
               ],
@@ -688,7 +664,7 @@ class _ProfilePageState extends State<ProfilePage> {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF0F172A),
+              color: AppColors.slate900,
             ),
           ),
           const Spacer(),
@@ -707,7 +683,7 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.red.withValues(alpha: 0.05),
+            color: AppColors.error.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(

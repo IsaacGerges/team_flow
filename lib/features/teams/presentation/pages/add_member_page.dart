@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/features/profile/domain/entities/profile_entity.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
+import 'package:team_flow/features/teams/presentation/cubit/add_member_cubit.dart';
+import 'package:team_flow/features/teams/presentation/cubit/add_member_state.dart';
+import 'package:team_flow/injection_container.dart';
 
+/// Page for adding new members to a team.
+///
+/// Displays a list of suggested coworkers by default and allows
+/// for a global search of all users in the system.
 class AddMemberPage extends StatefulWidget {
   final TeamEntity team;
 
@@ -20,25 +29,6 @@ class AddMemberPage extends StatefulWidget {
 class _AddMemberPageState extends State<AddMemberPage> {
   final _searchController = TextEditingController();
   final Set<String> _selectedIds = {};
-  String _searchQuery = '';
-  List<ProfileEntity> _allUsers = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchUsers();
-  }
-
-  Future<void> _fetchUsers() async {
-    final users = await context.read<TeamsCubit>().getAllUsers();
-    if (mounted) {
-      setState(() {
-        _allUsers = users;
-        _isLoading = false;
-      });
-    }
-  }
 
   @override
   void dispose() {
@@ -48,171 +38,200 @@ class _AddMemberPageState extends State<AddMemberPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF1E293B),
-            size: 18,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Add Members',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontWeight: FontWeight.w900,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: BlocListener<TeamsCubit, TeamsState>(
-        listener: (context, state) {
-          if (state is TeamMemberAddedSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Members added successfully'),
-                backgroundColor: AppColors.success,
-                behavior: SnackBarBehavior.floating,
+    return BlocProvider<AddMemberCubit>(
+      create: (context) =>
+          sl<AddMemberCubit>()
+            ..init(sl<GetCurrentUserIdUseCase>()() ?? '', widget.team),
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            backgroundColor: AppColors.white,
+            appBar: AppBar(
+              backgroundColor: AppColors.white,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.slate800,
+                  size: 18,
+                ),
+                onPressed: () => context.pop(),
               ),
-            );
-            context.pop();
-          } else if (state is TeamsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-                behavior: SnackBarBehavior.floating,
+              title: const Text(
+                AppStrings.addMembersTitle,
+                style: TextStyle(
+                  color: AppColors.slate800,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
               ),
-            );
-          }
+              centerTitle: true,
+            ),
+            body: BlocListener<TeamsCubit, TeamsState>(
+              listener: (context, state) {
+                if (state is TeamMemberAddedSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(AppStrings.memberAdded),
+                      backgroundColor: AppColors.success,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  context.pop();
+                } else if (state is TeamsError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              },
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                    child: _buildSearchBar(context),
+                  ),
+                  Expanded(child: _buildResultsList()),
+                  if (_selectedIds.isNotEmpty) _buildBottomBar(context),
+                ],
+              ),
+            ),
+          );
         },
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: _buildSearchBar(),
-            ),
-            Expanded(
-              child: _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF2563EB),
-                      ),
-                    )
-                  : _buildResultsList(),
-            ),
-            if (_selectedIds.isNotEmpty) _buildBottomBar(),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildSearchBar() {
+  /// Builds the search bar that triggers the Cubit's search logic.
+  Widget _buildSearchBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.slate50,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.slate200),
       ),
       child: TextField(
         controller: _searchController,
-        onChanged: (val) => setState(() => _searchQuery = val),
+        onChanged: (val) => context.read<AddMemberCubit>().search(val),
         style: const TextStyle(
           fontWeight: FontWeight.w600,
-          color: Color(0xFF1E293B),
+          color: AppColors.slate800,
         ),
         decoration: const InputDecoration(
-          hintText: 'Search by name or email...',
+          hintText: AppStrings.searchByEmailOrName,
           hintStyle: TextStyle(
-            color: Color(0xFF94A3B8),
+            color: AppColors.slate400,
             fontWeight: FontWeight.w500,
           ),
           prefixIcon: Icon(
             Icons.search_rounded,
-            color: Color(0xFF94A3B8),
+            color: AppColors.slate400,
             size: 20,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 14),
+          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         ),
       ),
     );
   }
 
+  /// Builds the list of users provided by the [AddMemberCubit].
   Widget _buildResultsList() {
-    final filteredUsers = _allUsers.where((user) {
-      if (widget.team.membersIds.contains(user.uid)) return false;
-      if (_searchQuery.isEmpty) return true;
-      final q = _searchQuery.toLowerCase();
-      return user.fullName.toLowerCase().contains(q) ||
-          user.email.toLowerCase().contains(q);
-    }).toList();
+    return BlocBuilder<AddMemberCubit, AddMemberState>(
+      builder: (context, state) {
+        if (state is AddMemberLoading || state is AddMemberInitial) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primaryBlue),
+          );
+        }
 
-    if (filteredUsers.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.person_search_rounded,
-                size: 48,
-                color: Color(0xFF94A3B8),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'No members found',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF1E293B),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      itemCount: filteredUsers.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return const Padding(
-            padding: EdgeInsets.only(bottom: 16, top: 8),
+        if (state is AddMemberError) {
+          return Center(
             child: Text(
-              'SUGGESTED PEOPLE',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF64748B),
-                letterSpacing: 0.5,
-              ),
+              state.message,
+              style: const TextStyle(color: AppColors.error),
             ),
           );
         }
-        final user = filteredUsers[index - 1];
-        final isSelected = _selectedIds.contains(user.uid);
-        return _buildMemberTile(user, isSelected);
+
+        if (state is AddMemberLoaded) {
+          final filteredUsers = state.filteredUsers;
+          final isShowingCoworkers = state.isShowingCoworkers;
+
+          if (filteredUsers.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: const BoxDecoration(
+                      color: AppColors.slate50,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person_search_rounded,
+                      size: 48,
+                      color: AppColors.slate400,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    AppStrings.noMembersFound,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.slate800,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            itemCount: isShowingCoworkers
+                ? filteredUsers.length + 1
+                : filteredUsers.length,
+            itemBuilder: (context, index) {
+              if (isShowingCoworkers) {
+                if (index == 0) {
+                  return const Padding(
+                    padding: EdgeInsets.only(bottom: 16, top: 8),
+                    child: Text(
+                      AppStrings.suggestedPeople,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.slate500,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  );
+                }
+                final user = filteredUsers[index - 1];
+                final isSelected = _selectedIds.contains(user.uid);
+                return _buildMemberTile(user, isSelected);
+              } else {
+                final user = filteredUsers[index];
+                final isSelected = _selectedIds.contains(user.uid);
+                return _buildMemberTile(user, isSelected);
+              }
+            },
+          );
+        }
+
+        return const SizedBox.shrink();
       },
     );
   }
 
+  /// Builds a single user tile with selection capability.
   Widget _buildMemberTile(ProfileEntity user, bool isSelected) {
     final hasPhoto = user.photoUrl != null && user.photoUrl!.isNotEmpty;
     return GestureDetector(
@@ -221,18 +240,16 @@ class _AddMemberPageState extends State<AddMemberPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+          color: isSelected ? AppColors.blueBg : AppColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF2563EB)
-                : const Color(0xFFE2E8F0),
+            color: isSelected ? AppColors.primaryBlue : AppColors.slate200,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                    color: AppColors.primaryBlue.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -246,12 +263,12 @@ class _AddMemberPageState extends State<AddMemberPage> {
               backgroundImage: hasPhoto
                   ? ImageHelper.getProvider(user.photoUrl)
                   : null,
-              backgroundColor: const Color(0xFFF1F5F9),
+              backgroundColor: AppColors.slate100,
               child: !hasPhoto
                   ? Text(
                       user.fullName[0].toUpperCase(),
                       style: const TextStyle(
-                        color: Color(0xFF2563EB),
+                        color: AppColors.primaryBlue,
                         fontWeight: FontWeight.w900,
                       ),
                     )
@@ -267,7 +284,7 @@ class _AddMemberPageState extends State<AddMemberPage> {
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 16,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.slate800,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -275,7 +292,7 @@ class _AddMemberPageState extends State<AddMemberPage> {
                     user.email,
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF64748B),
+                      color: AppColors.slate500,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -287,18 +304,16 @@ class _AddMemberPageState extends State<AddMemberPage> {
               height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected ? const Color(0xFF2563EB) : Colors.white,
+                color: isSelected ? AppColors.primaryBlue : AppColors.white,
                 border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF2563EB)
-                      : const Color(0xFFCBD5E1),
+                  color: isSelected ? AppColors.primaryBlue : AppColors.slate300,
                   width: 2,
                 ),
               ),
               child: isSelected
                   ? const Icon(
                       Icons.check_rounded,
-                      color: Colors.white,
+                      color: AppColors.white,
                       size: 16,
                     )
                   : null,
@@ -309,12 +324,13 @@ class _AddMemberPageState extends State<AddMemberPage> {
     );
   }
 
-  Widget _buildBottomBar() {
+  /// Builds the bottom bar containing the selection summary and the "Add" button.
+  Widget _buildBottomBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: const Color(0xFFE2E8F0))),
+        color: AppColors.white,
+        border: Border(top: BorderSide(color: AppColors.slate200)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -330,18 +346,18 @@ class _AddMemberPageState extends State<AddMemberPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${_selectedIds.length} members selected',
+                '${_selectedIds.length} ${AppStrings.selected.toLowerCase()}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF475569),
+                  color: AppColors.slate600,
                 ),
               ),
               GestureDetector(
                 onTap: () => setState(() => _selectedIds.clear()),
                 child: const Text(
-                  'Clear all',
+                  AppStrings.clearAll,
                   style: TextStyle(
-                    color: Color(0xFFEF4444),
+                    color: AppColors.error,
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
                   ),
@@ -358,17 +374,17 @@ class _AddMemberPageState extends State<AddMemberPage> {
                 _selectedIds.toList(),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: AppColors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 8,
-                shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                shadowColor: AppColors.primaryBlue.withValues(alpha: 0.3),
               ),
               child: Text(
-                'Add to "${widget.team.name}"',
+                '${AppStrings.addMembersButton} "${widget.team.name}"',
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 16,
@@ -383,10 +399,11 @@ class _AddMemberPageState extends State<AddMemberPage> {
 
   void _toggleMember(String userId) {
     setState(() {
-      if (_selectedIds.contains(userId))
+      if (_selectedIds.contains(userId)) {
         _selectedIds.remove(userId);
-      else
+      } else {
         _selectedIds.add(userId);
+      }
     });
   }
 }

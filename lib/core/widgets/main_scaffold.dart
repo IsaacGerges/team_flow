@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/core/constants/app_strings.dart';
 
+/// Root scaffold that hosts the bottom navigation bar.
 class MainScaffoldWithNavBar extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -10,14 +12,14 @@ class MainScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: navigationShell,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1E293B).withValues(alpha: 0.08),
+              color: AppColors.slate800.withValues(alpha: 0.08),
               blurRadius: 30,
               offset: const Offset(0, -10),
             ),
@@ -54,7 +56,6 @@ class MainScaffoldWithNavBar extends StatelessWidget {
               label: AppStrings.profileNav,
               isActive: navigationShell.currentIndex == 3,
               onTap: () => _onTap(3),
-              hasBadge: true,
             ),
           ],
         ),
@@ -76,7 +77,6 @@ class _NavBarItem extends StatelessWidget {
   final String label;
   final bool isActive;
   final VoidCallback onTap;
-  final bool hasBadge;
 
   const _NavBarItem({
     required this.iconOutlined,
@@ -84,14 +84,10 @@ class _NavBarItem extends StatelessWidget {
     required this.label,
     required this.isActive,
     required this.onTap,
-    this.hasBadge = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = const Color(0xFF2563EB);
-    final inactiveColor = const Color(0xFF94A3B8);
-
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -103,33 +99,14 @@ class _NavBarItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: isActive
-                  ? activeColor.withValues(alpha: 0.08)
-                  : Colors.transparent,
+                  ? AppColors.primaryBlue.withValues(alpha: 0.08)
+                  : AppColors.transparent,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  isActive ? iconFilled : iconOutlined,
-                  color: isActive ? activeColor : inactiveColor,
-                  size: 24,
-                ),
-                // if (hasBadge)
-                //   Positioned(
-                //     top: -2,
-                //     right: -2,
-                //     child: Container(
-                //       width: 10,
-                //       height: 10,
-                //       decoration: BoxDecoration(
-                //         color: const Color(0xFFEF4444),
-                //         shape: BoxShape.circle,
-                //         border: Border.all(color: Colors.white, width: 2),
-                //       ),
-                //     ),
-                //   ),
-              ],
+            child: Icon(
+              isActive ? iconFilled : iconOutlined,
+              color: isActive ? AppColors.primaryBlue : AppColors.slate400,
+              size: 24,
             ),
           ),
           const SizedBox(height: 6),
@@ -138,7 +115,7 @@ class _NavBarItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
-              color: isActive ? activeColor : inactiveColor,
+              color: isActive ? AppColors.primaryBlue : AppColors.slate400,
               letterSpacing: 0.5,
             ),
           ),

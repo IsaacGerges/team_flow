@@ -1,20 +1,32 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/injection_container.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../teams/domain/entities/team_entity.dart';
 import '../../../teams/presentation/cubit/team_cubit.dart';
 import '../../../teams/presentation/cubit/team_state.dart';
 import '../../domain/entities/task_entity.dart';
-import '../cubit/task_cubit.dart';
-import '../cubit/task_state.dart';
-import '../widgets/assignee_chip_row.dart';
-import '../widgets/priority_selector.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/tasks/presentation/create_task_page_args.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/assignee_chip_row.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/priority_selector.dart';
 
+/// A form page for creating a new task or editing/publishing an existing draft.
+///
+/// Behaviour depends on [args]:
+/// - `args == null` or `args.draftTask == null` → new-task mode.
+/// - `args.draftTask != null` → edit-draft mode: fields are pre-filled and
+///   the primary button becomes "Publish Task".
+/// - `args.presetTeam != null` → pre-selects a team (used from Team Details).
 class CreateTaskPage extends StatefulWidget {
-  const CreateTaskPage({super.key});
+  final CreateTaskPageArgs? args;
+
+  const CreateTaskPage({super.key, this.args});
 
   @override
   State<CreateTaskPage> createState() => _CreateTaskPageState();
@@ -30,16 +42,45 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   DateTime? _dueDate;
   bool _isRecurring = false;
 
+  bool get _isEditingDraft => widget.args?.draftTask != null;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final teamsState = context.read<TeamsCubit>().state;
       if (teamsState is! TeamsLoaded) {
-        final userId = FirebaseAuth.instance.currentUser!.uid;
+        final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
         context.read<TeamsCubit>().getTeams(userId);
       }
+      _prefillFromArgs();
     });
+  }
+
+  /// Pre-fills all form fields from a draft or pre-selects a team.
+  void _prefillFromArgs() {
+    final draft = widget.args?.draftTask;
+    if (draft != null) {
+      _titleController.text = draft.title;
+      _descriptionController.text = draft.description;
+      _assigneeIds = List<String>.from(draft.assigneeIds);
+      _priority = draft.priority;
+      _startDate = draft.startDate;
+      _dueDate = draft.dueDate;
+      _isRecurring = draft.isRecurring;
+
+      final teamsState = context.read<TeamsCubit>().state;
+      if (teamsState is TeamsLoaded) {
+        _selectedTeam = teamsState.teams.where((t) => t.id == draft.teamId).firstOrNull;
+      }
+      setState(() {});
+      return;
+    }
+
+    final presetTeam = widget.args?.presetTeam;
+    if (presetTeam != null) {
+      setState(() => _selectedTeam = presetTeam);
+    }
   }
 
   @override
@@ -51,6 +92,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUserId = sl<GetCurrentUserIdUseCase>()();
+
     return BlocListener<TasksCubit, TasksState>(
       listener: (context, state) {
         if (state is TasksError) {
@@ -64,41 +107,31 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.white,
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: TextButton(
             onPressed: () => context.pop(),
             child: const Text(
-              'Cancel',
+              AppStrings.cancel,
               style: TextStyle(
-                color: Color(0xFF64748B),
+                color: AppColors.slate500,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
           leadingWidth: 80,
-          title: const Text(
-            'New Task',
-            style: TextStyle(
-              color: Color(0xFF1E293B),
+          title: Text(
+            _isEditingDraft ? AppStrings.editDraft : AppStrings.newTask,
+            style: const TextStyle(
+              color: AppColors.slate800,
               fontWeight: FontWeight.w900,
               fontSize: 18,
             ),
           ),
           centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.more_horiz_rounded,
-                color: Color(0xFF2563EB),
-              ),
-              onPressed: () {},
-            ),
-            const SizedBox(width: 8),
-          ],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -110,19 +143,22 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate800,
                   letterSpacing: -1,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Task Title',
+                  hintText: AppStrings.taskTitle,
                   enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 2),
+                    borderSide: BorderSide(color: AppColors.slate200, width: 2),
                   ),
                   focusedBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF2563EB), width: 2),
+                    borderSide: BorderSide(
+                      color: AppColors.primaryBlue,
+                      width: 2,
+                    ),
                   ),
                   hintStyle: const TextStyle(
-                    color: Color(0xFFCBD5E1),
+                    color: AppColors.slate300,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -131,7 +167,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: AppColors.slate50,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
@@ -140,33 +176,48 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.slate800,
                   ),
                   decoration: const InputDecoration(
-                    hintText: 'Add a description...',
+                    hintText: AppStrings.addDescription,
                     border: InputBorder.none,
                     hintStyle: TextStyle(
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.slate400,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('PROJECT / TEAM'),
+              _buildSectionTitle(AppStrings.projectTeamLabel),
               BlocBuilder<TeamsCubit, TeamsState>(
                 builder: (context, state) {
-                  List<TeamEntity> teams = state is TeamsLoaded
+                  final teams = state is TeamsLoaded
                       ? state.teams
-                      : [];
+                      : <TeamEntity>[];
+                  final adminTeams = _filterAdminTeams(teams, currentUserId);
+
+                  if (_selectedTeam != null &&
+                      adminTeams.every(
+                        (team) => team.id != _selectedTeam!.id,
+                      )) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        setState(() => _selectedTeam = null);
+                      }
+                    });
+                  }
+
                   return GestureDetector(
-                    onTap: () => _showTeamPicker(teams),
+                    onTap: adminTeams.isEmpty
+                        ? null
+                        : () => _showTeamPicker(adminTeams),
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: AppColors.slate200),
                       ),
                       child: Row(
                         children: [
@@ -174,14 +225,14 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                             width: 36,
                             height: 36,
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF2563EB,
-                              ).withValues(alpha: 0.1),
+                              color: AppColors.primaryBlue.withValues(
+                                alpha: 0.1,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Icon(
                               Icons.folder_open_rounded,
-                              color: Color(0xFF2563EB),
+                              color: AppColors.primaryBlue,
                               size: 20,
                             ),
                           ),
@@ -191,13 +242,16 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _selectedTeam?.name ?? 'Select Project...',
+                                  _selectedTeam?.name ??
+                                      (adminTeams.isEmpty
+                                          ? AppStrings.noAdminTeamAvailable
+                                          : AppStrings.selectProject),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 15,
                                     color: _selectedTeam != null
-                                        ? const Color(0xFF1E293B)
-                                        : const Color(0xFF94A3B8),
+                                        ? AppColors.slate800
+                                        : AppColors.slate400,
                                   ),
                                 ),
                                 if (_selectedTeam != null)
@@ -205,7 +259,16 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                                     _selectedTeam!.category,
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: Color(0xFF64748B),
+                                      color: AppColors.slate500,
+                                    ),
+                                  ),
+                                if (_selectedTeam == null &&
+                                    adminTeams.isEmpty)
+                                  const Text(
+                                    'Only team admins can create tasks.',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.slate500,
                                     ),
                                   ),
                               ],
@@ -213,7 +276,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                           ),
                           const Icon(
                             Icons.expand_more,
-                            color: Color(0xFF94A3B8),
+                            color: AppColors.slate400,
                           ),
                         ],
                       ),
@@ -222,14 +285,14 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 },
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('ASSIGN TO'),
+              _buildSectionTitle(AppStrings.assignToLabel),
               AssigneeChipRow(
                 assigneeIds: _assigneeIds,
                 onAddTap: _openAssignmentPage,
                 onRemoveTag: (uid) => setState(() => _assigneeIds.remove(uid)),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('PRIORITY'),
+              _buildSectionTitle(AppStrings.priorityLabel),
               PrioritySelector(
                 selectedPriority: _priority,
                 onPriorityChanged: (p) => setState(() => _priority = p),
@@ -238,27 +301,27 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: AppColors.slate50,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
                   children: [
                     _buildDateRow(
-                      'Start Date',
+                      AppStrings.startDate,
                       _startDate,
                       Icons.calendar_today_rounded,
-                      const Color(0xFF3B82F6),
+                      AppColors.primaryBlue,
                       () => _pickDate(true),
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Divider(color: Color(0xFFE2E8F0)),
+                      child: Divider(color: AppColors.slate200),
                     ),
                     _buildDateRow(
                       'Due Date',
                       _dueDate,
                       Icons.calendar_month_rounded,
-                      const Color(0xFFEF4444),
+                      AppColors.red500,
                       () => _pickDate(false),
                     ),
                   ],
@@ -269,20 +332,20 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Recurring Task',
+                    AppStrings.recurringTask,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.slate800,
                     ),
                   ),
                   Switch(
                     value: _isRecurring,
                     onChanged: (val) => setState(() => _isRecurring = val),
-                    activeThumbColor: const Color(0xFF2563EB),
-                    activeTrackColor: const Color(
-                      0xFF2563EB,
-                    ).withValues(alpha: 0.5),
+                    activeThumbColor: AppColors.primaryBlue,
+                    activeTrackColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.5,
+                    ),
                   ),
                 ],
               ),
@@ -291,18 +354,22 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () => _createTask(isDraft: true),
+                      onPressed: _isEditingDraft
+                          ? _saveDraftChanges
+                          : () => _createOrSaveDraft(isDraft: true),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
+                          side: const BorderSide(color: AppColors.slate200),
                         ),
                       ),
-                      child: const Text(
-                        'Save Draft',
-                        style: TextStyle(
-                          color: Color(0xFF1E293B),
+                      child: Text(
+                        _isEditingDraft
+                            ? AppStrings.saveDraftChanges
+                            : AppStrings.saveDraft,
+                        style: const TextStyle(
+                          color: AppColors.slate800,
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
                         ),
@@ -312,27 +379,31 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => _createTask(isDraft: false),
+                      onPressed: _isEditingDraft
+                          ? _publishDraft
+                          : () => _createOrSaveDraft(isDraft: false),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2563EB),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.primaryBlue,
+                        foregroundColor: AppColors.white,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                         elevation: 8,
-                        shadowColor: const Color(
-                          0xFF2563EB,
-                        ).withValues(alpha: 0.3),
+                        shadowColor: AppColors.primaryBlue.withValues(
+                          alpha: 0.3,
+                        ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check, size: 20),
-                          SizedBox(width: 8),
+                          const Icon(Icons.check, size: 20),
+                          const SizedBox(width: 8),
                           Text(
-                            'Create Task',
-                            style: TextStyle(
+                            _isEditingDraft
+                                ? AppStrings.publishTask
+                                : AppStrings.createTask,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 16,
                             ),
@@ -351,6 +422,15 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     );
   }
 
+  // ----------------------------------------------------------
+  // Helpers
+  // ----------------------------------------------------------
+
+  List<TeamEntity> _filterAdminTeams(List<TeamEntity> teams, String? userId) {
+    if (userId == null) return const [];
+    return teams.where((team) => team.adminId == userId).toList();
+  }
+
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -359,7 +439,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
         style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w900,
-          color: Color(0xFF64748B),
+          color: AppColors.slate500,
           letterSpacing: 0.5,
         ),
       ),
@@ -389,7 +469,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
               fontWeight: FontWeight.w600,
               fontSize: 15,
             ),
@@ -398,11 +478,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           Text(
             date != null
                 ? DateFormat('MMM dd, hh:mm a').format(date)
-                : 'Set date',
+                : AppStrings.setDate,
             style: TextStyle(
-              color: date != null
-                  ? const Color(0xFF1E293B)
-                  : const Color(0xFF94A3B8),
+              color: date != null ? AppColors.slate800 : AppColors.slate400,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -415,10 +493,10 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (ctx) => Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -429,18 +507,18 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE2E8F0),
+                color: AppColors.slate200,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const Padding(
               padding: EdgeInsets.all(20),
               child: Text(
-                'Select Team',
+                AppStrings.selectTeam,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate800,
                 ),
               ),
             ),
@@ -450,12 +528,12 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                    color: AppColors.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.folder_open_rounded,
-                    color: Color(0xFF2563EB),
+                    color: AppColors.primaryBlue,
                     size: 20,
                   ),
                 ),
@@ -465,7 +543,10 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 ),
                 subtitle: Text(team.category),
                 trailing: _selectedTeam?.id == team.id
-                    ? const Icon(Icons.check_circle, color: Color(0xFF2563EB))
+                    ? const Icon(
+                        Icons.check_circle,
+                        color: AppColors.primaryBlue,
+                      )
                     : null,
                 onTap: () {
                   setState(() => _selectedTeam = team);
@@ -510,7 +591,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   void _openAssignmentPage() async {
     if (_selectedTeam == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a team first')),
+        const SnackBar(content: Text(AppStrings.pleaseSelectTeamFirst)),
       );
       return;
     }
@@ -523,27 +604,44 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     }
   }
 
-  void _createTask({required bool isDraft}) async {
-    if (_titleController.text.isEmpty) {
+  /// Validates title + team (required for both draft and publish).
+  bool _validate() {
+    if (_titleController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter a title')));
-      return;
+      ).showSnackBar(const SnackBar(content: Text(AppStrings.pleaseEnterTitle)));
+      return false;
     }
     if (_selectedTeam == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a team')));
-      return;
+      ).showSnackBar(const SnackBar(content: Text(AppStrings.pleaseSelectTeam)));
+      return false;
     }
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
+    if (_selectedTeam!.adminId != userId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Only the team admin can create tasks for this team'),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  TaskEntity _buildTaskEntity({
+    required String userId,
+    required bool isDraft,
+    String id = '',
+    DateTime? createdAt,
+  }) {
     final finalAssignees = List<String>.from(_assigneeIds);
     if (!finalAssignees.contains(userId)) finalAssignees.add(userId);
-
-    final task = TaskEntity(
-      id: '',
-      title: _titleController.text,
-      description: _descriptionController.text,
+    return TaskEntity(
+      id: id,
+      title: _titleController.text.trim(),
+      description: _descriptionController.text.trim(),
       teamId: _selectedTeam!.id,
       teamName: _selectedTeam!.name,
       assigneeIds: finalAssignees,
@@ -554,17 +652,77 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
       dueDate: _dueDate,
       isRecurring: _isRecurring,
       isDraft: isDraft,
-      createdAt: DateTime.now(),
+      createdAt: createdAt ?? DateTime.now(),
       updatedAt: DateTime.now(),
     );
+  }
+
+  /// Used in new-task mode: creates a brand-new doc (draft or published).
+  void _createOrSaveDraft({required bool isDraft}) async {
+    if (!_validate()) return;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
+    final task = _buildTaskEntity(userId: userId, isDraft: isDraft);
     final taskId = await context.read<TasksCubit>().createTask(task);
     if (taskId != null && mounted) {
       context.pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isDraft ? 'Task saved as draft' : 'Task created successfully',
+            isDraft
+                ? AppStrings.taskSavedAsDraft
+                : AppStrings.taskCreatedSuccess,
           ),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
+  /// Edit-draft mode: silently updates the existing draft doc.
+  void _saveDraftChanges() async {
+    if (!_validate()) return;
+    final draft = widget.args!.draftTask!;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
+    final updatedDraft = _buildTaskEntity(
+      userId: userId,
+      isDraft: true,
+      id: draft.id,
+      createdAt: draft.createdAt,
+    );
+    final success = await context
+        .read<TasksCubit>()
+        .updateTask(draft.id, updatedDraft);
+    if (success && mounted) {
+      context.pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(AppStrings.draftChangesSaved),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
+  /// Edit-draft mode: publishes the draft (isDraft → false) and fires
+  /// notifications.
+  void _publishDraft() async {
+    if (!_validate()) return;
+    final draft = widget.args!.draftTask!;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
+    final publishedTask = _buildTaskEntity(
+      userId: userId,
+      isDraft: false,
+      id: draft.id,
+      createdAt: draft.createdAt,
+    );
+    final success = await context
+        .read<TasksCubit>()
+        .publishDraft(draft.id, publishedTask);
+    if (success && mounted) {
+      context.pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(AppStrings.taskPublished),
           backgroundColor: AppColors.success,
         ),
       );

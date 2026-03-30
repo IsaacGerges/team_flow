@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_assets.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
 
-/// A redesigned social sign-in button matching the Stitch mockup.
+/// Social sign-in button (e.g. Google).
 class SocialLoginButton extends StatelessWidget {
   final String label;
   final String iconPath;
@@ -18,12 +19,12 @@ class SocialLoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 56, // Fixed height to match form inputs
+      height: 56,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
-          side: const BorderSide(color: Color(0xFFE2E8F0)), // slate-200
+          backgroundColor: AppColors.white,
+          side: const BorderSide(color: AppColors.slate200),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -33,9 +34,11 @@ class SocialLoginButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/images/login/google.png',
+              iconPath == AppAssets.googleIcon
+                  ? AppAssets.loginGoogleImage
+                  : iconPath,
               height: 20,
-              errorBuilder: (_, __, ___) =>
+              errorBuilder: (context, error, stack) =>
                   const Icon(Icons.g_mobiledata, size: 24),
             ),
             const SizedBox(width: 12),

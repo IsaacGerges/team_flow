@@ -21,22 +21,21 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         .where('userId', isEqualTo: userId)
         .snapshots()
         .map((snapshot) {
-      final notifications = snapshot.docs
-          .map((doc) => NotificationModel.fromSnapshot(doc))
-          .toList();
-      // Sort locally to avoid needing a Firestore composite index
-      notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      return notifications;
-    });
+          final notifications = snapshot.docs
+              .map((doc) => NotificationModel.fromSnapshot(doc))
+              .toList();
+          // Sort locally to avoid needing a Firestore composite index
+          notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return notifications;
+        });
   }
 
   @override
   Future<void> markAsRead(String notificationId) async {
     try {
-      await firestore
-          .collection('notifications')
-          .doc(notificationId)
-          .update({'isRead': true});
+      await firestore.collection('notifications').doc(notificationId).update({
+        'isRead': true,
+      });
     } catch (e) {
       throw ServerException(message: 'Failed to mark notification as read');
     }
@@ -58,7 +57,9 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
 
       await batch.commit();
     } catch (e) {
-      throw ServerException(message: 'Failed to mark all notifications as read');
+      throw ServerException(
+        message: 'Failed to mark all notifications as read',
+      );
     }
   }
 

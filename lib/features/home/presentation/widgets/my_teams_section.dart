@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
 import 'package:team_flow/features/home/presentation/widgets/home_team_card.dart';
@@ -9,6 +11,7 @@ import 'package:team_flow/core/helpers/progress_helper.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
 
+/// Horizontal scrolling list of the user's teams on the dashboard.
 class MyTeamsSection extends StatelessWidget {
   const MyTeamsSection({super.key});
 
@@ -23,20 +26,20 @@ class MyTeamsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'My Teams',
+                AppStrings.myTeams,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate800,
                   letterSpacing: -0.5,
                 ),
               ),
               GestureDetector(
                 onTap: () => context.go('/teams'),
                 child: const Text(
-                  'See all',
+                  AppStrings.seeAllSmall,
                   style: TextStyle(
-                    color: Color(0xFF2563EB),
+                    color: AppColors.primaryBlue,
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
                   ),
@@ -53,16 +56,20 @@ class MyTeamsSection extends StatelessWidget {
             builder: (context, state) {
               if (state is TeamsLoading) {
                 return const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+                  child: CircularProgressIndicator(color: AppColors.primaryBlue),
                 );
               }
               if (state is TeamsLoaded) {
-                if (state.teams.isEmpty) return _buildEmptyState();
+                if (state.teams.isEmpty) {
+                  return _buildEmptyState();
+                }
 
                 return BlocBuilder<TasksCubit, TasksState>(
                   builder: (context, tasksState) {
                     List<TaskEntity> allTasks = [];
-                    if (tasksState is TasksLoaded) allTasks = tasksState.tasks;
+                    if (tasksState is TasksLoaded) {
+                      allTasks = tasksState.tasks;
+                    }
 
                     return ListView.builder(
                       scrollDirection: Axis.horizontal,
@@ -76,7 +83,9 @@ class MyTeamsSection extends StatelessWidget {
                         final activeCount = teamTasks
                             .where((t) => t.status != TaskStatus.done)
                             .length;
-                        final progress = ProgressHelper.calculateTasksProgress(teamTasks);
+                        final progress = ProgressHelper.calculateTasksProgress(
+                          teamTasks,
+                        );
 
                         return HomeTeamCard(
                           team: team,
@@ -103,19 +112,19 @@ class MyTeamsSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.slate50,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.slate200),
       ),
       child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.group_rounded, color: Color(0xFF94A3B8), size: 32),
+          Icon(Icons.group_rounded, color: AppColors.slate400, size: 32),
           SizedBox(height: 12),
           Text(
-            'No teams joined',
+            AppStrings.noTeamsJoined,
             style: TextStyle(
-              color: Color(0xFF64748B),
+              color: AppColors.slate500,
               fontWeight: FontWeight.w700,
             ),
           ),

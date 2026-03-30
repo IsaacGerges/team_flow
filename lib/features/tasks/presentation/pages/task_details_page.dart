@@ -1,18 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/injection_container.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/helpers/image_helper.dart';
-import '../../../profile/presentation/cubit/profile_cubit.dart';
-import '../../../profile/presentation/cubit/profile_state.dart';
-import '../../domain/entities/task_entity.dart';
-import '../cubit/task_cubit.dart';
-import '../cubit/task_state.dart';
-import '../widgets/task_status_badge.dart';
-import '../../../../injection_container.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
+import 'package:team_flow/core/helpers/image_helper.dart';
+import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:team_flow/features/profile/presentation/cubit/profile_state.dart';
+import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/task_status_badge.dart';
 
 class TaskDetailsPage extends StatefulWidget {
   final TaskEntity task;
@@ -28,7 +29,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   bool _isDirty = false;
   bool _isSaving = false;
 
-  String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? '';
+  String get _currentUserId => sl<GetCurrentUserIdUseCase>()() ?? '';
   bool get _isAdmin => _currentUserId == _currentTask.creatorId;
 
   @override
@@ -58,7 +59,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF6F6F8),
+        backgroundColor: AppColors.bgLight,
         appBar: _buildAppBar(),
         body: Column(
           children: [
@@ -95,13 +96,13 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white.withValues(alpha: 0.8),
+      backgroundColor: AppColors.white.withValues(alpha: 0.8),
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(
           Icons.arrow_back_ios_new_rounded,
-          color: Color(0xFF64748B),
+          color: AppColors.slate500,
           size: 20,
         ),
         onPressed: () => context.pop(),
@@ -123,7 +124,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Color(0xFF2563EB),
+                        color: AppColors.primaryBlue,
                       ),
                     ),
                   ),
@@ -131,9 +132,9 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               : TextButton(
                   onPressed: _saveChanges,
                   child: const Text(
-                    'Save',
+                    AppStrings.save,
                     style: TextStyle(
-                      color: Color(0xFF2563EB),
+                      color: AppColors.primaryBlue,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -142,7 +143,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
           IconButton(
             icon: const Icon(
               Icons.more_horiz_rounded,
-              color: Color(0xFF64748B),
+              color: AppColors.slate500,
             ),
             onPressed: _showOptionsMenu,
           ),
@@ -183,7 +184,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
           style: const TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1E293B),
+            color: AppColors.slate800,
             letterSpacing: -0.5,
           ),
         ),
@@ -193,14 +194,14 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFFEEF2F9),
+                color: AppColors.slate100,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
                   const Icon(
                     Icons.groups_rounded,
-                    color: Color(0xFF64748B),
+                    color: AppColors.slate500,
                     size: 14,
                   ),
                   const SizedBox(width: 6),
@@ -208,7 +209,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     _currentTask.teamName,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      color: Color(0xFF64748B),
+                      color: AppColors.slate500,
                       fontWeight: FontWeight.w500,
                       fontSize: 12,
                     ),
@@ -220,7 +221,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             Text(
               'Created ${DateFormat('MMM dd, yyyy').format(_currentTask.createdAt)}',
               style: const TextStyle(
-                color: Color(0xFF94A3B8),
+                color: AppColors.slate400,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),
@@ -236,12 +237,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.slate100),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E293B).withValues(alpha: 0.03),
+            color: AppColors.slate800.withValues(alpha: 0.03),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -256,18 +257,18 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Task Progress',
+                      AppStrings.taskProgress,
                       style: TextStyle(
-                        color: Color(0xFF1E293B),
+                        color: AppColors.slate800,
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
                       ),
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'On track for delivery',
+                      AppStrings.onTrackForDelivery,
                       style: TextStyle(
-                        color: Color(0xFF64748B),
+                        color: AppColors.slate500,
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                       ),
@@ -284,16 +285,16 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     child: CircularProgressIndicator(
                       value: progress,
                       strokeWidth: 5,
-                      backgroundColor: const Color(0xFFEEF2F9),
+                      backgroundColor: AppColors.slate100,
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFF2563EB),
+                        AppColors.primaryBlue,
                       ),
                     ),
                   ),
                   Text(
                     '${(progress * 100).toInt()}%',
                     style: const TextStyle(
-                      color: Color(0xFF2563EB),
+                      color: AppColors.primaryBlue,
                       fontWeight: FontWeight.w700,
                       fontSize: 12,
                     ),
@@ -337,15 +338,15 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                       height: 24,
                       decoration: BoxDecoration(
                         color: isCompleted
-                            ? const Color(0xFF3B82F6)
+                            ? AppColors.primaryBlue
                             : isCurrent
-                            ? const Color(0xFFEFF6FF)
-                            : const Color(0xFFF1F5F9),
+                            ? AppColors.blueBg
+                            : AppColors.slate100,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isActive
-                              ? const Color(0xFF3B82F6)
-                              : const Color(0xFFCBD5E1),
+                              ? AppColors.primaryBlue
+                              : AppColors.slate300,
                           width: 2,
                         ),
                       ),
@@ -353,7 +354,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                           ? const Icon(
                               Icons.check_rounded,
                               size: 12,
-                              color: Colors.white,
+                              color: AppColors.white,
                             )
                           : isCurrent
                           ? Center(
@@ -362,7 +363,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                                 height: 8,
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Color(0xFF3B82F6),
+                                  color: AppColors.primaryBlue,
                                 ),
                               ),
                             )
@@ -375,9 +376,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                      color: isActive
-                          ? const Color(0xFF3B82F6)
-                          : const Color(0xFF94A3B8),
+                      color: isActive ? AppColors.primaryBlue : AppColors.slate400,
                     ),
                   ),
                 ],
@@ -389,8 +388,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: index < currentIdx
-                          ? const Color(0xFF3B82F6)
-                          : const Color(0xFFE2E8F0),
+                          ? AppColors.primaryBlue
+                          : AppColors.slate200,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -407,11 +406,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'DESCRIPTION',
+          AppStrings.description,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF64748B),
+            color: AppColors.slate500,
             letterSpacing: 0.5,
           ),
         ),
@@ -420,18 +419,18 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
+            border: Border.all(color: AppColors.slate100),
           ),
           child: Text(
             _currentTask.description.isEmpty
-                ? 'No description provided.'
+                ? AppStrings.noDescriptionProvided
                 : _currentTask.description,
             style: const TextStyle(
               fontSize: 14,
               height: 1.6,
-              color: Color(0xFF475569),
+              color: AppColors.slate600,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -445,7 +444,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       children: [
         Expanded(
           child: _buildInfoCard(
-            'Assignee',
+            AppStrings.assignee,
             _currentTask.assigneeIds.isNotEmpty
                 ? _currentTask.assigneeIds.first
                 : null,
@@ -461,13 +460,13 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.slate100),
       ),
       child: Row(
         children: [
-          if (label == 'Assignee')
+          if (label == AppStrings.assignee)
             _buildAssigneeContent(value as String?)
           else
             _buildDateContent(value as DateTime?),
@@ -482,11 +481,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.slate400,
                   ),
                 ),
                 const SizedBox(height: 2),
-                if (label == 'Assignee')
+                if (label == AppStrings.assignee)
                   _buildAssigneeName(value as String?)
                 else
                   _buildDateText(value as DateTime?),
@@ -504,12 +503,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
         width: 36,
         height: 36,
         decoration: const BoxDecoration(
-          color: Color(0xFFF1F5F9),
+          color: AppColors.slate100,
           shape: BoxShape.circle,
         ),
         child: const Icon(
           Icons.person_outline,
-          color: Color(0xFF94A3B8),
+          color: AppColors.slate400,
           size: 18,
         ),
       );
@@ -534,9 +533,9 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     width: 10,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF22C55E),
+                      color: AppColors.onlineStatus,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: AppColors.white, width: 2),
                     ),
                   ),
                 ),
@@ -547,7 +546,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             width: 36,
             height: 36,
             decoration: const BoxDecoration(
-              color: Color(0xFFF1F5F9),
+              color: AppColors.slate100,
               shape: BoxShape.circle,
             ),
             child: const CircularProgressIndicator(strokeWidth: 2),
@@ -560,11 +559,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   Widget _buildAssigneeName(String? uid) {
     if (uid == null) {
       return const Text(
-        'Not assigned',
+        AppStrings.notAssigned,
         style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 13,
-          color: Color(0xFF1E293B),
+          color: AppColors.slate800,
         ),
       );
     }
@@ -576,7 +575,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 13,
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
             ),
             overflow: TextOverflow.ellipsis,
           );
@@ -591,13 +590,13 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: AppColors.blueBg,
         borderRadius: BorderRadius.circular(10),
       ),
       child: const Icon(
         Icons.calendar_month_rounded,
         size: 18,
-        color: Color(0xFF2563EB),
+        color: AppColors.primaryBlue,
       ),
     );
   }
@@ -605,11 +604,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   Widget _buildDateText(DateTime? date) {
     if (date == null) {
       return const Text(
-        'Not set',
+        AppStrings.notSet,
         style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 13,
-          color: Color(0xFF1E293B),
+          color: AppColors.slate800,
         ),
       );
     }
@@ -618,7 +617,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       style: const TextStyle(
         fontWeight: FontWeight.w600,
         fontSize: 13,
-        color: Color(0xFF1E293B),
+        color: AppColors.slate800,
       ),
     );
   }
@@ -628,26 +627,26 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text(
-          'ACTIVITY',
+          AppStrings.activitySection,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF64748B),
+            color: AppColors.slate500,
             letterSpacing: 0.5,
           ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: AppColors.blueBg,
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Text(
-            'New',
+            AppStrings.activityBadgeNew,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF2563EB),
+              color: AppColors.primaryBlue,
             ),
           ),
         ),
@@ -673,10 +672,10 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             padding: const EdgeInsets.all(32),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.slate50,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: const Color(0xFFE2E8F0),
+                color: AppColors.slate200,
                 style: BorderStyle.solid,
               ),
             ),
@@ -684,14 +683,14 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               children: [
                 Icon(
                   Icons.chat_bubble_outline_rounded,
-                  color: Color(0xFFCBD5E1),
+                  color: AppColors.slate300,
                   size: 40,
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'No comments yet.',
+                  AppStrings.noCommentsYet,
                   style: TextStyle(
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.slate400,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -717,11 +716,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: const Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+        color: AppColors.white,
+        border: const Border(top: BorderSide(color: AppColors.slate200)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: AppColors.black.withValues(alpha: 0.03),
             blurRadius: 40,
             offset: const Offset(0, -10),
           ),
@@ -733,7 +732,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEEF2F9),
+                  color: AppColors.slate100,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: TextField(
@@ -743,11 +742,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     fontWeight: FontWeight.w400,
                   ),
                   decoration: const InputDecoration(
-                    hintText: 'Add a comment...',
+                    hintText: AppStrings.addComment,
                     border: InputBorder.none,
                     hintStyle: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.slate400,
                     ),
                   ),
                 ),
@@ -759,11 +758,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB),
+                  color: AppColors.primaryBlue,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -771,7 +770,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                 ),
                 child: const Icon(
                   Icons.send_rounded,
-                  color: Colors.white,
+                  color: AppColors.white,
                   size: 18,
                 ),
               ),
@@ -786,12 +785,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     if (!_isAdmin) return;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (ctx) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: AppColors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
           ),
           child: Column(
@@ -801,17 +800,17 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0),
+                  color: AppColors.slate200,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 24),
               const Text(
-                'Update Status',
+                AppStrings.updateStatus,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate800,
                 ),
               ),
               const SizedBox(height: 16),
@@ -827,14 +826,14 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                           ? FontWeight.w800
                           : FontWeight.w600,
                       color: isSelected
-                          ? const Color(0xFF2563EB)
-                          : const Color(0xFF64748B),
+                          ? AppColors.primaryBlue
+                          : AppColors.slate500,
                     ),
                   ),
                   trailing: isSelected
                       ? const Icon(
                           Icons.check_circle_rounded,
-                          color: Color(0xFF2563EB),
+                          color: AppColors.primaryBlue,
                         )
                       : null,
                   onTap: () {
@@ -872,7 +871,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Changes saved successfully'),
+          content: Text(AppStrings.changesSaved),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -902,12 +901,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     if (!_isAdmin) return;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (ctx) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: AppColors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
           ),
           child: Column(
@@ -917,7 +916,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0),
+                  color: AppColors.slate200,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -925,10 +924,10 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               ListTile(
                 leading: const Icon(
                   Icons.edit_outlined,
-                  color: Color(0xFF2563EB),
+                  color: AppColors.primaryBlue,
                 ),
                 title: const Text(
-                  'Edit Task',
+                  AppStrings.editTask,
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 onTap: () {
@@ -939,12 +938,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               ListTile(
                 leading: const Icon(
                   Icons.delete_outline_rounded,
-                  color: Color(0xFFEF4444),
+                  color: AppColors.red500,
                 ),
                 title: const Text(
-                  'Delete Task',
+                  AppStrings.deleteTask,
                   style: TextStyle(
-                    color: Color(0xFFEF4444),
+                    color: AppColors.red500,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -963,7 +962,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   void _editTask() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Edit task coming soon'),
+        content: Text(AppStrings.editTaskComingSoon),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -975,10 +974,10 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       builder: (dialogCtx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text(
-          'Delete Task',
+          AppStrings.deleteTask,
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
-        content: const Text('Are you sure? This action cannot be undone.'),
+        content: const Text(AppStrings.deleteTaskConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
@@ -990,8 +989,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               _deleteTask();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.red500,
+              foregroundColor: AppColors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -1011,7 +1010,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       context.pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Task deleted'),
+          content: Text(AppStrings.taskDeleted),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -1021,9 +1020,9 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
 
   (String, Color) _getPriorityData() {
     return switch (_currentTask.priority) {
-      TaskPriority.high => ('High Priority', const Color(0xFFEF4444)),
-      TaskPriority.medium => ('Medium Priority', const Color(0xFFF59E0B)),
-      TaskPriority.low => ('Low Priority', const Color(0xFF22C55E)),
+      TaskPriority.high => (AppStrings.highPriority, AppColors.red500),
+      TaskPriority.medium => (AppStrings.mediumPriority, AppColors.notificationAmber),
+      TaskPriority.low => (AppStrings.lowPriority, AppColors.onlineStatus),
     };
   }
 
@@ -1060,16 +1059,16 @@ class _CommentTile extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(12),
                   bottomLeft: Radius.circular(12),
                   bottomRight: Radius.circular(12),
                 ),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
+                border: Border.all(color: AppColors.slate100),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: AppColors.black.withValues(alpha: 0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -1087,7 +1086,7 @@ class _CommentTile extends StatelessWidget {
                           _formatTime(createdAt!),
                           style: const TextStyle(
                             fontSize: 10,
-                            color: Color(0xFF94A3B8),
+                            color: AppColors.slate400,
                           ),
                         ),
                     ],
@@ -1098,7 +1097,7 @@ class _CommentTile extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       height: 1.5,
-                      color: Color(0xFF475569),
+                      color: AppColors.slate600,
                     ),
                   ),
                 ],
@@ -1112,7 +1111,7 @@ class _CommentTile extends StatelessWidget {
 
   String _formatTime(DateTime dt) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 1) return AppStrings.justNow;
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     return DateFormat('MMM dd').format(dt);
@@ -1141,7 +1140,7 @@ class _AuthorAvatar extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: const BoxDecoration(
-              color: Color(0xFFF1F5F9),
+              color: AppColors.slate100,
               shape: BoxShape.circle,
             ),
           );
@@ -1165,7 +1164,7 @@ class _AuthorName extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 13,
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
             ),
           );
         }

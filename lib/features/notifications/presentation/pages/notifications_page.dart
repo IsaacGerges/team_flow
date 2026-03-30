@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/core/constants/app_strings.dart';
-import 'package:team_flow/core/helpers/cache_helper.dart';
 import 'package:team_flow/injection_container.dart';
-import '../cubit/notifications_cubit.dart';
-import '../cubit/notifications_state.dart';
-import '../widgets/notification_card.dart';
-import '../widgets/notification_filter_tabs.dart';
-import '../../domain/entities/notification_entity.dart';
+import 'package:team_flow/features/notifications/presentation/cubit/notifications_cubit.dart';
+import 'package:team_flow/features/notifications/presentation/cubit/notifications_state.dart';
+import 'package:team_flow/features/notifications/presentation/widgets/notification_card.dart';
+import 'package:team_flow/features/notifications/presentation/widgets/notification_filter_tabs.dart';
+import 'package:team_flow/features/notifications/domain/entities/notification_entity.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -22,7 +22,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    final userId = sl<CacheHelper>().getData(key: CacheKeys.userId);
+    final userId = sl<GetCurrentUserIdUseCase>()();
     if (userId != null) {
       context.read<NotificationsCubit>().loadNotifications(userId);
     }
@@ -45,7 +45,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
                 return NotificationFilterTabs(
                   activeFilter: activeFilter,
-                  hasUnread: state is NotificationsLoaded &&
+                  hasUnread:
+                      state is NotificationsLoaded &&
                       state.notifications.any((n) => !n.isRead),
                   onFilterChanged: (filter) {
                     context.read<NotificationsCubit>().setFilter(filter);
@@ -53,7 +54,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 );
               },
             ),
-            const Divider(height: 1, color: Color(0xFFF1F5F9)),
+            const Divider(height: 1, color: AppColors.slate100),
             Expanded(
               child: BlocBuilder<NotificationsCubit, NotificationsState>(
                 builder: (context, state) {
@@ -105,13 +106,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
             style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
               letterSpacing: -0.5,
             ),
           ),
           BlocBuilder<NotificationsCubit, NotificationsState>(
             builder: (context, state) {
-              final hasUnread = state is NotificationsLoaded &&
+              final hasUnread =
+                  state is NotificationsLoaded &&
                   state.notifications.any((n) => !n.isRead);
 
               if (!hasUnread) {
@@ -120,19 +122,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
               return IconButton(
                 onPressed: () {
-                  final userId =
-                      sl<CacheHelper>().getData(key: CacheKeys.userId);
+                  final userId = sl<GetCurrentUserIdUseCase>()();
                   if (userId != null) {
                     context.read<NotificationsCubit>().markAllAsRead(userId);
                   }
                 },
                 icon: const Icon(
                   Icons.done_all_rounded,
-                  color: AppColors.primaryBluePure,
+                  color: AppColors.primaryBlue,
                 ),
                 tooltip: AppStrings.markAllAsRead,
                 style: IconButton.styleFrom(
-                  hoverColor: Colors.blue.withValues(alpha: 0.05),
+                  hoverColor: AppColors.primaryBlue.withValues(alpha: 0.05),
                 ),
               );
             },
@@ -182,7 +183,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF64748B),
+                color: AppColors.slate500,
                 letterSpacing: 1.2,
               ),
             ),
@@ -231,7 +232,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         }
       } else {
         if (!addedOlderHeader) {
-          items.add('Older');
+          items.add(AppStrings.older);
           addedOlderHeader = true;
         }
       }
@@ -248,11 +249,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1E293B).withValues(alpha: 0.05),
+                  color: AppColors.slate800.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -261,7 +262,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             child: const Icon(
               Icons.notifications_off_outlined,
               size: 48,
-              color: Color(0xFFCBD5E1),
+              color: AppColors.slate300,
             ),
           ),
           const SizedBox(height: 24),
@@ -270,13 +271,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
             ),
           ),
           const SizedBox(height: 8),
           const Text(
             AppStrings.noNotificationsHint,
-            style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+            style: TextStyle(fontSize: 14, color: AppColors.slate500),
           ),
         ],
       ),

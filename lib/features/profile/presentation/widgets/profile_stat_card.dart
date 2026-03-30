@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
 
 class ProfileStatCard extends StatelessWidget {
   final String count;
@@ -18,18 +19,18 @@ class ProfileStatCard extends StatelessWidget {
       width: 105,
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: isPrimary ? const Color(0xFF2563EB) : Colors.white,
+        color: isPrimary ? AppColors.primaryBlue : AppColors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color:
-                (isPrimary ? const Color(0xFF2563EB) : const Color(0xFF1E293B))
+                (isPrimary ? AppColors.primaryBlue : AppColors.slate800)
                     .withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
-        border: isPrimary ? null : Border.all(color: const Color(0xFFE2E8F0)),
+        border: isPrimary ? null : Border.all(color: AppColors.slate200),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -39,7 +40,7 @@ class ProfileStatCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w900,
-              color: isPrimary ? Colors.white : const Color(0xFF1E293B),
+              color: isPrimary ? AppColors.white : AppColors.slate800,
               letterSpacing: -1,
             ),
           ),
@@ -51,7 +52,7 @@ class ProfileStatCard extends StatelessWidget {
               fontWeight: FontWeight.w900,
               color: isPrimary
                   ? Colors.white.withValues(alpha: 0.8)
-                  : const Color(0xFF64748B),
+                  : AppColors.slate500,
               letterSpacing: 0.5,
             ),
           ),

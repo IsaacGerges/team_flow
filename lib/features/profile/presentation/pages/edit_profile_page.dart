@@ -9,6 +9,7 @@ import 'package:team_flow/features/profile/presentation/cubit/profile_state.dart
 import 'package:team_flow/features/profile/presentation/widgets/edit_profile_text_field.dart';
 import 'package:team_flow/features/profile/presentation/widgets/skill_chip.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:team_flow/core/constants/app_assets.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -107,15 +108,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.white,
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
               size: 18,
             ),
             onPressed: () => context.pop(),
@@ -123,7 +124,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           title: const Text(
             'Edit Profile',
             style: TextStyle(
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
               fontWeight: FontWeight.w900,
               fontSize: 18,
             ),
@@ -190,7 +191,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 hint: 'e.g. New York, USA',
                 suffixIcon: const Icon(
                   Icons.location_on_rounded,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.slate400,
                   size: 20,
                 ),
               ),
@@ -252,18 +253,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 height: 128,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF1F5F9), width: 8),
+                  border: Border.all(color: AppColors.slate100, width: 8),
                 ),
               ),
               CircleAvatar(
                 radius: 54,
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.white,
                 child: CircleAvatar(
                   radius: 51,
                   backgroundImage:
                       ImageHelper.getProvider(displayPhoto) ??
                       const AssetImage(
-                        'assets/images/profile/profile_default_image.png',
+                        AppAssets.profileDefaultImage,
                       ),
                 ),
               ),
@@ -275,12 +276,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2563EB),
+                      color: AppColors.primaryBlue,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
+                      border: Border.all(color: AppColors.white, width: 3),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF2563EB).withValues(alpha: 0.2),
+                          color: AppColors.primaryBlue.withValues(alpha: 0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -288,7 +289,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     child: const Icon(
                       Icons.camera_alt_rounded,
-                      color: Colors.white,
+                      color: AppColors.white,
                       size: 16,
                     ),
                   ),
@@ -306,7 +307,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   child: const Text(
                     'Remove Photo',
                     style: TextStyle(
-                      color: Color(0xFFEF4444),
+                      color: AppColors.red500,
                       fontWeight: FontWeight.w800,
                       fontSize: 13,
                     ),
@@ -325,11 +326,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       children: [
         const SizedBox(height: 24),
         const Text(
-          'SKILLS',
+          AppStrings.skillsSection,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF64748B),
+            color: AppColors.slate500,
             letterSpacing: 0.5,
           ),
         ),
@@ -388,8 +389,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               context.pop();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.primaryBlue,
+              foregroundColor: AppColors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -404,9 +405,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget _buildPrivacyToggles() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.slate50,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.slate200),
       ),
       child: Column(
         children: [
@@ -416,24 +417,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1E293B),
+                color: AppColors.slate800,
               ),
             ),
             subtitle: const Text(
               'Allow others to see your status',
               style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF64748B),
+                color: AppColors.slate500,
                 fontWeight: FontWeight.w500,
               ),
             ),
             value: _isVisibleToTeam,
-            activeColor: const Color(0xFF2563EB),
+            activeTrackColor: AppColors.primaryBlue,
             onChanged: (v) => setState(() => _isVisibleToTeam = v),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+            child: Divider(height: 1, color: AppColors.slate200),
           ),
           SwitchListTile(
             title: const Text(
@@ -441,19 +442,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1E293B),
+                color: AppColors.slate800,
               ),
             ),
             subtitle: const Text(
               'Show phone/email to members',
               style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF64748B),
+                color: AppColors.slate500,
                 fontWeight: FontWeight.w500,
               ),
             ),
             value: _shareContactInfo,
-            activeColor: const Color(0xFF2563EB),
+            activeTrackColor: AppColors.primaryBlue,
             onChanged: (v) => setState(() => _shareContactInfo = v),
           ),
         ],
@@ -467,14 +468,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       child: ElevatedButton(
         onPressed: _saveChanges,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2563EB),
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.primaryBlue,
+          foregroundColor: AppColors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           elevation: 8,
-          shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.3),
+          shadowColor: AppColors.primaryBlue.withValues(alpha: 0.3),
         ),
         child: const Text(
           'Save Changes',

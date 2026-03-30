@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_state.dart';
 import 'package:team_flow/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:team_flow/features/notifications/presentation/cubit/notifications_state.dart';
 
+/// Greeting header showing avatar, greeting text, and notification bell.
 class GreetingHeader extends StatelessWidget {
   const GreetingHeader({super.key});
 
@@ -26,11 +29,11 @@ class GreetingHeader extends StatelessWidget {
               children: [
                 _buildGreetingText(),
                 const Text(
-                  "Let's check your updates",
+                  AppStrings.letsCheckUpdates,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF64748B),
+                    color: AppColors.slate500,
                   ),
                 ),
               ],
@@ -54,7 +57,7 @@ class GreetingHeader extends StatelessWidget {
           height: 45,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+            border: Border.all(color: AppColors.slate200, width: 1),
             image: hasPhoto
                 ? DecorationImage(
                     image: ImageHelper.getProvider(state.profile.photoUrl!)!,
@@ -66,7 +69,7 @@ class GreetingHeader extends StatelessWidget {
               ? const Center(
                   child: Icon(
                     Icons.person_rounded,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.slate400,
                     size: 20,
                   ),
                 )
@@ -79,7 +82,7 @@ class GreetingHeader extends StatelessWidget {
   Widget _buildGreetingText() {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
-        String name = 'User';
+        String name = AppStrings.user;
         if (state is ProfileLoaded) {
           name = state.profile.fullName.split(' ').first;
         }
@@ -88,7 +91,7 @@ class GreetingHeader extends StatelessWidget {
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1E293B),
+            color: AppColors.slate800,
             height: 1.25,
           ),
         );
@@ -109,18 +112,18 @@ class GreetingHeader extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.transparent,
+                color: AppColors.transparent,
               ),
               child: Material(
-                color: Colors.transparent,
+                color: AppColors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
-                  highlightColor: const Color(0xFFE2E8F0),
-                  splashColor: const Color(0xFFCBD5E1),
+                  highlightColor: AppColors.slate200,
+                  splashColor: AppColors.slate300,
                   onTap: () => context.go('/notifications'),
                   child: const Icon(
                     Icons.notifications_none_rounded,
-                    color: Color(0xFF475569),
+                    color: AppColors.slate600,
                     size: 26,
                   ),
                 ),
@@ -134,10 +137,10 @@ class GreetingHeader extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEF4444),
+                    color: AppColors.red500,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: const Color(0xFFF6F7F8),
+                      color: AppColors.backgroundDashboard,
                       width: 2,
                     ),
                   ),
@@ -151,8 +154,8 @@ class GreetingHeader extends StatelessWidget {
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return AppStrings.goodMorning;
+    if (hour < 17) return AppStrings.goodAfternoon;
+    return AppStrings.goodEvening;
   }
 }

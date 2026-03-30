@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:team_flow/features/teams/data/datasources/team_remote_data_source.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
@@ -21,12 +22,12 @@ class TeamsRepositoryImpl implements TeamsRepository {
   Future<Either<Failure, String>> createTeam(TeamEntity team) async {
     try {
       final model = TeamModel(
-        id: '',
+        id: team.id,
         name: team.name,
         description: team.description,
         adminId: team.adminId,
         membersIds: [team.adminId],
-        photoUrl: team.photoUrl,
+        photoUrl: null,
         category: team.category,
         isPrivate: team.isPrivate,
         progressPercent: team.progressPercent,
@@ -89,6 +90,32 @@ class TeamsRepositoryImpl implements TeamsRepository {
   ) async {
     try {
       await remoteDataSource.removeMember(teamId, userId);
+      return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadTeamLogo(
+    String teamId,
+    Uint8List bytes,
+  ) async {
+    try {
+      final photoUrl = await remoteDataSource.uploadTeamLogo(teamId, bytes);
+      return Right(photoUrl);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> updateTeamPhoto(
+    String teamId,
+    String photoUrl,
+  ) async {
+    try {
+      await remoteDataSource.updateTeamPhoto(teamId, photoUrl);
       return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

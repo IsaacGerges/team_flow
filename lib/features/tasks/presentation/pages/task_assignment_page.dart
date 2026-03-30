@@ -1,7 +1,8 @@
+import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/helpers/image_helper.dart';
+import 'package:team_flow/core/helpers/image_helper.dart';
 import '../../../profile/presentation/cubit/profile_cubit.dart';
 import '../../../profile/presentation/cubit/profile_state.dart';
 import '../../../teams/presentation/cubit/team_cubit.dart';
@@ -48,19 +49,19 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
     return BlocProvider<TasksCubit>.value(
       value: _localTasksCubit,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.white,
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close_rounded, color: Color(0xFF1E293B)),
+            icon: const Icon(Icons.close_rounded, color: AppColors.slate800),
             onPressed: () => context.pop(),
           ),
           title: const Text(
             'Assign Task',
             style: TextStyle(
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
               fontWeight: FontWeight.w900,
               fontSize: 18,
             ),
@@ -74,7 +75,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
               builder: (context, teamState) {
                 if (teamState is TeamsLoading || taskState is TasksLoading) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+                    child: CircularProgressIndicator(color: AppColors.primaryBlue),
                   );
                 }
                 return _buildBody(taskState);
@@ -96,7 +97,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
         builder: (context, profileState) {
           if (profileState is ProfileLoading) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+              child: CircularProgressIndicator(color: AppColors.primaryBlue),
             );
           }
           if (profileState is ProfileLoadedAll) {
@@ -105,7 +106,9 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
                 : <TaskEntity>[];
             final teamsState = context.read<TeamsCubit>().state;
             final currentTeam = teamsState is TeamsLoaded
-                ? teamsState.teams.where((t) => t.id == widget.teamId).firstOrNull
+                ? teamsState.teams
+                      .where((t) => t.id == widget.teamId)
+                      .firstOrNull
                 : null;
             final memberIds = currentTeam?.membersIds ?? [];
             final adminId = currentTeam?.adminId;
@@ -114,8 +117,8 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
                 .where((u) => memberIds.contains(u.uid))
                 .where(
                   (u) => u.fullName.toLowerCase().contains(
-                        _searchQuery.toLowerCase(),
-                      ),
+                    _searchQuery.toLowerCase(),
+                  ),
                 )
                 .where((u) => u.uid != adminId)
                 .toList();
@@ -152,25 +155,25 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: AppColors.slate50,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.slate200),
         ),
         child: TextField(
           onChanged: (val) => setState(() => _searchQuery = val),
           style: const TextStyle(
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
+            color: AppColors.slate800,
           ),
           decoration: const InputDecoration(
             hintText: 'Search members...',
             hintStyle: TextStyle(
-              color: Color(0xFF94A3B8),
+              color: AppColors.slate400,
               fontWeight: FontWeight.w500,
             ),
             prefixIcon: Icon(
               Icons.search_rounded,
-              color: Color(0xFF94A3B8),
+              color: AppColors.slate400,
               size: 20,
             ),
             border: InputBorder.none,
@@ -191,7 +194,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF64748B),
+              color: AppColors.slate500,
               letterSpacing: 0.5,
             ),
           ),
@@ -200,17 +203,17 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
+                color: AppColors.blueBg,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.auto_awesome, color: Color(0xFF2563EB), size: 10),
+                  Icon(Icons.auto_awesome, color: AppColors.primaryBlue, size: 10),
                   SizedBox(width: 4),
                   Text(
                     'AI POWERED',
                     style: TextStyle(
-                      color: Color(0xFF2563EB),
+                      color: AppColors.primaryBlue,
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.5,
@@ -232,12 +235,13 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
   }) {
     final Map<String, int> loadMap = {};
     for (var task in tasks) {
-      if (task.status != TaskStatus.done) {
+      if (task.status != TaskStatus.done && !task.isDraft) {
         for (var uid in task.assigneeIds) {
           loadMap[uid] = (loadMap[uid] ?? 0) + 1;
         }
       }
     }
+
 
     final maxLoad = loadMap.values.isEmpty
         ? 1
@@ -265,18 +269,16 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+            color: isSelected ? AppColors.blueBg : AppColors.white,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: isSelected
-                  ? const Color(0xFF2563EB)
-                  : const Color(0xFFE2E8F0),
+              color: isSelected ? AppColors.primaryBlue : AppColors.slate200,
               width: isSelected ? 2 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.1),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -287,7 +289,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
             children: [
               CircleAvatar(
                 radius: 26,
-                backgroundColor: const Color(0xFFF1F5F9),
+                backgroundColor: AppColors.slate100,
                 backgroundImage: hasPhoto
                     ? ImageHelper.getProvider(user.photoUrl)
                     : null,
@@ -295,7 +297,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
                     ? Text(
                         user.fullName[0].toUpperCase(),
                         style: const TextStyle(
-                          color: Color(0xFF2563EB),
+                          color: AppColors.primaryBlue,
                           fontWeight: FontWeight.w900,
                         ),
                       )
@@ -311,7 +313,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
                       style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 16,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.slate800,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -321,7 +323,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
                           '$load active task${load == 1 ? '' : 's'}',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF64748B),
+                            color: AppColors.slate500,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -333,7 +335,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
                               value: load == 0
                                   ? 0.0
                                   : (load / maxLoadClamped).clamp(0.05, 1.0),
-                              backgroundColor: const Color(0xFFF1F5F9),
+                              backgroundColor: AppColors.slate100,
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 _getLoadColor(load),
                               ),
@@ -362,32 +364,32 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+          color: isSelected ? AppColors.primaryBlue : AppColors.slate300,
           width: 2,
         ),
-        color: isSelected ? const Color(0xFF2563EB) : Colors.white,
+        color: isSelected ? AppColors.primaryBlue : AppColors.white,
       ),
       child: isSelected
-          ? const Icon(Icons.check, size: 16, color: Colors.white)
+          ? const Icon(Icons.check, size: 16, color: AppColors.white)
           : null,
     );
   }
 
   Color _getLoadColor(int load) {
-    if (load <= 2) return const Color(0xFF10B981);
-    if (load <= 5) return const Color(0xFFF59E0B);
-    return const Color(0xFFEF4444);
+    if (load <= 2) return AppColors.success;
+    if (load <= 5) return AppColors.notificationAmber;
+    return AppColors.red500;
   }
 
   Widget _buildBottomPanel() {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: AppColors.black.withValues(alpha: 0.1),
             blurRadius: 40,
             offset: const Offset(0, -10),
           ),
@@ -400,7 +402,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
             children: [
               const Icon(
                 Icons.info_outline_rounded,
-                color: Color(0xFF2563EB),
+                color: AppColors.primaryBlue,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -408,7 +410,7 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
                 child: Text(
                   'Confirming will notify ${_selectedUserIds.length} member${_selectedUserIds.length == 1 ? '' : 's'} immediately.',
                   style: const TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.slate500,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -422,14 +424,14 @@ class _TaskAssignmentPageState extends State<TaskAssignmentPage> {
             child: ElevatedButton(
               onPressed: () => context.pop(_selectedUserIds.toList()),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: AppColors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 8,
-                shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                shadowColor: AppColors.primaryBlue.withValues(alpha: 0.3),
               ),
               child: const Text(
                 'Confirm Assignment',

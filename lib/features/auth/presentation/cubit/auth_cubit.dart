@@ -1,3 +1,4 @@
+import 'package:team_flow/core/helpers/cache_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/failures.dart';
@@ -6,7 +7,6 @@ import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import 'auth_state.dart';
-import '../../../../core/helpers/cache_helper.dart';
 
 /// Manages authentication state for the auth feature.
 class AuthCubit extends Cubit<AuthState> {

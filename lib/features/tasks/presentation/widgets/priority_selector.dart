@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import '../../domain/entities/task_entity.dart';
 
+/// A horizontal priority selector widget with colored dot indicators.
 class PrioritySelector extends StatelessWidget {
   final TaskPriority selectedPriority;
   final ValueChanged<TaskPriority> onPriorityChanged;
@@ -25,12 +28,10 @@ class PrioritySelector extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 6),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+                color: isSelected ? AppColors.blueBg : AppColors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF3B82F6)
-                      : const Color(0xFFE2E8F0),
+                  color: isSelected ? AppColors.primaryBlue : AppColors.slate200,
                   width: isSelected ? 2 : 1,
                 ),
               ),
@@ -50,8 +51,8 @@ class PrioritySelector extends StatelessWidget {
                     label,
                     style: TextStyle(
                       color: isSelected
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFF64748B),
+                          ? AppColors.slate800
+                          : AppColors.slate500,
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.w600,
@@ -69,9 +70,9 @@ class PrioritySelector extends StatelessWidget {
 
   (String, Color) _getPriorityData(TaskPriority priority) {
     return switch (priority) {
-      TaskPriority.high => ('High', const Color(0xFFEF4444)),
-      TaskPriority.medium => ('Medium', const Color(0xFFF59E0B)),
-      TaskPriority.low => ('Low', const Color(0xFF22C55E)),
+      TaskPriority.high => (AppStrings.high, AppColors.priorityHigh),
+      TaskPriority.medium => (AppStrings.medium, AppColors.priorityMedium),
+      TaskPriority.low => (AppStrings.low, AppColors.priorityLow),
     };
   }
 }

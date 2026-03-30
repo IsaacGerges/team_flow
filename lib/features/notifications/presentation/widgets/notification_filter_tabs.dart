@@ -34,22 +34,22 @@ class NotificationFilterTabs extends StatelessWidget {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.primaryBluePure : Colors.white,
+                  color: isActive ? AppColors.primaryBlue : AppColors.white,
                   borderRadius: BorderRadius.circular(99),
                   border: Border.all(
                     color: isActive
-                        ? AppColors.primaryBluePure
-                        : const Color(0xFFE2E8F0),
+                        ? AppColors.primaryBlue
+                        : AppColors.slate200,
                   ),
                   boxShadow: isActive
                       ? [
                           BoxShadow(
-                            color: AppColors.primaryBluePure.withValues(
+                            color: AppColors.primaryBlue.withValues(
                               alpha: 0.3,
                             ),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
-                          )
+                          ),
                         ]
                       : null,
                 ),
@@ -59,7 +59,9 @@ class NotificationFilterTabs extends StatelessWidget {
                     Text(
                       _getFilterName(filter),
                       style: TextStyle(
-                        color: isActive ? Colors.white : const Color(0xFF475569),
+                        color: isActive
+                            ? AppColors.white
+                            : AppColors.slate600,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -70,7 +72,7 @@ class NotificationFilterTabs extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: isActive ? Colors.white : AppColors.unreadDot,
+                          color: isActive ? AppColors.white : AppColors.unreadDot,
                           shape: BoxShape.circle,
                         ),
                       ),

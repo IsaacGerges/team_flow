@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:developer' as developer;
+import 'dart:typed_data';
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,6 +11,8 @@ import 'package:team_flow/features/teams/domain/usecases/add_member_usecase.dart
 import 'package:team_flow/features/teams/domain/usecases/create_team_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/delete_team_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/get_teams_usecase.dart';
+import 'package:team_flow/features/teams/domain/usecases/update_team_photo_usecase.dart';
+import 'package:team_flow/features/teams/domain/usecases/upload_team_logo_usecase.dart';
 import 'package:team_flow/features/teams/domain/usecases/update_team_usecase.dart';
 import 'package:team_flow/core/error/failures.dart';
 import 'package:team_flow/features/notifications/domain/entities/notification_entity.dart';
@@ -25,20 +28,25 @@ class TeamsCubit extends Cubit<TeamsState> {
   final CreateTeamUseCase createTeamUseCase;
   final GetTeamsUseCase getTeamsUseCase;
   final UpdateTeamUseCase updateTeamUseCase;
+  final UpdateTeamPhotoUseCase updateTeamPhotoUseCase;
   final DeleteTeamUseCase deleteTeamUseCase;
   final AddMemberUseCase addMemberUseCase;
+  final UploadTeamLogoUseCase uploadTeamLogoUseCase;
   final GetAllUsersUseCase getAllUsersUseCase;
   final CreateNotificationUseCase createNotificationUseCase;
 
   StreamSubscription<List<TeamEntity>>? _teamsSubscription;
   String? _currentUserId;
+  bool _isCreatingTeam = false;
 
   TeamsCubit({
     required this.createTeamUseCase,
     required this.getTeamsUseCase,
     required this.updateTeamUseCase,
+    required this.updateTeamPhotoUseCase,
     required this.deleteTeamUseCase,
     required this.addMemberUseCase,
+    required this.uploadTeamLogoUseCase,
     required this.getAllUsersUseCase,
     required this.createNotificationUseCase,
   }) : super(const TeamsInitial());
@@ -69,30 +77,35 @@ class TeamsCubit extends Cubit<TeamsState> {
   // Mutations
   // ----------------------------------------------------------
 
-  Future<void> createTeam(TeamEntity team) async {
-    emit(const TeamsLoading());
-    final result = await createTeamUseCase(team);
-    await result.fold(
-      (failure) async => emit(TeamsError(_mapFailureToMessage(failure))),
-      (teamId) async {
-        // Self-notification for the admin using the real teamId
-        await createNotificationUseCase(NotificationEntity(
-          id: '',
-          userId: team.adminId,
-          type: NotificationType.teamActivity,
-          title: 'Team Created',
-          body: 'You created team: ${team.name}',
-          targetId: teamId,
-          isRead: false,
-          createdAt: DateTime.now(),
-        ));
-        emit(const TeamCreatedSuccess());
-        _refreshTeams();
-      },
-    );
+  Future<void> createTeam(TeamEntity team, {Uint8List? logoBytes}) async {
+    if (_isCreatingTeam) return;
+    _isCreatingTeam = true;
+    emit(const TeamCreateSubmitting());
+    try {
+      final result = await createTeamUseCase(team);
+      result.fold(
+        (failure) async => emit(TeamsError(_mapFailureToMessage(failure))),
+        (teamId) async {
+          emit(const TeamCreatedSuccess());
+          unawaited(
+            _runPostCreateTasks(
+              teamId: teamId,
+              team: team,
+              logoBytes: logoBytes,
+            ),
+          );
+        },
+      );
+    } finally {
+      _isCreatingTeam = false;
+    }
   }
 
-  Future<void> updateTeam(String teamId, TeamEntity team) async {
+  Future<void> updateTeam(
+    String teamId,
+    TeamEntity team, {
+    Uint8List? logoBytes,
+  }) async {
     emit(const TeamsLoading());
     final result = await updateTeamUseCase(teamId, team);
     result.fold((failure) => emit(TeamsError(_mapFailureToMessage(failure))), (
@@ -100,6 +113,9 @@ class TeamsCubit extends Cubit<TeamsState> {
     ) {
       emit(const TeamUpdatedSuccess());
       _refreshTeams();
+      if (logoBytes != null) {
+        unawaited(_uploadAndPersistTeamLogo(teamId, logoBytes));
+      }
     });
   }
 
@@ -121,16 +137,18 @@ class TeamsCubit extends Cubit<TeamsState> {
     await result.fold(
       (failure) async => emit(TeamsError(_mapFailureToMessage(failure))),
       (_) async {
-        await createNotificationUseCase(NotificationEntity(
-          id: '',
-          userId: userId,
-          type: NotificationType.teamActivity,
-          title: 'New Team Membership',
-          body: 'You were added to a new team',
-          targetId: teamId,
-          isRead: false,
-          createdAt: DateTime.now(),
-        ));
+        await createNotificationUseCase(
+          NotificationEntity(
+            id: '',
+            userId: userId,
+            type: NotificationType.teamActivity,
+            title: 'New Team Membership',
+            body: 'You were added to a new team',
+            targetId: teamId,
+            isRead: false,
+            createdAt: DateTime.now(),
+          ),
+        );
         emit(const TeamMemberAddedSuccess());
         _refreshTeams();
       },
@@ -149,22 +167,24 @@ class TeamsCubit extends Cubit<TeamsState> {
       if (failed) return;
 
       // Notify the newly added member
-      await createNotificationUseCase(NotificationEntity(
-        id: '',
-        userId: uid,
-        type: NotificationType.teamActivity,
-        title: 'New Team Membership',
-        body: 'You were added to a new team',
-        targetId: teamId,
-        isRead: false,
-        createdAt: DateTime.now(),
-      ));
+      await createNotificationUseCase(
+        NotificationEntity(
+          id: '',
+          userId: uid,
+          type: NotificationType.teamActivity,
+          title: 'New Team Membership',
+          body: 'You were added to a new team',
+          targetId: teamId,
+          isRead: false,
+          createdAt: DateTime.now(),
+        ),
+      );
     }
     emit(const TeamMemberAddedSuccess());
     _refreshTeams();
   }
 
-  /// Picks a photo from gallery, compresses it, and emits as base64.
+  /// Picks a photo from gallery and emits the bytes for local preview/upload.
   Future<void> pickTeamLogo() async {
     final picker = ImagePicker();
     try {
@@ -178,8 +198,7 @@ class TeamsCubit extends Cubit<TeamsState> {
       if (pickedFile != null) {
         final File file = File(pickedFile.path);
         final bytes = await file.readAsBytes();
-        final base64String = base64Encode(bytes);
-        emit(TeamLogoPicked(base64String));
+        emit(TeamLogoPicked(bytes));
       }
     } catch (e) {
       emit(TeamsError('Failed to pick logo: ${e.toString()}'));
@@ -206,6 +225,62 @@ class TeamsCubit extends Cubit<TeamsState> {
       return 'Please check your internet connection';
     }
     return 'Unexpected error occurred';
+  }
+
+  Future<void> _runPostCreateTasks({
+    required String teamId,
+    required TeamEntity team,
+    Uint8List? logoBytes,
+  }) async {
+    await Future<void>.delayed(Duration.zero);
+    _refreshTeams();
+
+    unawaited(
+      createNotificationUseCase(
+        NotificationEntity(
+          id: '',
+          userId: team.adminId,
+          type: NotificationType.teamActivity,
+          title: 'Team Created',
+          body: 'You created team: ${team.name}',
+          targetId: teamId,
+          isRead: false,
+          createdAt: DateTime.now(),
+        ),
+      ).then((_) {}, onError: (Object error, StackTrace stackTrace) {
+        developer.log(
+          'Failed to create team notification',
+          name: 'TeamsCubit',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }),
+    );
+
+    if (logoBytes != null) {
+      await _uploadAndPersistTeamLogo(teamId, logoBytes);
+    }
+  }
+
+  Future<void> _uploadAndPersistTeamLogo(
+    String teamId,
+    Uint8List logoBytes,
+  ) async {
+    final uploadResult = await uploadTeamLogoUseCase(teamId, logoBytes);
+    await uploadResult.fold((failure) async {
+      developer.log(
+        'Failed to upload team logo: ${_mapFailureToMessage(failure)}',
+        name: 'TeamsCubit',
+      );
+    }, (photoUrl) async {
+      final updateResult = await updateTeamPhotoUseCase(teamId, photoUrl);
+      updateResult.fold((failure) {
+        developer.log(
+          'Failed to persist team logo URL: ${_mapFailureToMessage(failure)}',
+          name: 'TeamsCubit',
+        );
+      }, (_) {});
+    });
   }
 
   @override

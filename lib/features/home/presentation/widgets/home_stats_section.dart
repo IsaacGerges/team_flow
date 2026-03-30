@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
 import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
 
+/// Stats cards showing total, pending, and completed task counts.
 class HomeStatsSection extends StatefulWidget {
   const HomeStatsSection({super.key});
 
@@ -26,36 +29,40 @@ class _HomeStatsSectionState extends State<HomeStatsSection> {
 
           final tasks = _lastTasks ?? [];
           final total = tasks.length;
-          final pending = tasks.where((t) => t.status != TaskStatus.done).length;
-          final completed = tasks.where((t) => t.status == TaskStatus.done).length;
+          final pending = tasks
+              .where((t) => t.status != TaskStatus.done)
+              .length;
+          final completed = tasks
+              .where((t) => t.status == TaskStatus.done)
+              .length;
 
           return Row(
             children: [
               _buildStatCard(
-                label: 'Total Tasks',
+                label: AppStrings.totalTasks,
                 count: total.toString(),
-                textColor: const Color(0xFF2563EB), // text-primary / blue-600
-                labelColor: const Color(0xFF1E40AF), // text-blue-800
-                bgColor: const Color(0xFFEFF6FF), // bg-blue-50
-                borderColor: const Color(0xFFDBEAFE), // border-blue-100
+                textColor: AppColors.primaryBlue,
+                labelColor: AppColors.primaryBlueDark,
+                bgColor: AppColors.blueBg,
+                borderColor: AppColors.blueBorder,
               ),
               const SizedBox(width: 12),
               _buildStatCard(
-                label: 'Pending',
+                label: AppStrings.pending,
                 count: pending.toString(),
-                textColor: const Color(0xFFEA580C), // text-orange-600
-                labelColor: const Color(0xFF9A3412), // text-orange-800
-                bgColor: const Color(0xFFFFF7ED), // bg-orange-50
-                borderColor: const Color(0xFFFFEDD5), // border-orange-100
+                textColor: AppColors.orange600,
+                labelColor: AppColors.orange800,
+                bgColor: AppColors.orangeBg,
+                borderColor: AppColors.orangeBorder,
               ),
               const SizedBox(width: 12),
               _buildStatCard(
-                label: 'Completed',
+                label: AppStrings.completed,
                 count: completed.toString(),
-                textColor: const Color(0xFF15803D), // text-green-700
-                labelColor: const Color(0xFF166534), // text-green-800
-                bgColor: const Color(0xFFECFDF5), // bg-green-50
-                borderColor: const Color(0xFFD1FAE5), // border-green-100
+                textColor: AppColors.success,
+                labelColor: AppColors.success,
+                bgColor: AppColors.greenBg,
+                borderColor: AppColors.greenBorder,
               ),
             ],
           );
@@ -81,7 +88,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection> {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1E293B).withValues(alpha: 0.05), // Light drop shadow mocking Tailwind shadow-sm
+              color: AppColors.slate800.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),

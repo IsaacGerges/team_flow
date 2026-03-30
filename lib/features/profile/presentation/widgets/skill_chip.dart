@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
 
 class SkillChip extends StatelessWidget {
   final String label;
@@ -24,19 +25,19 @@ class SkillChip extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: AppColors.blueBg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFBFDBFE)),
+            border: Border.all(color: AppColors.blue200),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.add_rounded, color: Color(0xFF2563EB), size: 16),
+              Icon(Icons.add_rounded, color: AppColors.primaryBlue, size: 16),
               const SizedBox(width: 4),
               Text(
                 label,
-                style: const TextStyle(
-                  color: Color(0xFF2563EB),
+                style: TextStyle(
+                  color: AppColors.primaryBlue,
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
                 ),
@@ -50,9 +51,9 @@ class SkillChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.slate100,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.slate200),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -60,7 +61,7 @@ class SkillChip extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFF475569),
+              color: AppColors.slate600,
               fontWeight: FontWeight.w700,
               fontSize: 13,
             ),
@@ -72,7 +73,7 @@ class SkillChip extends StatelessWidget {
               child: const Icon(
                 Icons.close_rounded,
                 size: 16,
-                color: Color(0xFF64748B),
+                color: AppColors.slate500,
               ),
             ),
           ],

@@ -1,3 +1,4 @@
+import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class EditProfileTextField extends StatelessWidget {
@@ -28,7 +29,7 @@ class EditProfileTextField extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF64748B),
+              color: AppColors.slate500,
               letterSpacing: 0.5,
             ),
           ),
@@ -36,9 +37,9 @@ class EditProfileTextField extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.slate50,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.slate200),
             ),
             child: Row(
               children: [
@@ -49,7 +50,7 @@ class EditProfileTextField extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: hint,
                       hintStyle: const TextStyle(
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.slate400,
                         fontWeight: FontWeight.w500,
                       ),
                       border: InputBorder.none,
@@ -62,7 +63,7 @@ class EditProfileTextField extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.slate800,
                     ),
                   ),
                 ),

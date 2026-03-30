@@ -2,17 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 
+/// Centralised Material theme for the TeamFlow app.
 class AppTheme {
+  /// Light theme configuration.
   static ThemeData get lightTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      primary: AppColors.primary,
+      onPrimary: AppColors.white,
+      surface: AppColors.white,
+    );
+
     return ThemeData(
       useMaterial3: true,
+      colorScheme: colorScheme,
       primaryColor: AppColors.primary,
       scaffoldBackgroundColor: AppColors.white,
 
-      // إعدادات النصوص
+      /// Typography powered by Poppins.
       textTheme: GoogleFonts.poppinsTextTheme(),
 
-      // شكل التكست فيلد الموحد
+      /// Global input field decoration.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.secondary,
@@ -34,7 +44,7 @@ class AppTheme {
         ),
       ),
 
-      // شكل الزرار الموحد
+      /// Global elevated button style.
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,

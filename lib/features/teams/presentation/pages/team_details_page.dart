@@ -1,8 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
 import 'package:team_flow/core/helpers/progress_helper.dart';
 import 'package:team_flow/features/profile/domain/entities/profile_entity.dart';
@@ -13,8 +14,10 @@ import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
 import 'package:team_flow/features/tasks/presentation/widgets/task_card.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/tasks/presentation/create_task_page_args.dart';
 import 'package:team_flow/injection_container.dart';
 
+/// A page that displays detailed information about a team, including its members, tasks, and chat.
 class TeamDetailsPage extends StatefulWidget {
   final TeamEntity team;
 
@@ -62,7 +65,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage>
   }
 
   bool _isAdmin(TeamEntity team) =>
-      team.adminId == FirebaseAuth.instance.currentUser?.uid;
+      team.adminId == sl<GetCurrentUserIdUseCase>()();
 
   @override
   Widget build(BuildContext context) {
@@ -75,14 +78,14 @@ class _TeamDetailsPageState extends State<TeamDetailsPage>
           } else if (state is TeamMemberAddedSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Member added successfully'),
+                content: Text(AppStrings.memberAdded),
                 backgroundColor: AppColors.success,
               ),
             );
           } else if (state is TeamMemberRemovedSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Member removed successfully'),
+                content: Text(AppStrings.memberRemoved),
                 backgroundColor: AppColors.success,
               ),
             );
@@ -100,21 +103,31 @@ class _TeamDetailsPageState extends State<TeamDetailsPage>
           final isAdmin = _isAdmin(team);
 
           return Scaffold(
-            backgroundColor: const Color(0xFFF6F6F8),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                if (_tabController.index == 1) {
-                  context.push('/tasks/create', extra: team);
-                } else if (_tabController.index == 0 && isAdmin) {
-                  context.push('/teams/add-member', extra: team);
-                }
-              },
-              backgroundColor: const Color(0xFF2B6CEE),
-              foregroundColor: Colors.white,
-              shape: const CircleBorder(),
-              elevation: 8,
-              child: const Icon(Icons.add_rounded, size: 28),
-            ),
+            backgroundColor: AppColors.bgLight,
+
+            floatingActionButton:
+                (isAdmin &&
+                    (_tabController.index == 0 || _tabController.index == 1))
+                ? FloatingActionButton(
+                    heroTag: 'team_details_fab',
+                    onPressed: () {
+                      if (_tabController.index == 1) {
+                        context.push(
+                          '/tasks/create',
+                          extra: CreateTaskPageArgs(presetTeam: team),
+                        );
+
+                      } else if (_tabController.index == 0 && isAdmin) {
+                        context.push('/teams/add-member', extra: team);
+                      }
+                    },
+                    backgroundColor: AppColors.primaryBlue,
+                    foregroundColor: AppColors.white,
+                    shape: const CircleBorder(),
+                    elevation: 8,
+                    child: const Icon(Icons.add_rounded, size: 28),
+                  )
+                : null,
             body: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
@@ -135,12 +148,12 @@ class _TeamDetailsPageState extends State<TeamDetailsPage>
                           isAdmin: isAdmin,
                           allUsers: _allUsers,
                         ),
-                        _TasksTab(team: team),
+                        _TasksTab(team: team, isAdmin: isAdmin),
                         _ChatTab(),
                       ][_tabController.index],
                     ),
                   ),
-                  const SizedBox(height: 100), // Space for FAB
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -151,6 +164,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage>
   }
 }
 
+/// The top section of the page, displaying the team logo, name, and background.
 class _HeroSection extends StatelessWidget {
   final TeamEntity team;
   final bool isAdmin;
@@ -169,7 +183,7 @@ class _HeroSection extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF2B6CEE), Color(0xFF1A4FB8)],
+            colors: [AppColors.primaryBlue, AppColors.primaryBluePure],
           ),
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(40),
@@ -178,31 +192,6 @@ class _HeroSection extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Decorative elements
-            Positioned(
-              top: -60,
-              right: -40,
-              child: Container(
-                width: 250,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withAlpha(13),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: -40,
-              left: -30,
-              child: Container(
-                width: 180,
-                height: 180,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF6B9AF5).withAlpha(51),
-                ),
-              ),
-            ),
             SafeArea(
               bottom: false,
               child: Column(
@@ -235,7 +224,7 @@ class _HeroSection extends StatelessWidget {
                   Text(
                     team.name,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
@@ -251,7 +240,7 @@ class _HeroSection extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: Color(0xFFDBEAFE),
+                          color: AppColors.blueBorder,
                           fontSize: 14,
                           height: 1.5,
                           fontWeight: FontWeight.w500,
@@ -284,7 +273,7 @@ class _HeroSection extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: AppColors.slate200,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -292,7 +281,7 @@ class _HeroSection extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.edit_note_rounded),
               title: const Text(
-                'Edit Team',
+                AppStrings.editTeam,
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () {
@@ -303,12 +292,12 @@ class _HeroSection extends StatelessWidget {
             ListTile(
               leading: const Icon(
                 Icons.delete_outline_rounded,
-                color: Colors.red,
+                color: AppColors.error,
               ),
               title: const Text(
-                'Delete Team',
+                AppStrings.deleteTeam,
                 style: TextStyle(
-                  color: Colors.red,
+                  color: AppColors.error,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -335,16 +324,16 @@ class _HeroSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
           ),
           title: const Text(
-            'Delete Team',
+            AppStrings.deleteTeam,
             style: TextStyle(fontWeight: FontWeight.w900),
           ),
           content: Text(
-            'Are you sure you want to delete "${team.name}"? This action cannot be undone.',
+            '${AppStrings.deleteTeamConfirmation} "${team.name}"? ${AppStrings.deleteTeamWarning}',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
-              child: const Text('Cancel'),
+              child: const Text(AppStrings.cancel),
             ),
             TextButton(
               onPressed: () {
@@ -352,9 +341,9 @@ class _HeroSection extends StatelessWidget {
                 cubit.deleteTeam(team.id);
               },
               child: const Text(
-                'Delete',
+                AppStrings.delete,
                 style: TextStyle(
-                  color: Color(0xFFEF4444),
+                  color: AppColors.error,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -391,7 +380,7 @@ class _HeroAvatar extends StatelessWidget {
           ),
           child: CircleAvatar(
             radius: 46,
-            backgroundColor: const Color(0xFFF1F5F9),
+            backgroundColor: AppColors.slate100,
             backgroundImage: hasPhoto
                 ? ImageHelper.getProvider(team.photoUrl)
                 : null,
@@ -399,7 +388,7 @@ class _HeroAvatar extends StatelessWidget {
                 ? Text(
                     team.name[0].toUpperCase(),
                     style: const TextStyle(
-                      color: Color(0xFF2563EB),
+                      color: AppColors.primaryBlue,
                       fontWeight: FontWeight.w900,
                       fontSize: 32,
                     ),
@@ -414,9 +403,9 @@ class _HeroAvatar extends StatelessWidget {
             width: 20,
             height: 20,
             decoration: BoxDecoration(
-              color: const Color(0xFF4ADE80),
+              color: AppColors.success,
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFF255BC9), width: 4),
+              border: Border.all(color: AppColors.primaryBlueDark, width: 4),
             ),
           ),
         ),
@@ -425,6 +414,7 @@ class _HeroAvatar extends StatelessWidget {
   }
 }
 
+/// An overlay card showing summary statistics (member count, active tasks, progress) for the team.
 class _StatsOverlay extends StatelessWidget {
   final TeamEntity team;
   const _StatsOverlay({required this.team});
@@ -446,7 +436,7 @@ class _StatsOverlay extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
@@ -461,29 +451,29 @@ class _StatsOverlay extends StatelessWidget {
                 child: Row(
                   children: [
                     _StatItem(
-                      label: 'MEMBERS',
+                      label: AppStrings.members.toUpperCase(),
                       value: '${team.membersIds.length}',
-                      valueColor: const Color(0xFF1E293B),
+                      valueColor: AppColors.slate800,
                     ),
                     const VerticalDivider(
                       width: 1,
                       thickness: 1,
-                      color: Color(0xFFF1F5F9), // slate-100
+                      color: AppColors.slate100,
                     ),
                     _StatItem(
-                      label: 'ACTIVE',
+                      label: AppStrings.activeTasksShort.toUpperCase(),
                       value: '$activeCount',
-                      valueColor: const Color(0xFF2B6CEE), // primary
+                      valueColor: AppColors.primaryBlue,
                     ),
                     const VerticalDivider(
                       width: 1,
                       thickness: 1,
-                      color: Color(0xFFF1F5F9), // slate-100
+                      color: AppColors.slate100,
                     ),
                     _StatItem(
-                      label: 'COMPLETE',
+                      label: AppStrings.completedShort.toUpperCase(),
                       value: '${(progress * 100).toInt()}%',
-                      valueColor: const Color(0xFF10B981), // emerald-500
+                      valueColor: AppColors.taskDoneText,
                       icon: Icons.trending_up_rounded,
                     ),
                   ],
@@ -520,7 +510,7 @@ class _StatItem extends StatelessWidget {
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF64748B), // slate-500
+              color: AppColors.slate500,
               letterSpacing: 0.5,
             ),
           ),
@@ -555,14 +545,18 @@ class _SegmentedTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = ['Members', 'Tasks', 'Chat'];
+    final tabs = [
+      AppStrings.membersTab,
+      AppStrings.tasksTab,
+      AppStrings.chatTab,
+    ];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
         height: 52,
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: const Color(0xFFE2E8F0).withAlpha(128),
+          color: AppColors.slate200.withAlpha(128),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -573,7 +567,7 @@ class _SegmentedTabBar extends StatelessWidget {
                 onTap: () => tabController.animateTo(i),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : Colors.transparent,
+                    color: isSelected ? AppColors.white : AppColors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: isSelected
                         ? [
@@ -594,8 +588,8 @@ class _SegmentedTabBar extends StatelessWidget {
                             : FontWeight.w600,
                         fontSize: 14,
                         color: isSelected
-                            ? const Color(0xFF2B6CEE)
-                            : const Color(0xFF64748B),
+                            ? AppColors.primaryBlue
+                            : AppColors.slate500,
                       ),
                     ),
                   ),
@@ -639,11 +633,11 @@ class _MembersTab extends StatelessWidget {
             ),
             const SizedBox(height: 24),
           ],
-          const _SectionHeader(label: 'TEAM LEADS'),
+          _SectionHeader(label: AppStrings.teamLeads.toUpperCase()),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -651,7 +645,7 @@ class _MembersTab extends StatelessWidget {
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
-                const BoxShadow(color: Color(0x08000000), spreadRadius: 1),
+                BoxShadow(color: AppColors.black.withValues(alpha: 0.03), spreadRadius: 1),
               ],
             ),
             child: _MemberRow(
@@ -662,11 +656,11 @@ class _MembersTab extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           if (otherMemberIds.isNotEmpty) ...[
-            const _SectionHeader(label: 'MEMBERS'),
+            _SectionHeader(label: AppStrings.members.toUpperCase()),
             const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -674,7 +668,7 @@ class _MembersTab extends StatelessWidget {
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
-                  const BoxShadow(color: Color(0x08000000), spreadRadius: 1),
+                  BoxShadow(color: AppColors.black.withValues(alpha: 0.03), spreadRadius: 1),
                 ],
               ),
               child: Column(
@@ -684,7 +678,7 @@ class _MembersTab extends StatelessWidget {
                       const Divider(
                         height: 1,
                         thickness: 1,
-                        color: Color(0xFFF8FAFC),
+                        color: AppColors.slate50,
                       ),
                     _MemberRow(
                       profile: _findProfile(otherMemberIds[i]),
@@ -709,10 +703,10 @@ class _MembersTab extends StatelessWidget {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2B6CEE).withAlpha(13),
+                  color: AppColors.primaryBlue.withAlpha(13),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: const Color(0xFF2B6CEE).withAlpha(25),
+                    color: AppColors.primaryBlue.withAlpha(25),
                   ),
                 ),
                 child: Row(
@@ -720,12 +714,12 @@ class _MembersTab extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2B6CEE).withAlpha(25),
+                        color: AppColors.primaryBlue.withAlpha(25),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.assignment_rounded,
-                        color: Color(0xFF2B6CEE),
+                        color: AppColors.primaryBlue,
                         size: 20,
                       ),
                     ),
@@ -735,11 +729,11 @@ class _MembersTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Latest Task Update',
+                            AppStrings.latestTaskUpdate,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
-                              color: Color(0xFF1E293B),
+                              color: AppColors.slate800,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -747,7 +741,7 @@ class _MembersTab extends StatelessWidget {
                             '"${latest.title}" completed.',
                             style: const TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF64748B),
+                              color: AppColors.slate500,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -777,7 +771,7 @@ class _InviteButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.transparent,
+          color: AppColors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Stack(
@@ -786,7 +780,7 @@ class _InviteButton extends StatelessWidget {
             Positioned.fill(
               child: CustomPaint(
                 painter: _DottedBorderPainter(
-                  color: const Color(0xFF2B6CEE).withAlpha(76),
+                  color: AppColors.primaryBlue.withAlpha(76),
                 ),
               ),
             ),
@@ -798,20 +792,20 @@ class _InviteButton extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2B6CEE).withAlpha(25),
+                      color: AppColors.primaryBlue.withAlpha(25),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.add_rounded,
-                      color: Color(0xFF2B6CEE),
+                      color: AppColors.primaryBlue,
                       size: 18,
                     ),
                   ),
                   const SizedBox(width: 10),
                   const Text(
-                    'Invite New Member',
+                    AppStrings.inviteNewMember,
                     style: TextStyle(
-                      color: Color(0xFF2B6CEE),
+                      color: AppColors.primaryBlue,
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
                     ),
@@ -840,7 +834,7 @@ class _BlurIconButton extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 24),
+        icon: Icon(icon, color: AppColors.white, size: 24),
         onPressed: onPressed,
       ),
     );
@@ -860,7 +854,7 @@ class _SectionHeader extends StatelessWidget {
         style: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w800,
-          color: Color(0xFF94A3B8), // slate-400
+          color: AppColors.slate400,
           letterSpacing: 1.2,
         ),
       ),
@@ -893,7 +887,7 @@ class _MemberRow extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: const Color(0xFFF1F5F9),
+                backgroundColor: AppColors.slate100,
                 backgroundImage: hasPhoto
                     ? ImageHelper.getProvider(profile!.photoUrl)
                     : null,
@@ -901,7 +895,7 @@ class _MemberRow extends StatelessWidget {
                     ? Text(
                         name[0].toUpperCase(),
                         style: const TextStyle(
-                          color: Color(0xFF2B6CEE),
+                          color: AppColors.primaryBlue,
                           fontWeight: FontWeight.w800,
                         ),
                       )
@@ -914,9 +908,9 @@ class _MemberRow extends StatelessWidget {
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981), // emerald-500
+                    color: AppColors.taskDoneText,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: AppColors.white, width: 2),
                   ),
                 ),
               ),
@@ -932,14 +926,14 @@ class _MemberRow extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.slate800,
                   ),
                 ),
                 Text(
                   role,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF64748B),
+                    color: AppColors.slate500,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -950,13 +944,13 @@ class _MemberRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF3C7), // amber-100
+                color: AppColors.amberBorder,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: const Text(
-                'ADMIN',
-                style: TextStyle(
-                  color: Color(0xFFB45309), // amber-700
+              child: Text(
+                AppStrings.adminRole.toUpperCase(),
+                style: const TextStyle(
+                  color: AppColors.orange800,
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                 ),
@@ -964,10 +958,10 @@ class _MemberRow extends StatelessWidget {
             )
           else
             IconButton(
-              onPressed: () {}, // Chat action
+              onPressed: () {},
               icon: const Icon(
                 Icons.chat_bubble_outline_rounded,
-                color: Color(0xFF94A3B8),
+                color: AppColors.slate400,
                 size: 20,
               ),
               style: IconButton.styleFrom(
@@ -1002,11 +996,8 @@ class _DottedBorderPainter extends CustomPainter {
     for (var metric in metrics) {
       double i = 0.0;
       while (i < metric.length) {
-        newPath.addPath(
-          metric.extractPath(i, i + 6), // dash length
-          Offset.zero,
-        );
-        i += 12; // gap length
+        newPath.addPath(metric.extractPath(i, i + 6), Offset.zero);
+        i += 12;
       }
     }
     canvas.drawPath(newPath, paint);
@@ -1018,7 +1009,9 @@ class _DottedBorderPainter extends CustomPainter {
 
 class _TasksTab extends StatelessWidget {
   final TeamEntity team;
-  const _TasksTab({required this.team});
+  final bool isAdmin;
+
+  const _TasksTab({required this.team, required this.isAdmin});
 
   @override
   Widget build(BuildContext context) {
@@ -1026,7 +1019,7 @@ class _TasksTab extends StatelessWidget {
       builder: (context, state) {
         if (state is TasksLoading) {
           return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+            child: CircularProgressIndicator(color: AppColors.primaryBlue),
           );
         }
         if (state is TasksLoaded) {
@@ -1046,7 +1039,7 @@ class _TasksTab extends StatelessWidget {
                 onCheckboxChanged: (val) {
                   if (val != null &&
                       tasks[index].creatorId ==
-                          FirebaseAuth.instance.currentUser?.uid) {
+                          sl<GetCurrentUserIdUseCase>()()) {
                     context.read<TasksCubit>().updateTaskStatus(
                       tasks[index].id,
                       val ? TaskStatus.done : TaskStatus.todo,
@@ -1071,49 +1064,54 @@ class _TasksTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: AppColors.slate50,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.assignment_late_rounded,
               size: 48,
-              color: Color(0xFF94A3B8),
+              color: AppColors.slate400,
             ),
           ),
           const SizedBox(height: 20),
           const Text(
-            'No tasks created yet',
+            AppStrings.noTasksFound,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
             ),
           ),
           const SizedBox(height: 8),
           const Text(
-            'Start by adding tasks to this team.',
+            AppStrings.noTasksHint,
             style: TextStyle(
-              color: Color(0xFF64748B),
+              color: AppColors.slate500,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () => context.push('/tasks/create', extra: team),
-            icon: const Icon(Icons.add_rounded, color: Colors.white),
-            label: const Text(
-              'Create First Task',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+          if (isAdmin) ...[
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => context.push('/tasks/create', extra: team),
+              icon: const Icon(Icons.add_rounded, color: AppColors.white),
+              label: const Text(
+                AppStrings.createTask,
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: AppColors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -1132,29 +1130,29 @@ class _ChatTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: AppColors.slate50,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.forum_rounded,
               size: 48,
-              color: Color(0xFF94A3B8),
+              color: AppColors.slate400,
             ),
           ),
           const SizedBox(height: 20),
           const Text(
-            'Team Chat Coming Soon',
+            AppStrings.chatComingSoon,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1E293B),
+              color: AppColors.slate800,
             ),
           ),
           const SizedBox(height: 8),
           const Text(
-            'Real-time collaboration is on its way.',
+            '',
             style: TextStyle(
-              color: Color(0xFF64748B),
+              color: AppColors.slate500,
               fontWeight: FontWeight.w500,
             ),
           ),

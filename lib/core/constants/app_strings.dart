@@ -6,9 +6,29 @@ class AppStrings {
   static const String appName = 'TeamFlow';
   static const String appSlogan = 'Manage your team flow';
 
+  // Splash Screen
+  static const String splashTitle = 'Team Task Manager';
+  static const String splashTagline = 'Sync. Manage. Succeed.';
+  static const String splashVersion = 'V1.0.0';
+
+  // Onboarding
+  static const String onboardingManageTeamsTitle = 'Create & Manage Teams';
+  static const String onboardingManageTeamsSub =
+      'Build your team, add members, and collaborate efficiently';
+  static const String onboardingTrackTasksTitle = 'Track Your \nTasks';
+  static const String onboardingTrackTasksSub =
+      'Assign tasks, set deadlines, and monitor progress in real-time.';
+  static const String onboardingStayConnectedTitle =
+      'Team Chat & Notifications';
+  static const String onboardingStayConnectedSub =
+      'Communicate instantly with your team members and never miss an important update.';
+  static const String getStarted = 'Get Started';
+  static const String next = 'Next';
+  static const String skip = 'Skip';
+
   // Authentication
-  static const String welcomeBack = 'Welcome Back! 👋';
-  static const String loginSubtitle = 'Login to manage your team flow.';
+  static const String welcomeBack = 'Welcome Back!';
+  static const String loginSubtitle = 'Login to continue';
   static const String createAccount = 'Create Account';
   static const String alreadyHaveAccount = 'Already have an account? Login';
   static const String dontHaveAccount = "Don't have an account?";
@@ -203,4 +223,173 @@ class AppStrings {
   static const String notificationsLabel = 'Notifications';
   static const String privacyAndSecurity = 'Privacy & Security';
   static const String activity = 'Activity';
+
+  // Auth — Additional
+  static const String signUpSubtitle = 'Sign up to get started';
+  static const String signUpWithGoogle = 'Sign up with Google';
+  static const String alreadyHaveAccountShort = 'Already have an account?';
+  static const String passwordsDoNotMatch = 'Passwords do not match';
+
+  // Dashboard — Additional
+  static const String noDate = 'No date';
+  static const String noTeamsJoined = 'No teams joined';
+  static const String noRecentTasksMessage = 'No recent tasks';
+  static const String activeTasksSuffix = 'Active tasks';
+  static const String user = 'User';
+
+  // Task Status Labels
+  static const String toDo = 'To Do';
+  static const String inProgressLabel = 'In Progress';
+  static const String review = 'Review';
+  static const String done = 'Done';
+  // Date/Time
+  static const String updatedRecently = 'Updated recently';
+  static const String updatedJustNow = 'Updated just now';
+  static const String updated = 'Updated';
+  static const String updatedOn = 'Updated on';
+  static const String ago = 'ago';
+  static const String admin = 'Admin';
+  static const String member = 'Member';
+
+  // Team Form (labels/hints not defined elsewhere)
+  static const String teamCreatedSuccess = 'Team created successfully';
+  static const String teamNameInputLabel = 'TEAM NAME';
+  static const String teamNameInputHint = 'e.g. Design Team';
+  static const String requiredField = 'Required';
+  static const String descriptionInputLabel = 'DESCRIPTION';
+  static const String descriptionInputHint = 'What does this team do?';
+  static const String categoryInputLabel = 'CATEGORY';
+  static const String teamLogo = 'Team Logo';
+  static const String privateTeamDescription = 'Only invited members can join';
+  static const String updateTeam = 'Update Team';
+  static const String changeTeamLogo = 'Change Team Logo';
+  static const String teamUpdatedSuccess = 'Team updated successfully';
+  static const String noTeamsJoinedYetDescription =
+      'Join a team to start collaborating!';
+
+  // Tasks — Labels
+  static const String assignedBy = 'Assigned by';
+  static const String overdue = 'Overdue';
+  static const String weeklyVelocity = 'WEEKLY VELOCITY';
+  static const String myTasks = 'My Tasks';
+  static const String filterByStatus = 'Filter by status';
+  static const String noTasksFound = 'No tasks found';
+  static const String noTasksHint = 'Create a task to get started!';
+  static const String createTaskTitle = 'Create New Task';
+  static const String taskTitle = 'Task Title';
+  static const String taskTitleHint = 'e.g. Design the homepage';
+
+  // Team Details
+  static const String newTask = 'New Task';
+  static const String private = 'Private';
+  static const String overview = 'Overview';
+  static const String statistics = 'Statistics';
+  static const String teamMembers = 'Team Members';
+  static const String overallProgress = 'Overall Progress';
+  static const String errorLoadingMembers = 'Error loading members';
+  static const String noMembersFound = 'No members found';
+  static const String adminOnlyAction =
+      'Only team admins can perform this action';
+  static const String teamOptions = 'Team Options';
+  static const String deleteTeamConfirmationContent = 'Delete Team?';
+  static const String deleteTeamWarning = 'This action cannot be undone.';
+  static const String creating = 'Creating...';
+  static const String editTask = 'Edit Task';
+  static const String deleteTask = 'Delete Task';
+
+  // Task Drafts
+  static const String drafts = 'Drafts';
+  static const String draft = 'Draft';
+  static const String publishTask = 'Publish Task';
+  static const String saveDraftChanges = 'Save Draft Changes';
+  static const String noDraftsYet = 'No drafts yet';
+  static const String noDraftsHint =
+      'Saved drafts appear here — only you can see them.';
+  static const String editDraft = 'Edit Draft';
+  static const String taskSavedAsDraft = 'Task saved as draft';
+  static const String taskCreatedSuccess = 'Task created successfully';
+  static const String draftChangesSaved = 'Draft changes saved';
+  static const String taskPublished = 'Task published successfully';
+
+  // Task Details
+  static const String save = 'Save';
+  static const String taskProgress = 'Task Progress';
+  static const String onTrackForDelivery = 'On track for delivery';
+  static const String description = 'DESCRIPTION';
+  static const String activitySection = 'ACTIVITY';
+  static const String activityBadgeNew = 'New';
+  static const String noDescriptionProvided = 'No description provided.';
+  static const String notAssigned = 'Not assigned';
+  static const String notSet = 'Not set';
+  static const String assignee = 'Assignee';
+  static const String dueDate = 'Due Date';
+  static const String addComment = 'Add a comment...';
+  static const String noCommentsYet = 'No comments yet.';
+  static const String updateStatus = 'Update Status';
+  static const String changesSaved = 'Changes saved successfully';
+  static const String taskDeleted = 'Task deleted';
+  static const String editTaskComingSoon = 'Edit task coming soon';
+  static const String deleteTaskConfirmation =
+      'Are you sure? This action cannot be undone.';
+  static const String highPriority = 'High Priority';
+  static const String mediumPriority = 'Medium Priority';
+  static const String lowPriority = 'Low Priority';
+  static const String justNow = 'Just now';
+  static const String doing = 'Doing';
+
+  // Task Filters / My Tasks
+  static const String allTasks = 'All Tasks';
+  static const String tomorrow = 'Tomorrow';
+  static const String other = 'Other';
+  static const String tasksSuffix = 'Tasks';
+  static const String filterByPriority = 'Filter by Priority';
+  static const String all = 'All';
+  static const String high = 'High';
+  static const String medium = 'Medium';
+  static const String low = 'Low';
+  static const String searchTasks = 'Search tasks...';
+  static const String pendingLabel = 'PENDING';
+  static const String highPriorityShort = 'High Priority';
+  static const String saveDraft = 'Save Draft';
+
+  // Task Create
+  static const String noAdminTeamAvailable = 'No admin team available';
+  static const String selectProject = 'Select Project...';
+  static const String onlyAdminsCanCreate = 'Only team admins can create tasks for this team';
+  static const String pleaseEnterTitle = 'Please enter a title';
+  static const String pleaseSelectTeam = 'Please select a team';
+  static const String pleaseSelectTeamFirst = 'Please select a team first';
+  static const String projectTeamLabel = 'PROJECT / TEAM';
+  static const String assignToLabel = 'ASSIGN TO';
+  static const String priorityLabel = 'PRIORITY';
+  static const String startDate = 'Start Date';
+  static const String addDescription = 'Add a description...';
+  static const String recurringTask = 'Recurring Task';
+  static const String setDate = 'Set date';
+  static const String selectTeam = 'Select Team';
+
+  // Task Assignment
+  static const String assignTask = 'Assign Task';
+  static const String confirmAssignment = 'Confirm Assignment';
+
+  // Notifications — Group Headers
+  static const String older = 'Older';
+
+  // Profile Tabs & Sections
+  static const String aboutTab = 'About';
+  static const String activityTab = 'Activity';
+  static const String teamsTab = 'Teams';
+  static const String biographySection = 'Biography';
+  static const String skillsSection = 'Skills';
+  static const String preferencesSection = 'Preferences';
+  static const String noBiographyAdded = 'No biography added yet.';
+  static const String addNew = 'Add new';
+  static const String comingSoon = 'Coming Soon';
+  static const String joinedLabel = 'Joined';
+  static const String teamsStatLabel = 'Teams';
+  static const String completedStatLabel = 'Completed';
+  static const String pendingStatLabel = 'Pending';
+  static const String notificationsPreference = 'Notifications';
+  static const String privacySecurity = 'Privacy & Security';
 }
+

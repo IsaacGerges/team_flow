@@ -25,13 +25,13 @@ class NotificationCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isUnread ? Colors.white : Colors.white.withValues(alpha: 0.6),
+          color: isUnread ? AppColors.white : Colors.white.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          border: Border.all(color: AppColors.slate100),
           boxShadow: isUnread
               ? [
                   BoxShadow(
-                    color: const Color(0xFF1E293B).withValues(alpha: 0.04),
+                    color: AppColors.slate800.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -56,7 +56,7 @@ class NotificationCard extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 14,
                               height: 1.4,
-                              color: Color(0xFF1E293B),
+                              color: AppColors.slate800,
                             ),
                             children: _buildMessageSpans(),
                           ),
@@ -79,7 +79,7 @@ class NotificationCard extends StatelessWidget {
                     _getRelativeTime(notification.createdAt),
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.slate400,
                     ),
                   ),
                   if (_hasActions()) ...[
@@ -110,7 +110,7 @@ class NotificationCard extends StatelessWidget {
               height: 48,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFF1F5F9),
+                color: AppColors.slate100,
               ),
               child: ClipOval(
                 child: notification.senderPhotoUrl != null
@@ -118,9 +118,9 @@ class NotificationCard extends StatelessWidget {
                         notification.senderPhotoUrl!,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.person, color: Color(0xFF94A3B8)),
+                            const Icon(Icons.person, color: AppColors.slate400),
                       )
-                    : const Icon(Icons.person, color: Color(0xFF94A3B8)),
+                    : const Icon(Icons.person, color: AppColors.slate400),
               ),
             ),
             Positioned(
@@ -129,15 +129,15 @@ class NotificationCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(2),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.white,
                   shape: BoxShape.circle,
                 ),
                 child: Container(
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: notification.type == NotificationType.mention
-                        ? const Color(0xFFDBEAFE)
-                        : const Color(0xFFF1F5F9),
+                        ? AppColors.blueBorder
+                        : AppColors.slate100,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -146,8 +146,8 @@ class NotificationCard extends StatelessWidget {
                         : Icons.assignment_ind,
                     size: 10,
                     color: notification.type == NotificationType.mention
-                        ? AppColors.primaryBluePure
-                        : const Color(0xFF475569),
+                        ? AppColors.primaryBlue
+                        : AppColors.slate600,
                   ),
                 ),
               ),
@@ -170,14 +170,14 @@ class NotificationCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.primaryBluePure.withValues(alpha: 0.1),
+                color: AppColors.primaryBlue.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Text(
                 notification.teamInitials ?? '??',
                 style: const TextStyle(
-                  color: AppColors.primaryBluePure,
+                  color: AppColors.primaryBlue,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -189,7 +189,7 @@ class NotificationCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(2),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.white,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -212,8 +212,8 @@ class NotificationCard extends StatelessWidget {
       case NotificationType.systemUpdate:
         return _buildIconLeading(
           Icons.security_update_good_rounded,
-          const Color(0xFF64748B),
-          const Color(0xFFF1F5F9),
+          AppColors.slate500,
+          AppColors.slate100,
         );
     }
   }
@@ -240,7 +240,7 @@ class NotificationCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(2),
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 shape: BoxShape.circle,
               ),
               child: Container(
@@ -267,7 +267,7 @@ class NotificationCard extends StatelessWidget {
             text: notification.targetName ?? '',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              color: AppColors.primaryBluePure,
+              color: AppColors.primaryBlue,
             ),
           ),
         ];
@@ -377,8 +377,8 @@ class NotificationCard extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
+            color: AppColors.slate50,
+            border: Border.all(color: AppColors.slate100),
             borderRadius: BorderRadius.circular(8),
           ),
           alignment: Alignment.center,
@@ -386,7 +386,7 @@ class NotificationCard extends StatelessWidget {
             '+1',
             style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF94A3B8),
+              color: AppColors.slate400,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -432,14 +432,14 @@ class _ActionBtn extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: isPrimary
-              ? AppColors.primaryBluePure
-              : (isGhost ? Colors.transparent : const Color(0xFFF1F5F9)),
+              ? AppColors.primaryBlue
+              : (isGhost ? AppColors.transparent : AppColors.slate100),
           foregroundColor: isPrimary
-              ? Colors.white
-              : (isGhost ? const Color(0xFF64748B) : const Color(0xFF1E293B)),
+              ? AppColors.white
+              : (isGhost ? AppColors.slate500 : AppColors.slate800),
           elevation: isPrimary ? 2 : 0,
           shadowColor: isPrimary
-              ? AppColors.primaryBluePure.withValues(alpha: 0.4)
+              ? AppColors.primaryBlue.withValues(alpha: 0.4)
               : null,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           shape: RoundedRectangleBorder(
@@ -465,12 +465,12 @@ class _FileIcon extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        color: AppColors.slate50,
+        border: Border.all(color: AppColors.slate100),
         borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,
-      child: Icon(icon, size: 20, color: const Color(0xFFCBD5E1)),
+      child: Icon(icon, size: 20, color: AppColors.slate300),
     );
   }
 }

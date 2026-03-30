@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../../../core/helpers/image_helper.dart';
 import '../../../../injection_container.dart';
@@ -7,16 +9,29 @@ import '../../../profile/presentation/cubit/profile_cubit.dart';
 import '../../../profile/presentation/cubit/profile_state.dart';
 import 'task_status_badge.dart';
 
+/// A card widget that displays a single task with priority indicator,
+/// status badge, and assignee avatar.
+///
+/// When [isDraftCard] is `true`:
+/// - The completion checkbox is replaced with a pencil icon.
+/// - The status badge is replaced with a "DRAFT" pill.
 class TaskCard extends StatelessWidget {
   final TaskEntity task;
   final VoidCallback onTap;
+
+  /// Called when the user taps the completion toggle.
+  /// Ignored when [isDraftCard] is `true`.
   final Function(bool?) onCheckboxChanged;
+
+  /// Whether this card represents a draft (creator-only visibility).
+  final bool isDraftCard;
 
   const TaskCard({
     super.key,
     required this.task,
     required this.onTap,
     required this.onCheckboxChanged,
+    this.isDraftCard = false,
   });
 
   @override
@@ -32,11 +47,11 @@ class TaskCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: AppColors.black.withValues(alpha: 0.04),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -47,7 +62,6 @@ class TaskCard extends StatelessWidget {
           child: IntrinsicHeight(
             child: Row(
               children: [
-                // Priority color indicator (Stripe on the left)
                 Container(width: 4, color: _getPriorityColor(task.priority)),
                 Expanded(
                   child: Padding(
@@ -58,33 +72,7 @@ class TaskCard extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Custom Rounded Checkbox
-                            GestureDetector(
-                              onTap: onTap,
-                              child: Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isDone
-                                        ? const Color(0xFF22C55E)
-                                        : const Color(0xFFE2E8F0),
-                                    width: 2,
-                                  ),
-                                  color: isDone
-                                      ? const Color(0xFF22C55E)
-                                      : Colors.transparent,
-                                ),
-                                child: isDone
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 14,
-                                      )
-                                    : null,
-                              ),
-                            ),
+                            _buildLeadingIcon(isDone),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
@@ -96,8 +84,8 @@ class TaskCard extends StatelessWidget {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                       color: isDone
-                                          ? const Color(0xFF94A3B8)
-                                          : const Color(0xFF1E293B),
+                                          ? AppColors.slate400
+                                          : AppColors.slate800,
                                       decoration: isDone
                                           ? TextDecoration.lineThrough
                                           : null,
@@ -110,7 +98,7 @@ class TaskCard extends StatelessWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                        color: Color(0xFF64748B),
+                                        color: AppColors.slate500,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w400,
                                       ),
@@ -119,29 +107,30 @@ class TaskCard extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            TaskStatusBadge(
-                              status: task.status,
-                              isOverdue: isOverdue,
-                            ),
+                            isDraftCard
+                                ? _DraftPill()
+                                : TaskStatusBadge(
+                                    status: task.status,
+                                    isOverdue: isOverdue,
+                                  ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            // Category Tag
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
+                                color: AppColors.slate100,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 '#${task.teamName.replaceAll(' ', '')}',
                                 style: const TextStyle(
-                                  color: Color(0xFF64748B),
+                                  color: AppColors.slate500,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -149,9 +138,9 @@ class TaskCard extends StatelessWidget {
                             ),
                             const Spacer(),
                             const Text(
-                              'Assigned by',
+                              AppStrings.assignedBy,
                               style: TextStyle(
-                                color: Color(0xFF94A3B8),
+                                color: AppColors.slate400,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -169,24 +158,24 @@ class TaskCard extends StatelessWidget {
                                     );
                                     return CircleAvatar(
                                       radius: 12,
-                                      backgroundColor: const Color(0xFFF1F5F9),
+                                      backgroundColor: AppColors.slate100,
                                       backgroundImage: photo,
                                       child: photo == null
                                           ? const Icon(
                                               Icons.person,
                                               size: 14,
-                                              color: Color(0xFF94A3B8),
+                                              color: AppColors.slate400,
                                             )
                                           : null,
                                     );
                                   }
                                   return const CircleAvatar(
                                     radius: 12,
-                                    backgroundColor: Color(0xFFF1F5F9),
+                                    backgroundColor: AppColors.slate100,
                                     child: Icon(
                                       Icons.person,
                                       size: 14,
-                                      color: Color(0xFF94A3B8),
+                                      color: AppColors.slate400,
                                     ),
                                   );
                                 },
@@ -206,14 +195,76 @@ class TaskCard extends StatelessWidget {
     );
   }
 
-  Color _getPriorityColor(TaskPriority priority) {
-    switch (priority) {
-      case TaskPriority.high:
-        return const Color(0xFFEF4444);
-      case TaskPriority.medium:
-        return const Color(0xFFF59E0B);
-      case TaskPriority.low:
-        return const Color(0xFF22C55E);
+  /// Shows a pencil icon for drafts instead of the completion checkbox.
+  Widget _buildLeadingIcon(bool isDone) {
+    if (isDraftCard) {
+      return Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.slate100,
+        ),
+        child: const Icon(
+          Icons.edit_outlined,
+          color: AppColors.slate400,
+          size: 14,
+        ),
+      );
     }
+
+    return GestureDetector(
+      onTap: () => onCheckboxChanged(!isDone),
+      child: Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isDone ? AppColors.taskDone : AppColors.slate200,
+            width: 2,
+          ),
+          color: isDone ? AppColors.taskDone : AppColors.transparent,
+        ),
+        child: isDone
+            ? const Icon(
+                Icons.check,
+                color: AppColors.white,
+                size: 14,
+              )
+            : null,
+      ),
+    );
+  }
+
+  Color _getPriorityColor(TaskPriority priority) {
+    return switch (priority) {
+      TaskPriority.high => AppColors.priorityHigh,
+      TaskPriority.medium => AppColors.priorityMedium,
+      TaskPriority.low => AppColors.priorityLow,
+    };
+  }
+}
+
+/// A small pill badge shown in place of the status badge on draft cards.
+class _DraftPill extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.slate500,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: const Text(
+        AppStrings.draft,
+        style: TextStyle(
+          color: AppColors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
   }
 }

@@ -34,10 +34,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   @override
   Stream<ProfileModel> getProfileStream(String uid) {
     // Stream 1 — user profile document (real-time)
-    final profileStream = firestore
-        .collection('users')
-        .doc(uid)
-        .snapshots();
+    final profileStream = firestore.collection('users').doc(uid).snapshots();
 
     // Stream 2 — teams where user is a member (real-time)
     final teamsStream = firestore
@@ -52,42 +49,37 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
         .snapshots();
 
     // Combine all three — re-emits whenever ANY stream fires
-    return Rx.combineLatest3(
-      profileStream,
-      teamsStream,
-      tasksStream,
-      (
-        DocumentSnapshot profileSnap,
-        QuerySnapshot teamsSnap,
-        QuerySnapshot tasksSnap,
-      ) {
-        if (!profileSnap.exists) {
-          // Fallback if profile doc is missing (rare after login)
-          return ProfileModel.fromSnapshot(profileSnap);
-        }
+    return Rx.combineLatest3(profileStream, teamsStream, tasksStream, (
+      DocumentSnapshot profileSnap,
+      QuerySnapshot teamsSnap,
+      QuerySnapshot tasksSnap,
+    ) {
+      if (!profileSnap.exists) {
+        // Fallback if profile doc is missing (rare after login)
+        return ProfileModel.fromSnapshot(profileSnap);
+      }
 
-        final teamsCount = teamsSnap.docs.length;
+      final teamsCount = teamsSnap.docs.length;
 
-        final completedCount = tasksSnap.docs
-            .where((d) => d['status'] == 'done')
-            .length;
+      final completedCount = tasksSnap.docs
+          .where((d) => d['status'] == 'done')
+          .length;
 
-        final activeCount = tasksSnap.docs
-            .where(
-              (d) =>
-                  d['status'] != 'done' &&
-                  (d['isDraft'] as bool? ?? false) == false,
-            )
-            .length;
+      final activeCount = tasksSnap.docs
+          .where(
+            (d) =>
+                d['status'] != 'done' &&
+                (d['isDraft'] as bool? ?? false) == false,
+          )
+          .length;
 
-        return ProfileModel.fromSnapshotWithCounts(
-          doc: profileSnap,
-          teamsCount: teamsCount,
-          completedCount: completedCount,
-          activeCount: activeCount,
-        );
-      },
-    );
+      return ProfileModel.fromSnapshotWithCounts(
+        doc: profileSnap,
+        teamsCount: teamsCount,
+        completedCount: completedCount,
+        activeCount: activeCount,
+      );
+    });
   }
 
   @override

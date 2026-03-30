@@ -9,9 +9,7 @@ import '../models/notification_model.dart';
 class NotificationsRepositoryImpl implements NotificationsRepository {
   final NotificationRemoteDataSource remoteDataSource;
 
-  NotificationsRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  NotificationsRepositoryImpl({required this.remoteDataSource});
 
   @override
   Stream<List<NotificationEntity>> getNotificationsForUser(String userId) {
