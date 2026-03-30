@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +24,7 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
   late String _selectedCategory;
   late bool _isPrivate;
   String? _logoUrl;
-  Uint8List? _pickedLogoBytes;
+  String? _pickedLogoBase64;
 
   @override
   void initState() {
@@ -86,7 +85,7 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
             );
             context.pop();
           } else if (state is TeamLogoPicked) {
-            setState(() => _pickedLogoBytes = state.imageBytes);
+            setState(() => _pickedLogoBase64 = state.base64Image);
           } else if (state is TeamsError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -159,11 +158,11 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                 onTap: () => context.read<TeamsCubit>().pickTeamLogo(),
                 child: CircleAvatar(
                   radius: 46,
-                  backgroundColor: AppColors.primaryBlue,
-                  child: _pickedLogoBytes != null
+                  backgroundColor: AppColors.white,
+                  child: _pickedLogoBase64 != null
                       ? ClipOval(
-                          child: Image.memory(
-                            _pickedLogoBytes!,
+                          child: Image(
+                            image: ImageHelper.getProvider(_pickedLogoBase64)!,
                             width: 92,
                             height: 92,
                             fit: BoxFit.cover,
@@ -178,13 +177,10 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
                             fit: BoxFit.cover,
                           ),
                         )
-                      : Text(
-                          widget.team.name[0].toUpperCase(),
-                          style: const TextStyle(
-                            color: AppColors.primaryBlue,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 32,
-                          ),
+                      : const Icon(
+                          Icons.add_a_photo_rounded,
+                          color: AppColors.primaryBlue,
+                          size: 32,
                         ),
                 ),
               ),
@@ -533,12 +529,11 @@ class _UpdateTeamPageState extends State<UpdateTeamPage> {
           description: _descriptionController.text.trim(),
           adminId: widget.team.adminId,
           membersIds: widget.team.membersIds,
-          photoUrl: _logoUrl,
+          photoUrl: _pickedLogoBase64 ?? _logoUrl,
           category: _selectedCategory,
           isPrivate: _isPrivate,
           progressPercent: widget.team.progressPercent,
         ),
-        logoBytes: _pickedLogoBytes,
       );
     }
   }

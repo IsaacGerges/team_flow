@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer' as developer;
-import 'dart:typed_data';
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -77,7 +77,7 @@ class TeamsCubit extends Cubit<TeamsState> {
   // Mutations
   // ----------------------------------------------------------
 
-  Future<void> createTeam(TeamEntity team, {Uint8List? logoBytes}) async {
+  Future<void> createTeam(TeamEntity team) async {
     if (_isCreatingTeam) return;
     _isCreatingTeam = true;
     emit(const TeamCreateSubmitting());
@@ -91,7 +91,6 @@ class TeamsCubit extends Cubit<TeamsState> {
             _runPostCreateTasks(
               teamId: teamId,
               team: team,
-              logoBytes: logoBytes,
             ),
           );
         },
@@ -103,9 +102,8 @@ class TeamsCubit extends Cubit<TeamsState> {
 
   Future<void> updateTeam(
     String teamId,
-    TeamEntity team, {
-    Uint8List? logoBytes,
-  }) async {
+    TeamEntity team,
+  ) async {
     emit(const TeamsLoading());
     final result = await updateTeamUseCase(teamId, team);
     result.fold((failure) => emit(TeamsError(_mapFailureToMessage(failure))), (
@@ -113,9 +111,6 @@ class TeamsCubit extends Cubit<TeamsState> {
     ) {
       emit(const TeamUpdatedSuccess());
       _refreshTeams();
-      if (logoBytes != null) {
-        unawaited(_uploadAndPersistTeamLogo(teamId, logoBytes));
-      }
     });
   }
 
@@ -198,7 +193,8 @@ class TeamsCubit extends Cubit<TeamsState> {
       if (pickedFile != null) {
         final File file = File(pickedFile.path);
         final bytes = await file.readAsBytes();
-        emit(TeamLogoPicked(bytes));
+        final base64String = base64Encode(bytes);
+        emit(TeamLogoPicked(base64String));
       }
     } catch (e) {
       emit(TeamsError('Failed to pick logo: ${e.toString()}'));
@@ -230,7 +226,6 @@ class TeamsCubit extends Cubit<TeamsState> {
   Future<void> _runPostCreateTasks({
     required String teamId,
     required TeamEntity team,
-    Uint8List? logoBytes,
   }) async {
     await Future<void>.delayed(Duration.zero);
     _refreshTeams();
@@ -256,31 +251,6 @@ class TeamsCubit extends Cubit<TeamsState> {
         );
       }),
     );
-
-    if (logoBytes != null) {
-      await _uploadAndPersistTeamLogo(teamId, logoBytes);
-    }
-  }
-
-  Future<void> _uploadAndPersistTeamLogo(
-    String teamId,
-    Uint8List logoBytes,
-  ) async {
-    final uploadResult = await uploadTeamLogoUseCase(teamId, logoBytes);
-    await uploadResult.fold((failure) async {
-      developer.log(
-        'Failed to upload team logo: ${_mapFailureToMessage(failure)}',
-        name: 'TeamsCubit',
-      );
-    }, (photoUrl) async {
-      final updateResult = await updateTeamPhotoUseCase(teamId, photoUrl);
-      updateResult.fold((failure) {
-        developer.log(
-          'Failed to persist team logo URL: ${_mapFailureToMessage(failure)}',
-          name: 'TeamsCubit',
-        );
-      }, (_) {});
-    });
   }
 
   @override

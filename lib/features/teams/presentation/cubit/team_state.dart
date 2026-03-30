@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'dart:typed_data';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 
 /// Base state class for the Teams feature.
@@ -62,12 +61,12 @@ class TeamMemberRemovedSuccess extends TeamsState {
 
 /// Emitted when a team logo is picked from gallery but not yet saved.
 class TeamLogoPicked extends TeamsState {
-  final Uint8List imageBytes;
+  final String base64Image;
 
-  const TeamLogoPicked(this.imageBytes);
+  const TeamLogoPicked(this.base64Image);
 
   @override
-  List<Object> get props => [imageBytes];
+  List<Object> get props => [base64Image];
 }
 
 /// Emitted when a teams operation fails.
