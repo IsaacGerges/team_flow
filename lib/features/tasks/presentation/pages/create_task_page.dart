@@ -43,6 +43,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   bool _isRecurring = false;
 
   bool get _isEditingDraft => widget.args?.draftTask != null;
+  bool get _isEditingActiveTask => widget.args?.activeTaskToEdit != null;
 
   @override
   void initState() {
@@ -59,19 +60,19 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
 
   /// Pre-fills all form fields from a draft or pre-selects a team.
   void _prefillFromArgs() {
-    final draft = widget.args?.draftTask;
-    if (draft != null) {
-      _titleController.text = draft.title;
-      _descriptionController.text = draft.description;
-      _assigneeIds = List<String>.from(draft.assigneeIds);
-      _priority = draft.priority;
-      _startDate = draft.startDate;
-      _dueDate = draft.dueDate;
-      _isRecurring = draft.isRecurring;
+    final taskToEdit = widget.args?.draftTask ?? widget.args?.activeTaskToEdit;
+    if (taskToEdit != null) {
+      _titleController.text = taskToEdit.title;
+      _descriptionController.text = taskToEdit.description;
+      _assigneeIds = List<String>.from(taskToEdit.assigneeIds);
+      _priority = taskToEdit.priority;
+      _startDate = taskToEdit.startDate;
+      _dueDate = taskToEdit.dueDate;
+      _isRecurring = taskToEdit.isRecurring;
 
       final teamsState = context.read<TeamsCubit>().state;
       if (teamsState is TeamsLoaded) {
-        _selectedTeam = teamsState.teams.where((t) => t.id == draft.teamId).firstOrNull;
+        _selectedTeam = teamsState.teams.where((t) => t.id == taskToEdit.teamId).firstOrNull;
       }
       setState(() {});
       return;
@@ -124,7 +125,11 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           ),
           leadingWidth: 80,
           title: Text(
-            _isEditingDraft ? AppStrings.editDraft : AppStrings.newTask,
+            _isEditingActiveTask
+                ? AppStrings.editTask
+                : _isEditingDraft
+                    ? AppStrings.editDraft
+                    : AppStrings.newTask,
             style: const TextStyle(
               color: AppColors.slate800,
               fontWeight: FontWeight.w900,
@@ -350,70 +355,95 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 ],
               ),
               const SizedBox(height: 48),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: _isEditingDraft
-                          ? _saveDraftChanges
-                          : () => _createOrSaveDraft(isDraft: true),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: const BorderSide(color: AppColors.slate200),
-                        ),
+              if (_isEditingActiveTask)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saveActiveTaskChanges,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryBlue,
+                      foregroundColor: AppColors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Text(
-                        _isEditingDraft
-                            ? AppStrings.saveDraftChanges
-                            : AppStrings.saveDraft,
-                        style: const TextStyle(
-                          color: AppColors.slate800,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
+                      elevation: 8,
+                      shadowColor: AppColors.primaryBlue.withValues(alpha: 0.3),
+                    ),
+                    child: const Text(
+                      AppStrings.saveChanges,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isEditingDraft
-                          ? _publishDraft
-                          : () => _createOrSaveDraft(isDraft: false),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryBlue,
-                        foregroundColor: AppColors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 8,
-                        shadowColor: AppColors.primaryBlue.withValues(
-                          alpha: 0.3,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.check, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            _isEditingDraft
-                                ? AppStrings.publishTask
-                                : AppStrings.createTask,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 16,
-                            ),
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: _isEditingDraft
+                            ? _saveDraftChanges
+                            : () => _createOrSaveDraft(isDraft: true),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: const BorderSide(color: AppColors.slate200),
                           ),
-                        ],
+                        ),
+                        child: Text(
+                          _isEditingDraft
+                              ? AppStrings.saveDraftChanges
+                              : AppStrings.saveDraft,
+                          style: const TextStyle(
+                            color: AppColors.slate800,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isEditingDraft
+                            ? _publishDraft
+                            : () => _createOrSaveDraft(isDraft: false),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryBlue,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 8,
+                          shadowColor: AppColors.primaryBlue.withValues(
+                            alpha: 0.3,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.check, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              _isEditingDraft
+                                  ? AppStrings.publishTask
+                                  : AppStrings.createTask,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               const SizedBox(height: 40),
             ],
           ),
@@ -635,6 +665,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     required bool isDraft,
     String id = '',
     DateTime? createdAt,
+    TaskStatus? status,
   }) {
     final finalAssignees = List<String>.from(_assigneeIds);
     if (!finalAssignees.contains(userId)) finalAssignees.add(userId);
@@ -647,7 +678,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
       assigneeIds: finalAssignees,
       creatorId: userId,
       priority: _priority,
-      status: TaskStatus.todo,
+      status: status ?? TaskStatus.todo,
       startDate: _startDate,
       dueDate: _dueDate,
       isRecurring: _isRecurring,
@@ -723,6 +754,32 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(AppStrings.taskPublished),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
+  /// Edit Active Task mode: saves the active task changes and fires notifications.
+  void _saveActiveTaskChanges() async {
+    if (!_validate()) return;
+    final activeTask = widget.args!.activeTaskToEdit!;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
+    final updatedTask = _buildTaskEntity(
+      userId: userId,
+      isDraft: false,
+      id: activeTask.id,
+      createdAt: activeTask.createdAt,
+      status: activeTask.status,
+    );
+    final success = await context
+        .read<TasksCubit>()
+        .updateActiveTaskAndNotify(activeTask.id, updatedTask, updaterId: userId);
+    if (success && mounted) {
+      context.pop(updatedTask);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(AppStrings.changesSaved),
           backgroundColor: AppColors.success,
         ),
       );

@@ -13,6 +13,7 @@ import 'package:team_flow/features/profile/presentation/cubit/profile_state.dart
 import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
 import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/tasks/presentation/create_task_page_args.dart';
 import 'package:team_flow/features/tasks/presentation/widgets/task_status_badge.dart';
 
 class TaskDetailsPage extends StatefulWidget {
@@ -959,13 +960,17 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     );
   }
 
-  void _editTask() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(AppStrings.editTaskComingSoon),
-        behavior: SnackBarBehavior.floating,
-      ),
+  Future<void> _editTask() async {
+    final updatedTask = await context.push(
+      '/tasks/create',
+      extra: CreateTaskPageArgs(activeTaskToEdit: _currentTask),
     );
+
+    if (updatedTask != null && updatedTask is TaskEntity && mounted) {
+      setState(() {
+        _currentTask = updatedTask;
+      });
+    }
   }
 
   void _confirmDeleteTask() {
