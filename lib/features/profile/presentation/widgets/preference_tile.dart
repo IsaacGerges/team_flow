@@ -1,3 +1,4 @@
+import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class PreferenceTile extends StatelessWidget {
@@ -42,7 +43,7 @@ class PreferenceTile extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.slate800,
                   ),
                 ),
                 if (subtitle != null) ...[
@@ -51,7 +52,7 @@ class PreferenceTile extends StatelessWidget {
                     subtitle!,
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF64748B),
+                      color: AppColors.slate500,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

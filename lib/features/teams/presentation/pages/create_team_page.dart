@@ -1,6 +1,7 @@
 import 'dart:typed_data';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/injection_container.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
@@ -538,7 +539,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       ),
                       SizedBox(width: 12),
                       Text(
-                        'Creating...',
+                        AppStrings.creating,
                         style: TextStyle(
                             fontWeight: FontWeight.w900, fontSize: 16),
                       ),
@@ -556,18 +557,16 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
 
   void _submitForm(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        // Generate a stable submission ID if we don't have one yet
+      final userId = sl<GetCurrentUserIdUseCase>()();
+      if (userId != null) {
         _submissionId ??= const Uuid().v4();
-
         context.read<TeamsCubit>().createTeam(
               TeamEntity(
                 id: _submissionId!,
                 name: _nameController.text.trim(),
                 description: _descriptionController.text.trim(),
-                adminId: user.uid,
-                membersIds: [user.uid],
+                adminId: userId,
+                membersIds: [userId],
                 category: _selectedCategory,
                 isPrivate: _isPrivate,
                 photoUrl: null,

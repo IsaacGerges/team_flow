@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/injection_container.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -9,11 +10,11 @@ import '../../../teams/domain/entities/team_entity.dart';
 import '../../../teams/presentation/cubit/team_cubit.dart';
 import '../../../teams/presentation/cubit/team_state.dart';
 import '../../domain/entities/task_entity.dart';
-import '../cubit/task_cubit.dart';
-import '../cubit/task_state.dart';
-import '../create_task_page_args.dart';
-import '../widgets/assignee_chip_row.dart';
-import '../widgets/priority_selector.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/tasks/presentation/create_task_page_args.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/assignee_chip_row.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/priority_selector.dart';
 
 /// A form page for creating a new task or editing/publishing an existing draft.
 ///
@@ -49,7 +50,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final teamsState = context.read<TeamsCubit>().state;
       if (teamsState is! TeamsLoaded) {
-        final userId = FirebaseAuth.instance.currentUser!.uid;
+        final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
         context.read<TeamsCubit>().getTeams(userId);
       }
       _prefillFromArgs();
@@ -91,7 +92,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final currentUserId = sl<GetCurrentUserIdUseCase>()();
 
     return BlocListener<TasksCubit, TasksState>(
       listener: (context, state) {
@@ -178,7 +179,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     color: AppColors.slate800,
                   ),
                   decoration: const InputDecoration(
-                    hintText: 'Add a description...',
+                    hintText: AppStrings.addDescription,
                     border: InputBorder.none,
                     hintStyle: TextStyle(
                       color: AppColors.slate400,
@@ -188,7 +189,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('PROJECT / TEAM'),
+              _buildSectionTitle(AppStrings.projectTeamLabel),
               BlocBuilder<TeamsCubit, TeamsState>(
                 builder: (context, state) {
                   final teams = state is TeamsLoaded
@@ -243,8 +244,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                                 Text(
                                   _selectedTeam?.name ??
                                       (adminTeams.isEmpty
-                                          ? 'No admin team available'
-                                          : 'Select Project...'),
+                                          ? AppStrings.noAdminTeamAvailable
+                                          : AppStrings.selectProject),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 15,
@@ -284,14 +285,14 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 },
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('ASSIGN TO'),
+              _buildSectionTitle(AppStrings.assignToLabel),
               AssigneeChipRow(
                 assigneeIds: _assigneeIds,
                 onAddTap: _openAssignmentPage,
                 onRemoveTag: (uid) => setState(() => _assigneeIds.remove(uid)),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('PRIORITY'),
+              _buildSectionTitle(AppStrings.priorityLabel),
               PrioritySelector(
                 selectedPriority: _priority,
                 onPriorityChanged: (p) => setState(() => _priority = p),
@@ -306,7 +307,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 child: Column(
                   children: [
                     _buildDateRow(
-                      'Start Date',
+                      AppStrings.startDate,
                       _startDate,
                       Icons.calendar_today_rounded,
                       AppColors.primaryBlue,
@@ -331,7 +332,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Recurring Task',
+                    AppStrings.recurringTask,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -366,7 +367,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       child: Text(
                         _isEditingDraft
                             ? AppStrings.saveDraftChanges
-                            : 'Save Draft',
+                            : AppStrings.saveDraft,
                         style: const TextStyle(
                           color: AppColors.slate800,
                           fontWeight: FontWeight.w700,
@@ -477,7 +478,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           Text(
             date != null
                 ? DateFormat('MMM dd, hh:mm a').format(date)
-                : 'Set date',
+                : AppStrings.setDate,
             style: TextStyle(
               color: date != null ? AppColors.slate800 : AppColors.slate400,
               fontWeight: FontWeight.w700,
@@ -513,7 +514,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
             const Padding(
               padding: EdgeInsets.all(20),
               child: Text(
-                'Select Team',
+                AppStrings.selectTeam,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -590,7 +591,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   void _openAssignmentPage() async {
     if (_selectedTeam == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a team first')),
+        const SnackBar(content: Text(AppStrings.pleaseSelectTeamFirst)),
       );
       return;
     }
@@ -608,16 +609,16 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     if (_titleController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter a title')));
+      ).showSnackBar(const SnackBar(content: Text(AppStrings.pleaseEnterTitle)));
       return false;
     }
     if (_selectedTeam == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a team')));
+      ).showSnackBar(const SnackBar(content: Text(AppStrings.pleaseSelectTeam)));
       return false;
     }
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
     if (_selectedTeam!.adminId != userId) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -659,7 +660,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   /// Used in new-task mode: creates a brand-new doc (draft or published).
   void _createOrSaveDraft({required bool isDraft}) async {
     if (!_validate()) return;
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
     final task = _buildTaskEntity(userId: userId, isDraft: isDraft);
     final taskId = await context.read<TasksCubit>().createTask(task);
     if (taskId != null && mounted) {
@@ -681,7 +682,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   void _saveDraftChanges() async {
     if (!_validate()) return;
     final draft = widget.args!.draftTask!;
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
     final updatedDraft = _buildTaskEntity(
       userId: userId,
       isDraft: true,
@@ -707,7 +708,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   void _publishDraft() async {
     if (!_validate()) return;
     final draft = widget.args!.draftTask!;
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
     final publishedTask = _buildTaskEntity(
       userId: userId,
       isDraft: false,

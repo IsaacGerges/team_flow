@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/helpers/cache_helper.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../injection_container.dart';
 import '../widgets/splash_gradient_background.dart';
 import '../widgets/splash_logo.dart';
@@ -134,7 +135,7 @@ class _SplashPageState extends State<SplashPage>
                 AppStrings.splashTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.white,
                   fontSize: 30,
                   fontWeight: FontWeight.w900,
                   letterSpacing: .1,

@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/injection_container.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
@@ -29,7 +30,7 @@ class _TeamsListPageState extends State<TeamsListPage> {
   @override
   void initState() {
     super.initState();
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
     context.read<TeamsCubit>().getTeams(userId);
   }
 
@@ -240,7 +241,7 @@ class _TeamsListPageState extends State<TeamsListPage> {
                   Wrap(
                     spacing: 12,
                     children: [
-                      _buildFilterChip(null, 'All', setSheetState),
+                      _buildFilterChip(null, AppStrings.all, setSheetState),
                       ...categories.map(
                         (cat) => _buildFilterChip(cat, cat, setSheetState),
                       ),
@@ -280,7 +281,7 @@ class _TeamsListPageState extends State<TeamsListPage> {
   }
 
   Widget _buildTeamsList(List<TeamEntity> teams) {
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final currentUserId = sl<GetCurrentUserIdUseCase>()() ?? '';
 
     final filteredTeams = teams.where((team) {
       final matchesSearch = team.name.toLowerCase().contains(

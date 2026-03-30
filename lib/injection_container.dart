@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:team_flow/features/onboarding/domain/usecases/save_onboarding_status_usecase.dart';
 import 'package:team_flow/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:team_flow/core/network/network_info.dart';
@@ -64,6 +65,7 @@ Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => CacheHelper(sharedPreferences: sl()));
+  sl.registerLazySingleton(() => const GetCurrentUserIdUseCase());
 
   sl.registerLazySingleton(() => InternetConnectionChecker.createInstance());
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));

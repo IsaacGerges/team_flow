@@ -1,3 +1,4 @@
+import 'package:team_flow/core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
 import 'package:flutter/material.dart';
 
@@ -81,7 +82,7 @@ class _SplashLogoState extends State<SplashLogo>
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) => Icon(
             Icons.image_not_supported_outlined,
-            color: widget.iconColor ?? Colors.white,
+            color: widget.iconColor ?? AppColors.white,
             size: 40,
           ),
         ),

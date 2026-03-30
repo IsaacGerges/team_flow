@@ -1,8 +1,8 @@
+import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/helpers/image_helper.dart';
+import 'package:team_flow/core/helpers/image_helper.dart';
 import '../../../profile/presentation/cubit/profile_cubit.dart';
 import '../../../profile/presentation/cubit/profile_state.dart';
 import '../../../teams/presentation/cubit/team_cubit.dart';

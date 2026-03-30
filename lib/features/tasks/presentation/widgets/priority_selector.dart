@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
 import '../../domain/entities/task_entity.dart';
 
 /// A horizontal priority selector widget with colored dot indicators.
@@ -69,9 +70,9 @@ class PrioritySelector extends StatelessWidget {
 
   (String, Color) _getPriorityData(TaskPriority priority) {
     return switch (priority) {
-      TaskPriority.high => ('High', AppColors.priorityHigh),
-      TaskPriority.medium => ('Medium', AppColors.priorityMedium),
-      TaskPriority.low => ('Low', AppColors.priorityLow),
+      TaskPriority.high => (AppStrings.high, AppColors.priorityHigh),
+      TaskPriority.medium => (AppStrings.medium, AppColors.priorityMedium),
+      TaskPriority.low => (AppStrings.low, AppColors.priorityLow),
     };
   }
 }

@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
@@ -11,7 +11,6 @@ import 'package:team_flow/features/home/presentation/widgets/greeting_header.dar
 import 'package:team_flow/features/home/presentation/widgets/home_stats_section.dart';
 import 'package:team_flow/features/home/presentation/widgets/my_teams_section.dart';
 import 'package:team_flow/features/home/presentation/widgets/recent_tasks_section.dart';
-import 'package:team_flow/core/helpers/cache_helper.dart';
 import 'package:team_flow/injection_container.dart';
 
 /// Main dashboard screen with greeting, stats, teams, and tasks.
@@ -36,9 +35,7 @@ class _HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<_HomeContent> {
   void _loadDataForCurrentUser() {
-    final userId =
-        FirebaseAuth.instance.currentUser?.uid ??
-        sl<CacheHelper>().getData(key: CacheKeys.userId) as String?;
+    final userId = sl<GetCurrentUserIdUseCase>()();
     if (userId == null) return;
     context.read<ProfileCubit>().getProfile(userId);
     context.read<NotificationsCubit>().loadNotifications(userId);
@@ -46,10 +43,7 @@ class _HomeContentState extends State<_HomeContent> {
     final teamsState = context.read<TeamsCubit>().state;
     if (teamsState is TeamsLoaded) {
       final teamIds = teamsState.teams.map((t) => t.id).toList();
-      context.read<TasksCubit>().loadTasksForTeams(
-        teamIds,
-        viewerId: userId,
-      );
+      context.read<TasksCubit>().loadTasksForTeams(teamIds, viewerId: userId);
     } else {
       context.read<TeamsCubit>().getTeams(userId);
     }
@@ -69,8 +63,8 @@ class _HomeContentState extends State<_HomeContent> {
       listener: (context, state) {
         if (state is TeamsLoaded) {
           final userId =
-              FirebaseAuth.instance.currentUser?.uid ??
-              sl<CacheHelper>().getData(key: CacheKeys.userId) as String?;
+              sl<GetCurrentUserIdUseCase>()() ??
+              sl<GetCurrentUserIdUseCase>()();
           if (userId == null) return;
           final teamIds = state.teams.map((t) => t.id).toList();
           context.read<TasksCubit>().loadTasksForTeams(

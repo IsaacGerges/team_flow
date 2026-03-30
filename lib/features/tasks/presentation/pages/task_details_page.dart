@@ -1,18 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/injection_container.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/helpers/image_helper.dart';
-import '../../../profile/presentation/cubit/profile_cubit.dart';
-import '../../../profile/presentation/cubit/profile_state.dart';
-import '../../domain/entities/task_entity.dart';
-import '../cubit/task_cubit.dart';
-import '../cubit/task_state.dart';
-import '../widgets/task_status_badge.dart';
-import '../../../../injection_container.dart';
+import 'package:team_flow/core/constants/app_colors.dart';
+import 'package:team_flow/core/constants/app_strings.dart';
+import 'package:team_flow/core/helpers/image_helper.dart';
+import 'package:team_flow/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:team_flow/features/profile/presentation/cubit/profile_state.dart';
+import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/task_status_badge.dart';
 
 class TaskDetailsPage extends StatefulWidget {
   final TaskEntity task;
@@ -28,7 +29,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   bool _isDirty = false;
   bool _isSaving = false;
 
-  String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? '';
+  String get _currentUserId => sl<GetCurrentUserIdUseCase>()() ?? '';
   bool get _isAdmin => _currentUserId == _currentTask.creatorId;
 
   @override
@@ -131,7 +132,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               : TextButton(
                   onPressed: _saveChanges,
                   child: const Text(
-                    'Save',
+                    AppStrings.save,
                     style: TextStyle(
                       color: AppColors.primaryBlue,
                       fontWeight: FontWeight.w800,
@@ -256,7 +257,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Task Progress',
+                      AppStrings.taskProgress,
                       style: TextStyle(
                         color: AppColors.slate800,
                         fontWeight: FontWeight.w700,
@@ -265,7 +266,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'On track for delivery',
+                      AppStrings.onTrackForDelivery,
                       style: TextStyle(
                         color: AppColors.slate500,
                         fontSize: 13,
@@ -405,7 +406,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'DESCRIPTION',
+          AppStrings.description,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -424,7 +425,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
           ),
           child: Text(
             _currentTask.description.isEmpty
-                ? 'No description provided.'
+                ? AppStrings.noDescriptionProvided
                 : _currentTask.description,
             style: const TextStyle(
               fontSize: 14,
@@ -443,7 +444,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       children: [
         Expanded(
           child: _buildInfoCard(
-            'Assignee',
+            AppStrings.assignee,
             _currentTask.assigneeIds.isNotEmpty
                 ? _currentTask.assigneeIds.first
                 : null,
@@ -465,7 +466,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       ),
       child: Row(
         children: [
-          if (label == 'Assignee')
+          if (label == AppStrings.assignee)
             _buildAssigneeContent(value as String?)
           else
             _buildDateContent(value as DateTime?),
@@ -484,7 +485,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                if (label == 'Assignee')
+                if (label == AppStrings.assignee)
                   _buildAssigneeName(value as String?)
                 else
                   _buildDateText(value as DateTime?),
@@ -558,7 +559,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   Widget _buildAssigneeName(String? uid) {
     if (uid == null) {
       return const Text(
-        'Not assigned',
+        AppStrings.notAssigned,
         style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 13,
@@ -603,7 +604,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   Widget _buildDateText(DateTime? date) {
     if (date == null) {
       return const Text(
-        'Not set',
+        AppStrings.notSet,
         style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 13,
@@ -626,7 +627,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text(
-          'ACTIVITY',
+          AppStrings.activitySection,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -641,7 +642,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Text(
-            'New',
+            AppStrings.activityBadgeNew,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -687,7 +688,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'No comments yet.',
+                  AppStrings.noCommentsYet,
                   style: TextStyle(
                     color: AppColors.slate400,
                     fontWeight: FontWeight.w600,
@@ -741,7 +742,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     fontWeight: FontWeight.w400,
                   ),
                   decoration: const InputDecoration(
-                    hintText: 'Add a comment...',
+                    hintText: AppStrings.addComment,
                     border: InputBorder.none,
                     hintStyle: TextStyle(
                       fontSize: 14,
@@ -805,7 +806,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Update Status',
+                AppStrings.updateStatus,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
@@ -870,7 +871,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Changes saved successfully'),
+          content: Text(AppStrings.changesSaved),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -926,7 +927,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   color: AppColors.primaryBlue,
                 ),
                 title: const Text(
-                  'Edit Task',
+                  AppStrings.editTask,
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 onTap: () {
@@ -940,7 +941,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   color: AppColors.red500,
                 ),
                 title: const Text(
-                  'Delete Task',
+                  AppStrings.deleteTask,
                   style: TextStyle(
                     color: AppColors.red500,
                     fontWeight: FontWeight.w700,
@@ -961,7 +962,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   void _editTask() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Edit task coming soon'),
+        content: Text(AppStrings.editTaskComingSoon),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -973,10 +974,10 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       builder: (dialogCtx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text(
-          'Delete Task',
+          AppStrings.deleteTask,
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
-        content: const Text('Are you sure? This action cannot be undone.'),
+        content: const Text(AppStrings.deleteTaskConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
@@ -1009,7 +1010,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       context.pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Task deleted'),
+          content: Text(AppStrings.taskDeleted),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -1019,9 +1020,9 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
 
   (String, Color) _getPriorityData() {
     return switch (_currentTask.priority) {
-      TaskPriority.high => ('High Priority', AppColors.red500),
-      TaskPriority.medium => ('Medium Priority', AppColors.notificationAmber),
-      TaskPriority.low => ('Low Priority', AppColors.onlineStatus),
+      TaskPriority.high => (AppStrings.highPriority, AppColors.red500),
+      TaskPriority.medium => (AppStrings.mediumPriority, AppColors.notificationAmber),
+      TaskPriority.low => (AppStrings.lowPriority, AppColors.onlineStatus),
     };
   }
 
@@ -1110,7 +1111,7 @@ class _CommentTile extends StatelessWidget {
 
   String _formatTime(DateTime dt) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 1) return AppStrings.justNow;
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     return DateFormat('MMM dd').format(dt);

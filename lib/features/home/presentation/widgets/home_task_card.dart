@@ -180,7 +180,7 @@ class HomeTaskCard extends StatelessWidget {
     final checkDate = DateTime(date.year, date.month, date.day);
     if (checkDate == today) return AppStrings.today;
     if (checkDate == tomorrow) {
-      return 'Tomorrow';
+      return AppStrings.tomorrow;
     }
     return DateFormat('MMM d').format(date);
   }

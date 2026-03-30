@@ -326,7 +326,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       children: [
         const SizedBox(height: 24),
         const Text(
-          'SKILLS',
+          AppStrings.skillsSection,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w900,

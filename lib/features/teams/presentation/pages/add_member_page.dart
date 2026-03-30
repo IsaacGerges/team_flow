@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
@@ -7,7 +8,6 @@ import 'package:team_flow/features/profile/domain/entities/profile_entity.dart';
 import 'package:team_flow/features/teams/domain/entities/team_entity.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/team_state.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:team_flow/core/helpers/image_helper.dart';
 import 'package:team_flow/features/teams/presentation/cubit/add_member_cubit.dart';
 import 'package:team_flow/features/teams/presentation/cubit/add_member_state.dart';
@@ -41,7 +41,7 @@ class _AddMemberPageState extends State<AddMemberPage> {
     return BlocProvider<AddMemberCubit>(
       create: (context) =>
           sl<AddMemberCubit>()
-            ..init(FirebaseAuth.instance.currentUser?.uid ?? '', widget.team),
+            ..init(sl<GetCurrentUserIdUseCase>()() ?? '', widget.team),
       child: Builder(
         builder: (context) {
           return Scaffold(
@@ -73,7 +73,7 @@ class _AddMemberPageState extends State<AddMemberPage> {
                 if (state is TeamMemberAddedSuccess) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Members added successfully'),
+                      content: Text(AppStrings.memberAdded),
                       backgroundColor: AppColors.success,
                       behavior: SnackBarBehavior.floating,
                     ),

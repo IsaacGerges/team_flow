@@ -59,8 +59,8 @@ class _HomeStatsSectionState extends State<HomeStatsSection> {
               _buildStatCard(
                 label: AppStrings.completed,
                 count: completed.toString(),
-                textColor: AppColors.green700,
-                labelColor: AppColors.green800,
+                textColor: AppColors.success,
+                labelColor: AppColors.success,
                 bgColor: AppColors.greenBg,
                 borderColor: AppColors.greenBorder,
               ),

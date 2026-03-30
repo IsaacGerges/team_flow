@@ -1,3 +1,4 @@
+import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class SplashSpinner extends StatefulWidget {
@@ -35,7 +36,7 @@ class _SplashSpinnerState extends State<SplashSpinner>
         height: 45,
         child: CircularProgressIndicator(
           strokeWidth: 3,
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.white),
           backgroundColor: Colors.white.withValues(alpha: 0.3),
         ),
       ),

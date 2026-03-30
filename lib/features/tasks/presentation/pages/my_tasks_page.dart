@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/injection_container.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -7,11 +8,11 @@ import 'package:team_flow/core/constants/app_colors.dart';
 import 'package:team_flow/core/constants/app_strings.dart';
 import 'package:team_flow/features/tasks/domain/entities/task_entity.dart';
 import 'package:team_flow/core/helpers/progress_helper.dart';
-import '../cubit/task_cubit.dart';
-import '../cubit/task_state.dart';
-import '../create_task_page_args.dart';
-import '../widgets/task_card.dart';
-import '../widgets/velocity_stat_card.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_cubit.dart';
+import 'package:team_flow/features/tasks/presentation/cubit/task_state.dart';
+import 'package:team_flow/features/tasks/presentation/create_task_page_args.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/task_card.dart';
+import 'package:team_flow/features/tasks/presentation/widgets/velocity_stat_card.dart';
 import '../../../teams/presentation/cubit/team_cubit.dart';
 import '../../../teams/presentation/cubit/team_state.dart';
 
@@ -28,7 +29,7 @@ class _MyTasksPageState extends State<MyTasksPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final List<String> _tabs = [
-    'All Tasks',
+    AppStrings.allTasks,
     'To Do',
     'In Progress',
     'Review',
@@ -55,7 +56,7 @@ class _MyTasksPageState extends State<MyTasksPage>
 
   void _syncTasksFromTeams() {
     if (!mounted) return;
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
     final teamsState = context.read<TeamsCubit>().state;
     if (teamsState is TeamsLoaded) {
       final teamIds = teamsState.teams.map((t) => t.id).toList();
@@ -87,7 +88,7 @@ class _MyTasksPageState extends State<MyTasksPage>
   @override
   Widget build(BuildContext context) {
     final teamsState = context.watch<TeamsCubit>().state;
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final currentUserId = sl<GetCurrentUserIdUseCase>()();
     final canCreateTask = teamsState is TeamsLoaded &&
         currentUserId != null &&
         teamsState.teams.any((team) => team.adminId == currentUserId);
@@ -104,7 +105,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                 controller: _searchController,
                 autofocus: true,
                 decoration: const InputDecoration(
-                  hintText: 'Search tasks...',
+                  hintText: AppStrings.searchTasks,
                   border: InputBorder.none,
                 ),
                 onChanged: (val) {
@@ -238,7 +239,7 @@ class _MyTasksPageState extends State<MyTasksPage>
       body: BlocListener<TeamsCubit, TeamsState>(
         listener: (context, state) {
           if (state is TeamsLoaded) {
-            final userId = FirebaseAuth.instance.currentUser!.uid;
+            final userId = sl<GetCurrentUserIdUseCase>()() ?? '';
             final teamIds = state.teams.map((t) => t.id).toList();
             context.read<TasksCubit>().loadTasksForTeams(
               teamIds,
@@ -380,7 +381,7 @@ class _MyTasksPageState extends State<MyTasksPage>
 
     final Map<String, List<TaskEntity>> grouped = {};
     for (var task in tasks) {
-      String key = 'Other';
+      String key = AppStrings.other;
       if (task.dueDate != null) {
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
@@ -394,7 +395,7 @@ class _MyTasksPageState extends State<MyTasksPage>
         if (taskDate == today) {
           key = AppStrings.today;
         } else if (taskDate == tomorrow) {
-          key = 'Tomorrow';
+          key = AppStrings.tomorrow;
         } else {
           key = DateFormat('MMM d').format(task.dueDate!);
         }
@@ -436,7 +437,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                 ),
               ),
               const Spacer(),
-              if (key == AppStrings.today || key == 'Tomorrow')
+              if (key == AppStrings.today || key == AppStrings.tomorrow)
                 Text(
                   DateFormat('MMM d').format(grouped[key]!.first.dueDate!),
                   style: const TextStyle(
@@ -504,7 +505,7 @@ class _MyTasksPageState extends State<MyTasksPage>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'PENDING',
+                  AppStrings.pendingLabel,
                   style: TextStyle(
                     color: AppColors.slate500,
                     fontSize: 11,
@@ -528,7 +529,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                         ),
                         const SizedBox(width: 8),
                         const Text(
-                          'Tasks',
+                          AppStrings.tasksSuffix,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -570,7 +571,7 @@ class _MyTasksPageState extends State<MyTasksPage>
     Iterable<TaskEntity> filtered = tasks;
 
     final selectedTab = _tabs[_tabController.index];
-    if (selectedTab != 'All Tasks' && selectedTab != AppStrings.drafts) {
+    if (selectedTab != AppStrings.allTasks && selectedTab != AppStrings.drafts) {
       filtered = filtered.where(
         (t) =>
             t.status.name.toLowerCase() ==
@@ -608,7 +609,7 @@ class _MyTasksPageState extends State<MyTasksPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Filter by Priority',
+                    AppStrings.filterByPriority,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -619,18 +620,18 @@ class _MyTasksPageState extends State<MyTasksPage>
                   Wrap(
                     spacing: 12,
                     children: [
-                      _buildFilterChip(null, 'All', setSheetState),
+                      _buildFilterChip(null, AppStrings.all, setSheetState),
                       _buildFilterChip(
                         TaskPriority.high,
-                        'High',
+                        AppStrings.high,
                         setSheetState,
                       ),
                       _buildFilterChip(
                         TaskPriority.medium,
-                        'Medium',
+                        AppStrings.medium,
                         setSheetState,
                       ),
-                      _buildFilterChip(TaskPriority.low, 'Low', setSheetState),
+                      _buildFilterChip(TaskPriority.low, AppStrings.low, setSheetState),
                     ],
                   ),
                   const SizedBox(height: 32),
@@ -669,7 +670,7 @@ class _MyTasksPageState extends State<MyTasksPage>
   int _getCountForTab(String tab) {
     if (tab == AppStrings.drafts) return _lastDrafts?.length ?? 0;
     if (_lastPublished == null) return 0;
-    if (tab == 'All Tasks') return _lastPublished!.length;
+    if (tab == AppStrings.allTasks) return _lastPublished!.length;
     return _lastPublished!
         .where(
           (t) =>

@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:team_flow/core/constants/app_colors.dart';
@@ -65,7 +65,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage>
   }
 
   bool _isAdmin(TeamEntity team) =>
-      team.adminId == FirebaseAuth.instance.currentUser?.uid;
+      team.adminId == sl<GetCurrentUserIdUseCase>()();
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +122,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage>
                       }
                     },
                     backgroundColor: AppColors.primaryBlue,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.white,
                     shape: const CircleBorder(),
                     elevation: 8,
                     child: const Icon(Icons.add_rounded, size: 28),
@@ -224,7 +224,7 @@ class _HeroSection extends StatelessWidget {
                   Text(
                     team.name,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
@@ -240,7 +240,7 @@ class _HeroSection extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: Color(0xFFDBEAFE),
+                          color: AppColors.blueBorder,
                           fontSize: 14,
                           height: 1.5,
                           fontWeight: FontWeight.w500,
@@ -273,7 +273,7 @@ class _HeroSection extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: AppColors.slate200,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -292,12 +292,12 @@ class _HeroSection extends StatelessWidget {
             ListTile(
               leading: const Icon(
                 Icons.delete_outline_rounded,
-                color: Colors.red,
+                color: AppColors.error,
               ),
               title: const Text(
                 AppStrings.deleteTeam,
                 style: TextStyle(
-                  color: Colors.red,
+                  color: AppColors.error,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -436,7 +436,7 @@ class _StatsOverlay extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
@@ -567,7 +567,7 @@ class _SegmentedTabBar extends StatelessWidget {
                 onTap: () => tabController.animateTo(i),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : Colors.transparent,
+                    color: isSelected ? AppColors.white : AppColors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: isSelected
                         ? [
@@ -637,7 +637,7 @@ class _MembersTab extends StatelessWidget {
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -645,7 +645,7 @@ class _MembersTab extends StatelessWidget {
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
-                const BoxShadow(color: Color(0x08000000), spreadRadius: 1),
+                BoxShadow(color: AppColors.black.withValues(alpha: 0.03), spreadRadius: 1),
               ],
             ),
             child: _MemberRow(
@@ -660,7 +660,7 @@ class _MembersTab extends StatelessWidget {
             const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -668,7 +668,7 @@ class _MembersTab extends StatelessWidget {
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
-                  const BoxShadow(color: Color(0x08000000), spreadRadius: 1),
+                  BoxShadow(color: AppColors.black.withValues(alpha: 0.03), spreadRadius: 1),
                 ],
               ),
               child: Column(
@@ -771,7 +771,7 @@ class _InviteButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.transparent,
+          color: AppColors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Stack(
@@ -834,7 +834,7 @@ class _BlurIconButton extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 24),
+        icon: Icon(icon, color: AppColors.white, size: 24),
         onPressed: onPressed,
       ),
     );
@@ -910,7 +910,7 @@ class _MemberRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.taskDoneText,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: AppColors.white, width: 2),
                   ),
                 ),
               ),
@@ -1039,7 +1039,7 @@ class _TasksTab extends StatelessWidget {
                 onCheckboxChanged: (val) {
                   if (val != null &&
                       tasks[index].creatorId ==
-                          FirebaseAuth.instance.currentUser?.uid) {
+                          sl<GetCurrentUserIdUseCase>()()) {
                     context.read<TasksCubit>().updateTaskStatus(
                       tasks[index].id,
                       val ? TaskStatus.done : TaskStatus.todo,
@@ -1094,14 +1094,14 @@ class _TasksTab extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => context.push('/tasks/create', extra: team),
-              icon: const Icon(Icons.add_rounded, color: Colors.white),
+              icon: const Icon(Icons.add_rounded, color: AppColors.white),
               label: const Text(
                 AppStrings.createTask,
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 14,
