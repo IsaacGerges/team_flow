@@ -45,7 +45,7 @@ class TeamsRemoteDataSourceImpl implements TeamsRemoteDataSource {
           description: teamModel.description,
           adminId: teamModel.adminId,
           membersIds: teamModel.membersIds,
-          photoUrl: null,
+          photoUrl: teamModel.photoUrl,
           category: teamModel.category,
           isPrivate: teamModel.isPrivate,
           progressPercent: teamModel.progressPercent,

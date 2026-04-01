@@ -1,5 +1,5 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:team_flow/core/helpers/image_helper.dart';
 import 'package:team_flow/injection_container.dart';
 import 'package:team_flow/core/usecases/get_current_user_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +24,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
   final _descriptionController = TextEditingController();
   String _selectedCategory = AppStrings.teamCategories.first;
   bool _isPrivate = false;
-  Uint8List? _logoBytes;
+  String? _logoBase64;
   String? _submissionId;
 
   @override
@@ -102,7 +102,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
             context.pop();
           } else if (state is TeamLogoPicked) {
             setState(() {
-              _logoBytes = state.imageBytes;
+              _logoBase64 = state.base64Image;
               _submissionId = null;
             });
           } else if (state is TeamsError) {
@@ -178,10 +178,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                 child: CircleAvatar(
                   radius: 46,
                   backgroundColor: AppColors.lightGray.withValues(alpha: -0.8),
-                  child: _logoBytes != null
+                  child: _logoBase64 != null
                       ? ClipOval(
-                          child: Image.memory(
-                            _logoBytes!,
+                          child: Image(
+                            image: ImageHelper.getProvider(_logoBase64)!,
                             width: 92,
                             height: 92,
                             fit: BoxFit.cover,
@@ -569,9 +569,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                 membersIds: [userId],
                 category: _selectedCategory,
                 isPrivate: _isPrivate,
-                photoUrl: null,
+                photoUrl: _logoBase64,
               ),
-              logoBytes: _logoBytes,
             );
       }
     }

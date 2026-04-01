@@ -145,6 +145,22 @@ class TasksCubit extends Cubit<TasksState> {
     });
   }
 
+  /// Updates an active task directly and sends update notifications to members.
+  Future<bool> updateActiveTaskAndNotify(
+    String taskId,
+    TaskEntity updatedTask, {
+    required String updaterId,
+  }) async {
+    final result = await updateTaskUseCase(taskId, updatedTask);
+    return result.fold((failure) {
+      emit(TasksError(_mapFailureToMessage(failure)));
+      return false;
+    }, (_) {
+      _sendUpdateNotifications(taskId, updatedTask, updaterId);
+      return true;
+    });
+  }
+
   Future<bool> updateTaskStatus(
     String taskId,
     TaskStatus status,
@@ -231,7 +247,33 @@ class TasksCubit extends Cubit<TasksState> {
     ]);
   }
 
+  void _sendUpdateNotifications(
+    String taskId,
+    TaskEntity task,
+    String updaterId,
+  ) {
+    Future.wait(
+      task.assigneeIds.where((id) => id != updaterId).map(
+        (assigneeId) => createNotificationUseCase(
+          NotificationEntity(
+            id: '',
+            userId: assigneeId,
+            type: NotificationType.taskAlert,
+            title: 'Task Updated',
+            body: 'The task "${task.title}" has been updated.',
+            targetId: taskId,
+            targetName: task.title,
+            senderName: 'System',
+            isRead: false,
+            createdAt: DateTime.now(),
+          ),
+        ),
+      ),
+    );
+  }
+
   String _mapFailureToMessage(dynamic failure) => failure.toString();
+
 
   @override
   Future<void> close() {

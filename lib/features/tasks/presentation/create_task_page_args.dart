@@ -17,5 +17,13 @@ class CreateTaskPageArgs {
   /// "Save Draft Changes" / "Publish Task".
   final TaskEntity? draftTask;
 
-  const CreateTaskPageArgs({this.presetTeam, this.draftTask});
+  /// The existing active task to edit. When non-null, the page operates in
+  /// edit-active-task mode and its action button changes to "Save Changes".
+  final TaskEntity? activeTaskToEdit;
+
+  const CreateTaskPageArgs({
+    this.presetTeam,
+    this.draftTask,
+    this.activeTaskToEdit,
+  });
 }
