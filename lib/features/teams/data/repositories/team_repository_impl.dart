@@ -27,7 +27,7 @@ class TeamsRepositoryImpl implements TeamsRepository {
         description: team.description,
         adminId: team.adminId,
         membersIds: [team.adminId],
-        photoUrl: null,
+        photoUrl: teamModel.photoUrl,
         category: team.category,
         isPrivate: team.isPrivate,
         progressPercent: team.progressPercent,
